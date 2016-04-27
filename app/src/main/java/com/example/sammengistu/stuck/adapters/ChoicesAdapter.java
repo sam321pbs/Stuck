@@ -3,6 +3,7 @@ package com.example.sammengistu.stuck.adapters;
 import com.example.sammengistu.stuck.R;
 
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +21,7 @@ public class ChoicesAdapter extends RecyclerView.Adapter<ChoicesAdapter.ViewHold
     // Provide a suitable constructor (depends on the kind of dataset)
     public ChoicesAdapter(List<String> myDataset) {
         mStuckPostChoices = myDataset;
+        Log.i("Choice adapter", mStuckPostChoices.size() + "");
     }
 
     // Create new views (invoked by the layout manager)

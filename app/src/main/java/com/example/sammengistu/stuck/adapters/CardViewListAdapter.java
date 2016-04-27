@@ -1,12 +1,12 @@
 package com.example.sammengistu.stuck.adapters;
 
 import com.example.sammengistu.stuck.R;
+import com.example.sammengistu.stuck.StuckConstants;
 import com.example.sammengistu.stuck.model.StuckPost;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +24,12 @@ public class CardViewListAdapter extends RecyclerView.Adapter<CardViewListAdapte
     public CardViewListAdapter(List<StuckPost> myDataset, Activity activity, Class voteClass) {
         mActivity = activity;
         mVoteClass = voteClass;
+        mStuckPosts = myDataset;
+    }
+
+    public CardViewListAdapter(List<StuckPost> myDataset) {
+        mActivity = null;
+        mVoteClass = null;
         mStuckPosts = myDataset;
     }
 
@@ -59,14 +65,11 @@ public class CardViewListAdapter extends RecyclerView.Adapter<CardViewListAdapte
         holder.mChoice3 = mStuckPosts.get(position).getChoice3();
         holder.mChoice4 = mStuckPosts.get(position).getChoice4();
 
-
     }
 
     // Return the size of your dataset (invoked by the layout manager)
     @Override
     public int getItemCount() {
-
-        Log.i("Adapter", mStuckPosts.size() + "");
         return mStuckPosts.size();
     }
 
@@ -76,12 +79,7 @@ public class CardViewListAdapter extends RecyclerView.Adapter<CardViewListAdapte
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
         public static String TAG = "ViewHolder";
-        public static String QUESTION = "question";
-        public static String LOCATION = "location";
-        public static String CHOICE_1 = "choice 1";
-        public static String CHOICE_2 = "choice 2";
-        public static String CHOICE_3 = "choice 3";
-        public static String CHOICE_4 = "choice 4";
+
         // each data item is just a string in this case
         public TextView mStuckPostQuestion;
         public TextView mStuckPostLocation;
@@ -100,23 +98,25 @@ public class CardViewListAdapter extends RecyclerView.Adapter<CardViewListAdapte
             mStuckPostLocation = (TextView)v.findViewById(R.id.post_location);
             mStuckPostSneakPeakChoice = (TextView)v.findViewById(R.id.sneak_peak_choice_1);
 
-            v.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent StuckVoteIntent = new Intent(activity, classs);
+            if (activity != null){
+                v.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent StuckVoteIntent = new Intent(activity, classs);
 
-                    StuckVoteIntent.putExtra(LOCATION, mLocation);
-                    StuckVoteIntent.putExtra(QUESTION, mQuestion);
-                    StuckVoteIntent.putExtra(CHOICE_1, mChoice1);
-                    StuckVoteIntent.putExtra(CHOICE_2, mChoice2);
-                    StuckVoteIntent.putExtra(CHOICE_3, mChoice3);
-                    StuckVoteIntent.putExtra(CHOICE_4, mChoice4);
+                        StuckVoteIntent.putExtra(StuckConstants.LOCATION_VIEW_HOLDER, mLocation);
+                        StuckVoteIntent.putExtra(StuckConstants.QUESTION_VIEW_HOLDER, mQuestion);
+                        StuckVoteIntent.putExtra(StuckConstants.CHOICE_1_VIEW_HOLDER, mChoice1);
+                        StuckVoteIntent.putExtra(StuckConstants.CHOICE_2_VIEW_HOLDER, mChoice2);
+                        StuckVoteIntent.putExtra(StuckConstants.CHOICE_3_VIEW_HOLDER, mChoice3);
+                        StuckVoteIntent.putExtra(StuckConstants.CHOICE_4_VIEW_HOLDER, mChoice4);
 
-//                    activity.startActivity(StuckVoteIntent);
+                        activity.startActivity(StuckVoteIntent);
 
 
-                }
-            });
+                    }
+                });
+            }
         }
     }
 }
