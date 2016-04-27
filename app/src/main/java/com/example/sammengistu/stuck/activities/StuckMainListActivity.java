@@ -52,6 +52,9 @@ public class StuckMainListActivity extends AppCompatActivity {
             "Ethiopia",
             "Arlington, VA"));
 
+
+
+
         // specify an adapter (see also next example)
         mAdapter = new CardViewListAdapter(myDataset, this, StuckVoteActivity.class);
         mRecyclerViewQuestions.setAdapter(mAdapter);

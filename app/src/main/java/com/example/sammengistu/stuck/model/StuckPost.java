@@ -1,8 +1,11 @@
 package com.example.sammengistu.stuck.model;
 
 
+import java.util.UUID;
+
 public class StuckPost {
 
+    private UUID mUUID;
     private String mQuestion;
     private String mChoice1;
     private String mChoice2;
@@ -14,12 +17,18 @@ public class StuckPost {
     public StuckPost (String question, String choice1,
                        String choice2, String choice3, String choice4,
                       String stuckPostLocation){
+
+        mUUID = UUID.randomUUID();
         mQuestion = question;
         mChoice1 = choice1;
         mChoice2 = choice2;
         mChoice3 = choice3;
         mChoice4 = choice4;
         mStuckPostLocation = stuckPostLocation;
+    }
+
+    public UUID getUUID() {
+        return mUUID;
     }
 
     public String getQuestion() {
