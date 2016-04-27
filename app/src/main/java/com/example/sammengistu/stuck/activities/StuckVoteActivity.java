@@ -17,13 +17,8 @@ import java.util.List;
 
 public class StuckVoteActivity extends AppCompatActivity {
 
-    private RecyclerView mRecyclerViewSingleQuestion;
     private RecyclerView mRecyclerViewChoices;
-
-
-    private RecyclerView.Adapter mAdapterQuestions;
     private RecyclerView.Adapter mAdapterChoices;
-    private RecyclerView.LayoutManager mLayoutManagerQuestions;
     private RecyclerView.LayoutManager mLayoutManagerChoices;
     private StuckPost mStuckPost;
 
@@ -33,7 +28,6 @@ public class StuckVoteActivity extends AppCompatActivity {
         setContentView(R.layout.activity_stuck_vote);
 
         // use a linear layout manager
-        mLayoutManagerQuestions = new LinearLayoutManager(this);
         mLayoutManagerChoices = new LinearLayoutManager(this);
 
         mStuckPost = new StuckPost(
@@ -53,28 +47,8 @@ public class StuckVoteActivity extends AppCompatActivity {
         sneakPeakChoice.setText("");
         postLocation.setText(mStuckPost.getStuckPostLocation());
 
-//        setUpRecyclerViewQuestions();
         setUpRecyclerViewChoices();
-
     }
-
-//    private void setUpRecyclerViewQuestions() {
-//        mRecyclerViewSingleQuestion = (RecyclerView) findViewById(R.id.recycler_view_question_vote);
-//
-//
-//        mRecyclerViewSingleQuestion.setLayoutManager(mLayoutManagerQuestions);
-//
-//        // use this setting to improve performance if you know that changes
-//        // in content do not change the layout size of the RecyclerView
-//        mRecyclerViewSingleQuestion.setHasFixedSize(true);
-//
-//
-//        List<StuckPost> stuckPost = new ArrayList<>();
-//        stuckPost.add(mStuckPost);
-//
-//        mAdapterQuestions = new CardViewListAdapter(stuckPost);
-//        mRecyclerViewSingleQuestion.setAdapter(mAdapterQuestions);
-//    }
 
     private void setUpRecyclerViewChoices() {
         mRecyclerViewChoices = (RecyclerView) findViewById(R.id.recycler_view_choices_vote);
@@ -91,7 +65,6 @@ public class StuckVoteActivity extends AppCompatActivity {
         stuckPostChoices.add(mStuckPost.getChoice2());
         stuckPostChoices.add(mStuckPost.getChoice3());
         stuckPostChoices.add(mStuckPost.getChoice4());
-
 
         mAdapterChoices = new ChoicesAdapter(stuckPostChoices);
         mRecyclerViewChoices.setAdapter(mAdapterChoices);

@@ -20,7 +20,6 @@
         <TextView android:layout_width="match_parent"
                   android:layout_height="wrap_content"
                   android:id="@+id/sneak_peak_choice_1"
-                  android:layout_below="@+id/single_item_question"
                   android:text="Choice 1: Sam"
                   android:layout_marginTop="10dp"
                   android:layout_weight=".3"/>
@@ -28,10 +27,8 @@
         <TextView android:layout_width="match_parent"
                   android:layout_height="wrap_content"
                   android:id="@+id/post_location"
-                  android:layout_below="@+id/single_item_question"
                   android:text="College Park,  MD"
                   android:layout_marginTop="10dp"
-                  android:layout_toEndOf="@+id/sneak_peak_choice_1"
                   android:layout_weight=".7"/>
 
     </LinearLayout>

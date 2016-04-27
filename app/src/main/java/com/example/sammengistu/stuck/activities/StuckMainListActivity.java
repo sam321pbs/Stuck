@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +21,7 @@ public class StuckMainListActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.i("StuckMainList", "CardView break");
+
         setContentView(R.layout.activity_stuck_main_list);
 
         mRecyclerViewQuestions = (RecyclerView) findViewById(R.id.recycler_view_question_post);
@@ -52,9 +51,6 @@ public class StuckMainListActivity extends AppCompatActivity {
             "Canada",
             "Ethiopia",
             "Arlington, VA"));
-
-//        mAdapter = new MyAdapter(new String[]{"Zain", "Nadeem"});
-
 
         // specify an adapter (see also next example)
         mAdapter = new CardViewListAdapter(myDataset, this, StuckVoteActivity.class);
