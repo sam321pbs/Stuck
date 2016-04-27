@@ -15,7 +15,7 @@ import java.util.List;
 
 public class StuckMainListActivity extends AppCompatActivity {
 
-    private RecyclerView mRecyclerView;
+    private RecyclerView mRecyclerViewQuestions;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 
@@ -25,15 +25,15 @@ public class StuckMainListActivity extends AppCompatActivity {
         Log.i("StuckMainList", "CardView break");
         setContentView(R.layout.activity_stuck_main_list);
 
-        mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view_question_post);
+        mRecyclerViewQuestions = (RecyclerView) findViewById(R.id.recycler_view_question_post);
 
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
-        mRecyclerView.setHasFixedSize(true);
+        mRecyclerViewQuestions.setHasFixedSize(true);
 
         // use a linear layout manager
         mLayoutManager = new LinearLayoutManager(this);
-        mRecyclerView.setLayoutManager(mLayoutManager);
+        mRecyclerViewQuestions.setLayoutManager(mLayoutManager);
 
         List<StuckPost> myDataset = new ArrayList<>();
 
@@ -57,7 +57,7 @@ public class StuckMainListActivity extends AppCompatActivity {
 
 
         // specify an adapter (see also next example)
-        mAdapter = new CardViewListAdapter(myDataset);
-        mRecyclerView.setAdapter(mAdapter);
+        mAdapter = new CardViewListAdapter(myDataset, this, StuckVoteActivity.class);
+        mRecyclerViewQuestions.setAdapter(mAdapter);
     }
 }
