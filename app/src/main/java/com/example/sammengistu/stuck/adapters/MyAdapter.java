@@ -1,4 +1,6 @@
-package com.example.sammengistu.stuck;
+package com.example.sammengistu.stuck.adapters;
+
+import com.example.sammengistu.stuck.R;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -29,7 +31,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
 
 
 
-        View v = inflater.inflate(R.layout.stuck_single_item, parent, false);
+        View v = inflater.inflate(R.layout.stuck_single_item_question, parent, false);
 
 
 

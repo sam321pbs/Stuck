@@ -9,13 +9,17 @@ public class StuckPost {
     private String mChoice3;
     private String mChoice4;
 
+    private String mStuckPostLocation;
+
     public StuckPost (String question, String choice1,
-                       String choice2, String choice3, String choice4 ){
+                       String choice2, String choice3, String choice4,
+                      String stuckPostLocation){
         mQuestion = question;
         mChoice1 = choice1;
         mChoice2 = choice2;
         mChoice3 = choice3;
         mChoice4 = choice4;
+        mStuckPostLocation = stuckPostLocation;
     }
 
     public String getQuestion() {
@@ -36,5 +40,9 @@ public class StuckPost {
 
     public String getChoice4() {
         return mChoice4;
+    }
+
+    public String getStuckPostLocation() {
+        return mStuckPostLocation;
     }
 }

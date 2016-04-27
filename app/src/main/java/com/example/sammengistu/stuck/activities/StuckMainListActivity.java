@@ -1,5 +1,7 @@
-package com.example.sammengistu.stuck;
+package com.example.sammengistu.stuck.activities;
 
+import com.example.sammengistu.stuck.R;
+import com.example.sammengistu.stuck.adapters.CardViewListAdapter;
 import com.example.sammengistu.stuck.model.StuckPost;
 
 import android.os.Bundle;
@@ -23,7 +25,7 @@ public class StuckMainListActivity extends AppCompatActivity {
         Log.i("StuckMainList", "CardView break");
         setContentView(R.layout.activity_stuck_main_list);
 
-        mRecyclerView = (RecyclerView) findViewById(R.id.my_recycler_view);
+        mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view_question_post);
 
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
@@ -40,12 +42,22 @@ public class StuckMainListActivity extends AppCompatActivity {
             "Chipotle",
             "Mcdonald's",
             "Five guys",
-            "Red Lobster"));
+            "Red Lobster",
+            "College Park, MD"));
+
+        myDataset.add(new StuckPost(
+            "Where should I travel to next?",
+            "Italy",
+            "France",
+            "Canada",
+            "Ethiopia",
+            "Arlington, VA"));
 
 //        mAdapter = new MyAdapter(new String[]{"Zain", "Nadeem"});
 
+
         // specify an adapter (see also next example)
-        mAdapter = new CardViewAdapter(myDataset);
+        mAdapter = new CardViewListAdapter(myDataset);
         mRecyclerView.setAdapter(mAdapter);
     }
 }
