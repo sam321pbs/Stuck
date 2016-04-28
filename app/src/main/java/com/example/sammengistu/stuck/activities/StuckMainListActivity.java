@@ -81,9 +81,6 @@ public class StuckMainListActivity extends AppCompatActivity implements View.OnC
         // Get a support ActionBar corresponding to this toolbar
         ActionBar ab = getSupportActionBar();
 
-        // Enable the Up button
-        ab.setDisplayHomeAsUpEnabled(true);
-
         getSupportActionBar().setDisplayShowTitleEnabled(true);
     }
 

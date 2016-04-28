@@ -7,20 +7,21 @@ import com.example.sammengistu.stuck.model.Choice;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class StuckNewPostActivity extends AppCompatActivity {
+public class StuckNewPostActivity extends AppCompatActivity implements View.OnClickListener {
 
     private EditText mQuestionEditText;
     private RecyclerView mMyChoicesRecyclerView;
-    private CardView mAddChoiceCardView;
+    private Button mAddChoiceButton;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     private List<Choice> mChoicesList;
@@ -43,8 +44,6 @@ public class StuckNewPostActivity extends AppCompatActivity {
 
         mChoicesList.add(new Choice(""));
         mChoicesList.add(new Choice(""));
-        mChoicesList.add(new Choice(""));
-        mChoicesList.add(new Choice(""));
 
         // specify an adapter (see also next example)
         mAdapter = new MyPostChoiceAdapter(mChoicesList);
@@ -54,7 +53,8 @@ public class StuckNewPostActivity extends AppCompatActivity {
     private void initializeViews(){
         mQuestionEditText = (EditText) findViewById(R.id.my_post_edit_text);
         mMyChoicesRecyclerView = (RecyclerView) findViewById(R.id.recycler_view_single_choice_view);
-        mAddChoiceCardView = (CardView) findViewById(R.id.add_choice_card_view);
+        mAddChoiceButton = (Button) findViewById(R.id.add_choice_button);
+        mAddChoiceButton.setOnClickListener(this);
 
     }
 
@@ -71,5 +71,16 @@ public class StuckNewPostActivity extends AppCompatActivity {
         ab.setDisplayHomeAsUpEnabled(true);
 
         getSupportActionBar().setDisplayShowTitleEnabled(false);
+    }
+
+    @Override
+    public void onClick(View v) {
+        mChoicesList.add(new Choice(""));
+        mAdapter.notifyDataSetChanged();
+
+        if (mChoicesList.size() == 5){
+//            mAddChoiceButton.setVisibility(View.INVISIBLE);
+            mAddChoiceButton.setEnabled(false);
+        }
     }
 }
