@@ -4,4 +4,5 @@
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="question_top_margin">20dp</dimen>
     <dimen name="question_margins">30dp</dimen>
+    <dimen name="margin_edit_text_my_post">20dp</dimen>
 </resources>

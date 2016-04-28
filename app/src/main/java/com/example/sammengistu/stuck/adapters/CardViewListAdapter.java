@@ -27,12 +27,6 @@ public class CardViewListAdapter extends RecyclerView.Adapter<CardViewListAdapte
         mStuckPosts = myDataset;
     }
 
-    public CardViewListAdapter(List<StuckPost> myDataset) {
-        mActivity = null;
-        mVoteClass = null;
-        mStuckPosts = myDataset;
-    }
-
     // Create new views (invoked by the layout manager)
     @Override
     public CardViewListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,
