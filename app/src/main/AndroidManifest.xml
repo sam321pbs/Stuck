@@ -17,15 +17,18 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".activities.StuckVoteActivity">
-
+        <activity android:name=".activities.StuckVoteActivity"
+                  android:parentActivityName=".activities.StuckMainListActivity">
+            <meta-data
+                    android:name="android.support.PARENT_ACTIVITY"
+                    android:value=".activities.StuckMainListActivity"/>
         </activity>
 
         <activity android:name=".activities.StuckNewPostActivity"
-                  android:parentActivityName=".activities.StuckMainListActivity" >
+                  android:parentActivityName=".activities.StuckMainListActivity">
             <meta-data
                     android:name="android.support.PARENT_ACTIVITY"
-                    android:value=".activities.StuckMainListActivity" />
+                    android:value=".activities.StuckMainListActivity"/>
 
         </activity>
     </application>

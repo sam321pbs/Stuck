@@ -6,9 +6,11 @@ import com.example.sammengistu.stuck.adapters.ChoicesAdapter;
 import com.example.sammengistu.stuck.model.StuckPost;
 
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -21,6 +23,7 @@ public class StuckVoteActivity extends AppCompatActivity {
     private RecyclerView.Adapter mAdapterChoices;
     private RecyclerView.LayoutManager mLayoutManagerChoices;
     private StuckPost mStuckPost;
+    private Toolbar mVoteToolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,6 +32,8 @@ public class StuckVoteActivity extends AppCompatActivity {
 
         // use a linear layout manager
         mLayoutManagerChoices = new LinearLayoutManager(this);
+
+        setUpToolbar();
 
         mStuckPost = new StuckPost(
             getIntent().getStringExtra(StuckConstants.QUESTION_VIEW_HOLDER),
@@ -68,5 +73,20 @@ public class StuckVoteActivity extends AppCompatActivity {
 
         mAdapterChoices = new ChoicesAdapter(stuckPostChoices);
         mRecyclerViewChoices.setAdapter(mAdapterChoices);
+    }
+
+    private void setUpToolbar(){
+        // my_child_toolbar is defined in the layout file
+        mVoteToolbar =
+            (Toolbar) findViewById(R.id.vote_toolbar);
+        setSupportActionBar(mVoteToolbar);
+
+        // Get a support ActionBar corresponding to this toolbar
+        ActionBar ab = getSupportActionBar();
+
+        // Enable the Up button
+        ab.setDisplayHomeAsUpEnabled(true);
+
+        getSupportActionBar().setDisplayShowTitleEnabled(true);
     }
 }
