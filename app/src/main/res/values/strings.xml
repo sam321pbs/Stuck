@@ -3,4 +3,5 @@
     <string name="type_your_question_post_here">Type your question/post here</string>
     <string name="add_a_choice">Add a choice</string>
     <string name="type_your_choice_here">Type your choice here</string>
+    <string name="filter">Filter</string>
 </resources>

@@ -5,9 +5,11 @@ import com.example.sammengistu.stuck.adapters.CardViewListAdapter;
 import com.example.sammengistu.stuck.model.StuckPost;
 
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +19,7 @@ public class StuckMainListActivity extends AppCompatActivity {
     private RecyclerView mRecyclerViewQuestions;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
-
+    private Toolbar mMainListToolbar;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,5 +57,20 @@ public class StuckMainListActivity extends AppCompatActivity {
         // specify an adapter (see also next example)
         mAdapter = new CardViewListAdapter(myDataset, this, StuckVoteActivity.class);
         mRecyclerViewQuestions.setAdapter(mAdapter);
+    }
+
+    private void setUpToolbar(){
+        // my_child_toolbar is defined in the layout file
+        mMainListToolbar =
+            (Toolbar) findViewById(R.id.new_stuck_post_toolbar);
+        setSupportActionBar(mMainListToolbar);
+
+        // Get a support ActionBar corresponding to this toolbar
+        ActionBar ab = getSupportActionBar();
+
+        // Enable the Up button
+        ab.setDisplayHomeAsUpEnabled(true);
+
+        getSupportActionBar().setDisplayShowTitleEnabled(true);
     }
 }

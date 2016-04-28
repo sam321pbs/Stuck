@@ -5,10 +5,12 @@ import com.example.sammengistu.stuck.adapters.MyPostChoiceAdapter;
 import com.example.sammengistu.stuck.model.Choice;
 
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.widget.EditText;
 
 import java.util.ArrayList;
@@ -22,15 +24,16 @@ public class StuckNewPostActivity extends AppCompatActivity {
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     private List<Choice> mChoicesList;
+    private Toolbar mNewPostToolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_stuck_post);
 
-        mQuestionEditText = (EditText) findViewById(R.id.my_post_edit_text);
-        mMyChoicesRecyclerView = (RecyclerView) findViewById(R.id.recycler_view_single_choice_view);
-        mAddChoiceCardView = (CardView) findViewById(R.id.add_choice_card_view);
+        setUpToolbar();
+
+        initializeViews();
 
         mMyChoicesRecyclerView.setHasFixedSize(true);
         mLayoutManager = new LinearLayoutManager(this);
@@ -46,5 +49,27 @@ public class StuckNewPostActivity extends AppCompatActivity {
         // specify an adapter (see also next example)
         mAdapter = new MyPostChoiceAdapter(mChoicesList);
         mMyChoicesRecyclerView.setAdapter(mAdapter);
+    }
+
+    private void initializeViews(){
+        mQuestionEditText = (EditText) findViewById(R.id.my_post_edit_text);
+        mMyChoicesRecyclerView = (RecyclerView) findViewById(R.id.recycler_view_single_choice_view);
+        mAddChoiceCardView = (CardView) findViewById(R.id.add_choice_card_view);
+
+    }
+
+    private void setUpToolbar(){
+        // my_child_toolbar is defined in the layout file
+        mNewPostToolbar =
+            (Toolbar) findViewById(R.id.new_stuck_post_toolbar);
+        setSupportActionBar(mNewPostToolbar);
+
+        // Get a support ActionBar corresponding to this toolbar
+        ActionBar ab = getSupportActionBar();
+
+        // Enable the Up button
+        ab.setDisplayHomeAsUpEnabled(true);
+
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
     }
 }

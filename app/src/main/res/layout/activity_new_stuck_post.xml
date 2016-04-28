@@ -1,47 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             android:orientation="vertical"
-             android:layout_width="match_parent"
-             android:layout_height="match_parent">
+<RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-    <LinearLayout android:orientation="vertical"
-                  android:layout_width="match_parent"
-                  android:layout_height="match_parent">
+    <android.support.v7.widget.Toolbar
+            style="@style/toolbar_properties"
+            android:id="@+id/new_stuck_post_toolbar">
 
-        <android.support.v7.widget.CardView
-                style="@style/card_view_basic_style">
+        <TextView android:layout_width="wrap_content"
+                  android:layout_height="?actionBarSize"
+                  android:gravity="center_vertical"
+                  android:text="DONE"
+                  android:layout_gravity="end"
+                  android:paddingRight="@dimen/activity_horizontal_margin"
+                  android:textColor="@color/colorWhite"
+                  android:textSize="15sp"/>
 
-            <EditText android:id="@+id/my_post_edit_text"
-                      android:layout_width="wrap_content"
-                      android:layout_height="wrap_content"
-                      android:hint="@string/type_your_question_post_here"
-                      android:layout_gravity="center"
-                      android:layout_margin="@dimen/margin_edit_text_my_post"/>
-        </android.support.v7.widget.CardView>
+    </android.support.v7.widget.Toolbar>
+
+    <android.support.v7.widget.CardView
+            style="@style/card_view_basic_style"
+            android:id="@+id/my_question_card_view"
+            android:layout_below="@+id/new_stuck_post_toolbar">
+
+        <EditText android:id="@+id/my_post_edit_text"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:hint="@string/type_your_question_post_here"
+                  android:layout_gravity="center"
+                  android:layout_margin="@dimen/margin_edit_text_my_post"/>
+    </android.support.v7.widget.CardView>
+
+    <LinearLayout android:layout_width="match_parent"
+                  android:layout_height="match_parent"
+                  android:orientation="vertical"
+                  android:layout_below="@+id/my_question_card_view">
 
         <android.support.v7.widget.RecyclerView
                 android:id="@+id/recycler_view_single_choice_view"
                 android:scrollbars="vertical"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="15dp"/>
+                android:layout_height="match_parent"
+                android:layout_marginTop="15dp"
+                android:layout_below="@+id/my_question_card_view"
+                android:layout_weight="50"/>
 
+        <android.support.v7.widget.CardView
+                style="@style/card_view_basic_style"
+                android:id="@+id/add_choice_card_view"
+                android:layout_gravity="bottom"
+                android:layout_marginBottom="10dp"
+                android:layout_below="@id/recycler_view_single_choice_view"
+                android:elevation="10dp"
+                android:layout_weight="0">
+
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/add_a_choice"
+                    android:textSize="20sp"
+                    android:layout_gravity="center"
+                    android:layout_margin="20dp"/>
+        </android.support.v7.widget.CardView>
     </LinearLayout>
 
-    <android.support.v7.widget.CardView
-            style="@style/card_view_basic_style"
-            android:id="@+id/add_choice_card_view"
-            android:layout_gravity="bottom"
-            android:layout_marginBottom="10dp"
-            android:elevation="10dp">
-
-        <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:hint="@string/add_a_choice"
-                android:textSize="20sp"
-                android:layout_gravity="center"
-                android:layout_margin="20dp"/>
-    </android.support.v7.widget.CardView>
-
-</FrameLayout>
+</RelativeLayout>
