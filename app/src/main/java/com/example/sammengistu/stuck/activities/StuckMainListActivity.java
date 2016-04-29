@@ -1,5 +1,8 @@
 package com.example.sammengistu.stuck.activities;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+
 import com.example.sammengistu.stuck.R;
 import com.example.sammengistu.stuck.adapters.CardViewListAdapter;
 import com.example.sammengistu.stuck.model.StuckPost;
@@ -40,6 +43,12 @@ public class StuckMainListActivity extends AppCompatActivity implements View.OnC
 
         mRecyclerViewQuestions = (RecyclerView) findViewById(R.id.recycler_view_question_post);
         mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
+
+        // Load an ad into the AdMob banner view.
+        AdView adView = (AdView) findViewById(R.id.adView);
+        AdRequest adRequest = new AdRequest.Builder()
+            .setRequestAgent("android_studio:ad_template").build();
+        adView.loadAd(adRequest);
 
 
         // use this setting to improve performance if you know that changes
