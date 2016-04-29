@@ -96,7 +96,7 @@ public class StuckMainListActivity extends AppCompatActivity implements View.OnC
             (Toolbar) findViewById(R.id.new_stuck_post_toolbar);
         setSupportActionBar(mMainListToolbar);
 
-        getSupportActionBar().setDisplayShowTitleEnabled(true);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
     }
 
     private void setUpFloatingActionButton(){

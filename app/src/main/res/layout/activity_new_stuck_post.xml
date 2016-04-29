@@ -12,9 +12,10 @@
                   android:layout_height="?actionBarSize"
                   android:id="@+id/new_post_done"
                   android:gravity="center_vertical"
-                  android:text="DONE"
+                  android:text="@string/done"
                   android:layout_gravity="end"
-                  android:paddingRight="@dimen/activity_horizontal_margin"
+                  android:paddingEnd="@dimen/activity_horizontal_margin"
+                  android:paddingStart="@dimen/activity_horizontal_margin"
                   android:textColor="@color/colorWhite"
                   android:textSize="15sp"/>
 
@@ -53,7 +54,7 @@
                 android:layout_gravity="bottom"
                 android:layout_marginBottom="10dp"
                 android:background="@color/colorWhite"
-                android:text="Add Choice"
+                android:text="@string/add_choice"
                 android:elevation="10dp"
                 android:layout_weight="0"/>
 

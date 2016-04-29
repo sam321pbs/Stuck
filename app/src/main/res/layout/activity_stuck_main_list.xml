@@ -12,11 +12,15 @@
             style="@style/toolbar_properties"
             android:id="@+id/new_stuck_post_toolbar">
 
+        <include
+            layout="@layout/stuck_app_name_text_view"/>
+
         <TextView android:layout_width="wrap_content"
                   android:layout_height="?actionBarSize"
                   android:text="@string/filter"
                   android:gravity="center_vertical"
                   android:layout_gravity="center"
+                  android:textSize="20sp"
                   android:paddingEnd="@dimen/filter_padding"
                   android:paddingStart="@dimen/filter_padding"
                   android:textColor="@color/colorWhite"/>
