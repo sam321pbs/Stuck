@@ -2,10 +2,13 @@ package com.example.sammengistu.stuck.adapters;
 
 import com.example.sammengistu.stuck.R;
 import com.example.sammengistu.stuck.StuckConstants;
+import com.example.sammengistu.stuck.activities.StuckVoteActivity;
 import com.example.sammengistu.stuck.model.StuckPost;
 
 import android.app.Activity;
+import android.app.ActivityOptions;
 import android.content.Intent;
+import android.os.Build;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -49,7 +52,7 @@ public class CardViewListAdapter extends RecyclerView.Adapter<CardViewListAdapte
         // - replace the contents of the view with that element
         holder.mStuckPostQuestion.setText(mStuckPosts.get(position).getQuestion());
         holder.mStuckPostLocation.setText(mStuckPosts.get(position).getStuckPostLocation());
-        holder.mStuckPostSneakPeakChoice.setText(mStuckPosts.get(position).getChoice1().substring(0,2));
+        holder.mStuckPostSneakPeakChoice.setText(mStuckPosts.get(position).getChoice1().substring(0, 2));
 
         //Set up stuck info for stuck vote activity
         holder.mQuestion = mStuckPosts.get(position).getQuestion();
@@ -58,6 +61,7 @@ public class CardViewListAdapter extends RecyclerView.Adapter<CardViewListAdapte
         holder.mChoice2 = mStuckPosts.get(position).getChoice2();
         holder.mChoice3 = mStuckPosts.get(position).getChoice3();
         holder.mChoice4 = mStuckPosts.get(position).getChoice4();
+
 
     }
 
@@ -86,26 +90,45 @@ public class CardViewListAdapter extends RecyclerView.Adapter<CardViewListAdapte
         public String mChoice3;
         public String mChoice4;
 
-        public ViewHolder(View v, final Activity activity, final Class classs) {
+        public ViewHolder(View v, final Activity activity, Class classs) {
             super(v);
-            mStuckPostQuestion = (TextView)v.findViewById(R.id.single_item_question);
-            mStuckPostLocation = (TextView)v.findViewById(R.id.post_location);
-            mStuckPostSneakPeakChoice = (TextView)v.findViewById(R.id.sneak_peak_choice_1);
+            mStuckPostQuestion = (TextView) v.findViewById(R.id.single_item_question);
+            mStuckPostLocation = (TextView) v.findViewById(R.id.post_location);
+            mStuckPostSneakPeakChoice = (TextView) v.findViewById(R.id.sneak_peak_choice_1);
 
-            if (activity != null){
+            if (activity != null) {
                 v.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Intent StuckVoteIntent = new Intent(activity, classs);
 
-                        StuckVoteIntent.putExtra(StuckConstants.LOCATION_VIEW_HOLDER, mLocation);
-                        StuckVoteIntent.putExtra(StuckConstants.QUESTION_VIEW_HOLDER, mQuestion);
-                        StuckVoteIntent.putExtra(StuckConstants.CHOICE_1_VIEW_HOLDER, mChoice1);
-                        StuckVoteIntent.putExtra(StuckConstants.CHOICE_2_VIEW_HOLDER, mChoice2);
-                        StuckVoteIntent.putExtra(StuckConstants.CHOICE_3_VIEW_HOLDER, mChoice3);
-                        StuckVoteIntent.putExtra(StuckConstants.CHOICE_4_VIEW_HOLDER, mChoice4);
+                        // get the element that receives the click event
+                        final View imgContainerView = v;
 
-                        activity.startActivity(StuckVoteIntent);
+                        // get the common element for the transition in this activity
+//                        final View androidRobotView = findViewById(R.id.image_small);
+
+                        // define a click listener
+
+                        Intent stuckVoteIntent = new Intent(activity, StuckVoteActivity.class);
+
+                        stuckVoteIntent.putExtra(StuckConstants.LOCATION_VIEW_HOLDER, mLocation);
+                        stuckVoteIntent.putExtra(StuckConstants.QUESTION_VIEW_HOLDER, mQuestion);
+                        stuckVoteIntent.putExtra(StuckConstants.CHOICE_1_VIEW_HOLDER, mChoice1);
+                        stuckVoteIntent.putExtra(StuckConstants.CHOICE_2_VIEW_HOLDER, mChoice2);
+                        stuckVoteIntent.putExtra(StuckConstants.CHOICE_3_VIEW_HOLDER, mChoice3);
+                        stuckVoteIntent.putExtra(StuckConstants.CHOICE_4_VIEW_HOLDER, mChoice4);
+
+                        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                            // create the transition animation - the images in the layouts
+                            // of both activities are defined with android:transitionName="robot"
+                            ActivityOptions options = ActivityOptions
+                                .makeSceneTransitionAnimation(activity, v, "robot");
+                            // start the new activity
+                            activity.startActivity(stuckVoteIntent, options.toBundle());
+                        } else {
+
+                            activity.startActivity(stuckVoteIntent);
+                        }
 
 
                     }

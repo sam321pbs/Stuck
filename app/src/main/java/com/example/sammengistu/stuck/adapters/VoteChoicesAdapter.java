@@ -1,9 +1,10 @@
 package com.example.sammengistu.stuck.adapters;
 
 import com.example.sammengistu.stuck.R;
+import com.example.sammengistu.stuck.model.VoteChoice;
 
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,12 +17,13 @@ import java.util.List;
  */
 public class VoteChoicesAdapter extends RecyclerView.Adapter<VoteChoicesAdapter.ViewHolder> {
 
-    private List<String> mStuckPostChoices;
+    private List<VoteChoice> mStuckPostChoices;
+    private Context mContext;
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    public VoteChoicesAdapter(List<String> myDataset) {
+    public VoteChoicesAdapter(List<VoteChoice> myDataset, Context context) {
         mStuckPostChoices = myDataset;
-        Log.i("Choice adapter", mStuckPostChoices.size() + "");
+        mContext = context;
     }
 
     // Create new views (invoked by the layout manager)
@@ -39,12 +41,23 @@ public class VoteChoicesAdapter extends RecyclerView.Adapter<VoteChoicesAdapter.
     }
 
     // Replace the contents of a view (invoked by the layout manager)
+    @SuppressWarnings("deprecation")
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
 
+        VoteChoice currentChoice = mStuckPostChoices.get(position);
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
-        holder.mChoice.setText(mStuckPostChoices.get(position));
+        holder.mChoice.setText(currentChoice.getChoice());
+        holder.mNumberOfVotes.setText(currentChoice.getVotes());
+
+        if (currentChoice.isVotedFor()){
+            holder.mCardViewChoice.setBackgroundColor(
+                mContext.getResources().getColor(R.color.colorVoted));
+        } else {
+            holder.mCardViewChoice.setBackgroundColor(
+                mContext.getResources().getColor(R.color.colorWhite));
+        }
 
     }
 
@@ -62,10 +75,14 @@ public class VoteChoicesAdapter extends RecyclerView.Adapter<VoteChoicesAdapter.
         // each data item is just a string in this case
 
         public TextView mChoice;
+        public TextView mNumberOfVotes;
+        public View mCardViewChoice;
 
         public ViewHolder(View v) {
             super(v);
             mChoice = (TextView) v.findViewById(R.id.single_item_choice);
+            mNumberOfVotes = (TextView) v.findViewById(R.id.number_of_votes_for_choice);
+            mCardViewChoice = v;
         }
     }
 }

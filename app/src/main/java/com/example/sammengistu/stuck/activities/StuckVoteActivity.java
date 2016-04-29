@@ -4,6 +4,7 @@ import com.example.sammengistu.stuck.R;
 import com.example.sammengistu.stuck.StuckConstants;
 import com.example.sammengistu.stuck.adapters.VoteChoicesAdapter;
 import com.example.sammengistu.stuck.model.StuckPost;
+import com.example.sammengistu.stuck.model.VoteChoice;
 
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
@@ -65,13 +66,14 @@ public class StuckVoteActivity extends AppCompatActivity {
         // in content do not change the layout size of the RecyclerView
         mRecyclerViewChoices.setHasFixedSize(true);
 
-        List<String> stuckPostChoices = new ArrayList<>();
-        stuckPostChoices.add(mStuckPost.getChoice1());
-        stuckPostChoices.add(mStuckPost.getChoice2());
-        stuckPostChoices.add(mStuckPost.getChoice3());
-        stuckPostChoices.add(mStuckPost.getChoice4());
+//        List<String> stuckPostChoices = new ArrayList<>();
+        List<VoteChoice> stuckPostChoices = new ArrayList<>();
+        stuckPostChoices.add(new VoteChoice(mStuckPost.getChoice1(), false, 10));
+        stuckPostChoices.add(new VoteChoice(mStuckPost.getChoice2(), false, 1));
+        stuckPostChoices.add(new VoteChoice(mStuckPost.getChoice3(), false, 4));
+        stuckPostChoices.add(new VoteChoice(mStuckPost.getChoice4(), false, 9));
 
-        mAdapterChoices = new VoteChoicesAdapter(stuckPostChoices);
+        mAdapterChoices = new VoteChoicesAdapter(stuckPostChoices, this);
         mRecyclerViewChoices.setAdapter(mAdapterChoices);
     }
 

@@ -4,7 +4,9 @@ import com.example.sammengistu.stuck.R;
 import com.example.sammengistu.stuck.adapters.CardViewListAdapter;
 import com.example.sammengistu.stuck.model.StuckPost;
 
+import android.app.ActivityOptions;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -106,6 +108,14 @@ public class StuckMainListActivity extends AppCompatActivity implements View.OnC
     @Override
     public void onClick(View v) {
         Intent intent = new Intent(this, StuckNewPostActivity.class);
-        startActivity(intent);
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            startActivity(intent,
+                ActivityOptions.makeSceneTransitionAnimation(this).toBundle());
+        } else {
+
+            startActivity(intent);
+        }
+
+
     }
 }
