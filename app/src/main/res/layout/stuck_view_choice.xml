@@ -7,7 +7,7 @@
 
     <!-- A CardView that contains a TextView -->
     <android.support.v7.widget.CardView
-            android:id="@+id/card_view"
+            android:id="@+id/stuck_view_choice_card_view"
             style="@style/card_view_basic_style">
 
         <LinearLayout android:layout_width="match_parent"
@@ -23,7 +23,7 @@
                     android:layout_weight=".2"/>
 
             <TextView
-                    android:id="@+id/number_of_votes_for_choice"
+                    android:id="@+id/single_item_number_of_votes"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_gravity="end"

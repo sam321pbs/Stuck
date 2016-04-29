@@ -4,7 +4,9 @@ import com.example.sammengistu.stuck.R;
 import com.example.sammengistu.stuck.model.VoteChoice;
 
 import android.content.Context;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,7 +17,8 @@ import java.util.List;
 /**
  * Created by SamMengistu on 4/26/16.
  */
-public class VoteChoicesAdapter extends RecyclerView.Adapter<VoteChoicesAdapter.ViewHolder> {
+public class VoteChoicesAdapter extends RecyclerView.Adapter<VoteChoicesAdapter.ViewHolder>
+implements View.OnClickListener{
 
     private List<VoteChoice> mStuckPostChoices;
     private Context mContext;
@@ -45,19 +48,44 @@ public class VoteChoicesAdapter extends RecyclerView.Adapter<VoteChoicesAdapter.
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
 
-        VoteChoice currentChoice = mStuckPostChoices.get(position);
+        final ViewHolder holders = holder;
+        final VoteChoice currentChoice = mStuckPostChoices.get(position);
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
         holder.mChoice.setText(currentChoice.getChoice());
-        holder.mNumberOfVotes.setText(currentChoice.getVotes());
+        holder.mNumberOfVotes.setText(currentChoice.getVotes() + "");
 
         if (currentChoice.isVotedFor()){
-            holder.mCardViewChoice.setBackgroundColor(
+            holders.mCardViewChoice.setBackgroundColor(
                 mContext.getResources().getColor(R.color.colorVoted));
+
         } else {
-            holder.mCardViewChoice.setBackgroundColor(
-                mContext.getResources().getColor(R.color.colorWhite));
+                holders.mCardViewChoice.setBackgroundColor(
+                    mContext.getResources().getColor(R.color.colorWhite));
         }
+
+        holder.mCardViewChoice.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (currentChoice.isVotedFor()){
+                    currentChoice.setVotedFor(false);
+                } else {
+                    currentChoice.setVotedFor(true);
+                }
+
+                for (VoteChoice vc: mStuckPostChoices){
+                    if (currentChoice == vc){
+                        continue;
+                    }
+                    else {
+                        vc.setVotedFor(false);
+                    }
+                }
+
+                notifyDataSetChanged();
+            }
+        });
+
 
     }
 
@@ -68,6 +96,12 @@ public class VoteChoicesAdapter extends RecyclerView.Adapter<VoteChoicesAdapter.
         return mStuckPostChoices.size();
     }
 
+    @Override
+    public void onClick(View v) {
+        Log.i("OnClick", "clicked");
+        notifyDataSetChanged();
+    }
+
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
     // you provide access to all the views for a data item in a view holder
@@ -76,13 +110,14 @@ public class VoteChoicesAdapter extends RecyclerView.Adapter<VoteChoicesAdapter.
 
         public TextView mChoice;
         public TextView mNumberOfVotes;
-        public View mCardViewChoice;
+        public CardView mCardViewChoice;
 
         public ViewHolder(View v) {
             super(v);
             mChoice = (TextView) v.findViewById(R.id.single_item_choice);
-            mNumberOfVotes = (TextView) v.findViewById(R.id.number_of_votes_for_choice);
-            mCardViewChoice = v;
+            mNumberOfVotes = (TextView) v.findViewById(R.id.single_item_number_of_votes);
+            mCardViewChoice = (CardView) v.findViewById(R.id.stuck_view_choice_card_view);
+
         }
     }
 }
