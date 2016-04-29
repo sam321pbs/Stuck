@@ -34,12 +34,18 @@
             android:src="@drawable/fab_plus"
             android:layout_marginEnd="16dp"/>
 
-
-    <android.support.v7.widget.RecyclerView
-            android:id="@+id/recycler_view_question_post"
-            android:layout_marginTop="?actionBarSize"
-            android:scrollbars="vertical"
+    <android.support.v4.widget.SwipeRefreshLayout
+            android:id="@+id/swipe_refresh_layout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent"
+            android:layout_marginTop="?actionBarSize">
+
+        <android.support.v7.widget.RecyclerView
+                android:id="@+id/recycler_view_question_post"
+
+                android:scrollbars="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+    </android.support.v4.widget.SwipeRefreshLayout>
 
 </FrameLayout>

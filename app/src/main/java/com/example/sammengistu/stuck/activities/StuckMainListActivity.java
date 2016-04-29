@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -29,6 +30,7 @@ public class StuckMainListActivity extends AppCompatActivity implements View.OnC
     private RecyclerView.LayoutManager mLayoutManager;
     private Toolbar mMainListToolbar;
     private FloatingActionButton mNewPostFAB;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +39,8 @@ public class StuckMainListActivity extends AppCompatActivity implements View.OnC
         setContentView(R.layout.activity_stuck_main_list);
 
         mRecyclerViewQuestions = (RecyclerView) findViewById(R.id.recycler_view_question_post);
+        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
+
 
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
@@ -71,6 +75,10 @@ public class StuckMainListActivity extends AppCompatActivity implements View.OnC
         // specify an adapter (see also next example)
         mAdapter = new CardViewListAdapter(myDataset, this, StuckVoteActivity.class);
         mRecyclerViewQuestions.setAdapter(mAdapter);
+    }
+//TODO: implement logic to load
+    private void updateRefreshingUI() {
+//        mSwipeRefreshLayout.setRefreshing(mIsRefreshing);
     }
 
     private void setUpToolbar() {
@@ -115,7 +123,5 @@ public class StuckMainListActivity extends AppCompatActivity implements View.OnC
 
             startActivity(intent);
         }
-
-
     }
 }

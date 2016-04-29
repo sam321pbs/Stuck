@@ -66,7 +66,6 @@ public class StuckVoteActivity extends AppCompatActivity {
         // in content do not change the layout size of the RecyclerView
         mRecyclerViewChoices.setHasFixedSize(true);
 
-//        List<String> stuckPostChoices = new ArrayList<>();
         List<VoteChoice> stuckPostChoices = new ArrayList<>();
         stuckPostChoices.add(new VoteChoice(mStuckPost.getChoice1(), false, 10));
         stuckPostChoices.add(new VoteChoice(mStuckPost.getChoice2(), false, 1));
