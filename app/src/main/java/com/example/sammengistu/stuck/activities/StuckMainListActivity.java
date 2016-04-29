@@ -7,7 +7,6 @@ import com.example.sammengistu.stuck.model.StuckPost;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -77,9 +76,6 @@ public class StuckMainListActivity extends AppCompatActivity implements View.OnC
         mMainListToolbar =
             (Toolbar) findViewById(R.id.new_stuck_post_toolbar);
         setSupportActionBar(mMainListToolbar);
-
-        // Get a support ActionBar corresponding to this toolbar
-        ActionBar ab = getSupportActionBar();
 
         getSupportActionBar().setDisplayShowTitleEnabled(true);
     }

@@ -4,8 +4,10 @@ import com.example.sammengistu.stuck.R;
 import com.example.sammengistu.stuck.adapters.MyPostChoiceAdapter;
 import com.example.sammengistu.stuck.model.Choice;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -13,6 +15,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +29,7 @@ public class StuckNewPostActivity extends AppCompatActivity implements View.OnCl
     private RecyclerView.LayoutManager mLayoutManager;
     private List<Choice> mChoicesList;
     private Toolbar mNewPostToolbar;
+    private TextView mNewPostDone;
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -59,10 +63,30 @@ public class StuckNewPostActivity extends AppCompatActivity implements View.OnCl
     }
 
     private void setUpToolbar(){
+
         // my_child_toolbar is defined in the layout file
         mNewPostToolbar =
             (Toolbar) findViewById(R.id.new_stuck_post_toolbar);
         setSupportActionBar(mNewPostToolbar);
+
+        mNewPostDone = (TextView) findViewById(R.id.new_post_done);
+
+        mNewPostDone.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //TODO: Check all boxs are filled
+                if (isQuestionFilled() && isAllChoicesFilled()) {
+                    Intent intent = new Intent(StuckNewPostActivity.this, StuckMainListActivity.class);
+                    startActivity(intent);
+
+                } else {
+                    AlertDialog.Builder fillEveryThingDialog = new AlertDialog.Builder(StuckNewPostActivity.this);
+                    fillEveryThingDialog.setTitle("Please fill all boxes");
+                    fillEveryThingDialog.show();
+                    fillEveryThingDialog.setCancelable(true);
+                }
+            }
+        });
 
         // Get a support ActionBar corresponding to this toolbar
         ActionBar ab = getSupportActionBar();
@@ -71,6 +95,19 @@ public class StuckNewPostActivity extends AppCompatActivity implements View.OnCl
         ab.setDisplayHomeAsUpEnabled(true);
 
         getSupportActionBar().setDisplayShowTitleEnabled(false);
+    }
+
+    private boolean isQuestionFilled(){
+        return !mQuestionEditText.getText().toString().equals("");
+    }
+
+    private boolean isAllChoicesFilled(){
+        for (Choice choice: mChoicesList){
+            if (choice.getChoice().equals("")){
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override

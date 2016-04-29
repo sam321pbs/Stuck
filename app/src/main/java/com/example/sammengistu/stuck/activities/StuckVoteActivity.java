@@ -2,7 +2,7 @@ package com.example.sammengistu.stuck.activities;
 
 import com.example.sammengistu.stuck.R;
 import com.example.sammengistu.stuck.StuckConstants;
-import com.example.sammengistu.stuck.adapters.ChoicesAdapter;
+import com.example.sammengistu.stuck.adapters.VoteChoicesAdapter;
 import com.example.sammengistu.stuck.model.StuckPost;
 
 import android.os.Bundle;
@@ -71,7 +71,7 @@ public class StuckVoteActivity extends AppCompatActivity {
         stuckPostChoices.add(mStuckPost.getChoice3());
         stuckPostChoices.add(mStuckPost.getChoice4());
 
-        mAdapterChoices = new ChoicesAdapter(stuckPostChoices);
+        mAdapterChoices = new VoteChoicesAdapter(stuckPostChoices);
         mRecyclerViewChoices.setAdapter(mAdapterChoices);
     }
 

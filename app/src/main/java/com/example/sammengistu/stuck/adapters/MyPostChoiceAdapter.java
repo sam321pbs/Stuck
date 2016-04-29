@@ -4,6 +4,8 @@ import com.example.sammengistu.stuck.R;
 import com.example.sammengistu.stuck.model.Choice;
 
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,20 +36,33 @@ public class MyPostChoiceAdapter extends RecyclerView.Adapter<MyPostChoiceAdapte
 
         View v = inflater.inflate(R.layout.card_view_my_choice, parent, false);
 
-        ViewHolder vh = new ViewHolder( v );
-
-        return vh;
+        return new ViewHolder( v );
     }
 
     // Replace the contents of a view (invoked by the layout manager)
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(ViewHolder holder,  int position) {
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
 
-//        holder.mChoiceEditText.setText(mChoiceDataSet.get(position));
+        final int pos = holder.getAdapterPosition();
+        holder.mChoiceEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
+            }
 
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                mChoiceDataSet.get(pos).setChoice(s.toString());
+
+            }
+        });
 
     }
 

@@ -14,20 +14,20 @@ import java.util.List;
 /**
  * Created by SamMengistu on 4/26/16.
  */
-public class ChoicesAdapter extends RecyclerView.Adapter<ChoicesAdapter.ViewHolder> {
+public class VoteChoicesAdapter extends RecyclerView.Adapter<VoteChoicesAdapter.ViewHolder> {
 
     private List<String> mStuckPostChoices;
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    public ChoicesAdapter(List<String> myDataset) {
+    public VoteChoicesAdapter(List<String> myDataset) {
         mStuckPostChoices = myDataset;
         Log.i("Choice adapter", mStuckPostChoices.size() + "");
     }
 
     // Create new views (invoked by the layout manager)
     @Override
-    public ChoicesAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,
-                                                        int viewType) {
+    public VoteChoicesAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,
+                                                            int viewType) {
 
         // create a new view
         View v = LayoutInflater.from(parent.getContext())

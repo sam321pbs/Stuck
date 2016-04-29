@@ -13,4 +13,8 @@ public class Choice {
     public String getChoice() {
         return mChoice;
     }
+
+    public void setChoice(String choice) {
+        mChoice = choice;
+    }
 }
