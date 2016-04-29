@@ -10,13 +10,14 @@
 
     <android.support.v7.widget.Toolbar
             style="@style/toolbar_properties"
-            android:id="@+id/new_stuck_post_toolbar">
+            android:id="@+id/main_list_stuck_toolbar">
 
         <include
             layout="@layout/stuck_app_name_text_view"/>
 
         <TextView android:layout_width="wrap_content"
                   android:layout_height="?actionBarSize"
+                  android:id="@+id/filter_stuck_posts"
                   android:text="@string/filter"
                   android:gravity="center_vertical"
                   android:layout_gravity="center"

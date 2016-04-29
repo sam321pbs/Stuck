@@ -3,6 +3,10 @@ package com.example.sammengistu.stuck.adapters;
 import com.example.sammengistu.stuck.R;
 import com.example.sammengistu.stuck.model.Choice;
 
+import android.content.Context;
+import android.content.DialogInterface;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -10,12 +14,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import java.util.List;
 
 
 public class MyPostChoiceAdapter extends RecyclerView.Adapter<MyPostChoiceAdapter.ViewHolder> {
     private List<Choice> mChoiceDataSet;
+    private Context mAppContext;
 
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
@@ -23,8 +29,9 @@ public class MyPostChoiceAdapter extends RecyclerView.Adapter<MyPostChoiceAdapte
 
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    public MyPostChoiceAdapter(List<Choice> myDataset) {
+    public MyPostChoiceAdapter(List<Choice> myDataset, Context appContext) {
         mChoiceDataSet = myDataset;
+        mAppContext = appContext;
     }
 
     // Create new views (invoked by the layout manager)
@@ -36,16 +43,48 @@ public class MyPostChoiceAdapter extends RecyclerView.Adapter<MyPostChoiceAdapte
 
         View v = inflater.inflate(R.layout.card_view_my_choice, parent, false);
 
-        return new ViewHolder( v );
+        return new ViewHolder(v);
     }
 
     // Replace the contents of a view (invoked by the layout manager)
     @Override
-    public void onBindViewHolder(ViewHolder holder,  int position) {
+    public void onBindViewHolder(final ViewHolder holder, int position) {
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
-
         final int pos = holder.getAdapterPosition();
+        View.OnLongClickListener deleteChoiceListener = new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                if (mChoiceDataSet.size() > 2) {
+
+                    AlertDialog.Builder deleteChoiceDialog =
+                        new AlertDialog.Builder(mAppContext);
+
+                    deleteChoiceDialog.setTitle("Are you sure you want to delete this choice?");
+                    deleteChoiceDialog.setPositiveButton("Delete",
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                mChoiceDataSet.remove(pos);
+                                notifyDataSetChanged();
+                            }
+                        });
+                    deleteChoiceDialog.setMessage(holder.mChoiceEditText.getText().toString());
+                    deleteChoiceDialog.setNegativeButton("Cancel", null);
+                    deleteChoiceDialog.show();
+
+                } else {
+                    //Make toast cant
+                    Toast.makeText(mAppContext, "Can't delete, need at least 2 choices",
+                        Toast.LENGTH_SHORT).show();
+                }
+
+                return false;
+            }
+        };
+
+
+        holder.mChoiceEditText.setOnLongClickListener(deleteChoiceListener);
         holder.mChoiceEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -64,6 +103,8 @@ public class MyPostChoiceAdapter extends RecyclerView.Adapter<MyPostChoiceAdapte
             }
         });
 
+        holder.mChoiceCardView.setOnLongClickListener(deleteChoiceListener);
+
     }
 
     // Return the size of your dataset (invoked by the layout manager)
@@ -75,9 +116,12 @@ public class MyPostChoiceAdapter extends RecyclerView.Adapter<MyPostChoiceAdapte
     public static class ViewHolder extends RecyclerView.ViewHolder {
         // each data item is just a string in this case
         public EditText mChoiceEditText;
+        public CardView mChoiceCardView;
+
         public ViewHolder(View v) {
             super(v);
             mChoiceEditText = (EditText) v.findViewById(R.id.my_choice_edit_text);
+            mChoiceCardView = (CardView) v.findViewById(R.id.new_choice_card_view);
         }
     }
 }

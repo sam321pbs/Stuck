@@ -21,6 +21,7 @@ import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,6 +35,7 @@ public class StuckMainListActivity extends AppCompatActivity implements View.OnC
     private Toolbar mMainListToolbar;
     private FloatingActionButton mNewPostFAB;
     private SwipeRefreshLayout mSwipeRefreshLayout;
+    private TextView mFilterTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,10 +95,18 @@ public class StuckMainListActivity extends AppCompatActivity implements View.OnC
     private void setUpToolbar() {
         // my_child_toolbar is defined in the layout file
         mMainListToolbar =
-            (Toolbar) findViewById(R.id.new_stuck_post_toolbar);
+            (Toolbar) findViewById(R.id.main_list_stuck_toolbar);
         setSupportActionBar(mMainListToolbar);
 
         getSupportActionBar().setDisplayShowTitleEnabled(false);
+
+        mFilterTextView = (TextView) findViewById(R.id.filter_stuck_posts);
+        mFilterTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
     }
 
     private void setUpFloatingActionButton(){

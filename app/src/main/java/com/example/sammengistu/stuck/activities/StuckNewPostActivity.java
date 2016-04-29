@@ -50,7 +50,7 @@ public class StuckNewPostActivity extends AppCompatActivity implements View.OnCl
         mChoicesList.add(new Choice(""));
 
         // specify an adapter (see also next example)
-        mAdapter = new MyPostChoiceAdapter(mChoicesList);
+        mAdapter = new MyPostChoiceAdapter(mChoicesList, this);
         mMyChoicesRecyclerView.setAdapter(mAdapter);
     }
 
@@ -120,4 +120,5 @@ public class StuckNewPostActivity extends AppCompatActivity implements View.OnCl
             mAddChoiceButton.setEnabled(false);
         }
     }
+
 }
