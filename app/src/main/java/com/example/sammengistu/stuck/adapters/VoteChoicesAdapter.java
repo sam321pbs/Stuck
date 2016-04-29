@@ -6,7 +6,6 @@ import com.example.sammengistu.stuck.model.VoteChoice;
 import android.content.Context;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,8 +16,7 @@ import java.util.List;
 /**
  * Created by SamMengistu on 4/26/16.
  */
-public class VoteChoicesAdapter extends RecyclerView.Adapter<VoteChoicesAdapter.ViewHolder>
-implements View.OnClickListener{
+public class VoteChoicesAdapter extends RecyclerView.Adapter<VoteChoicesAdapter.ViewHolder> {
 
     private List<VoteChoice> mStuckPostChoices;
     private Context mContext;
@@ -48,7 +46,7 @@ implements View.OnClickListener{
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
 
-        final ViewHolder holders = holder;
+        final ViewHolder currentViewHolder = holder;
         final VoteChoice currentChoice = mStuckPostChoices.get(position);
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
@@ -56,28 +54,35 @@ implements View.OnClickListener{
         holder.mNumberOfVotes.setText(currentChoice.getVotes() + "");
 
         if (currentChoice.isVotedFor()){
-            holders.mCardViewChoice.setBackgroundColor(
+            currentViewHolder.mCardViewChoice.setBackgroundColor(
                 mContext.getResources().getColor(R.color.colorVoted));
 
         } else {
-                holders.mCardViewChoice.setBackgroundColor(
+                currentViewHolder.mCardViewChoice.setBackgroundColor(
                     mContext.getResources().getColor(R.color.colorWhite));
         }
 
         holder.mCardViewChoice.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //Change previous selected vote back down to one
+                for (VoteChoice vc: mStuckPostChoices){
+                    if (vc.isVotedFor()){
+                        vc.setVotes(vc.getVotes() - 1);
+                    }
+                }
+
                 if (currentChoice.isVotedFor()){
                     currentChoice.setVotedFor(false);
                 } else {
                     currentChoice.setVotedFor(true);
+                    currentChoice.setVotes(currentChoice.getVotes() + 1);
+
                 }
 
+                //Changes all other votes to false
                 for (VoteChoice vc: mStuckPostChoices){
-                    if (currentChoice == vc){
-                        continue;
-                    }
-                    else {
+                    if (currentChoice != vc){
                         vc.setVotedFor(false);
                     }
                 }
@@ -85,8 +90,6 @@ implements View.OnClickListener{
                 notifyDataSetChanged();
             }
         });
-
-
     }
 
     // Return the size of your dataset (invoked by the layout manager)
@@ -94,12 +97,6 @@ implements View.OnClickListener{
     public int getItemCount() {
 
         return mStuckPostChoices.size();
-    }
-
-    @Override
-    public void onClick(View v) {
-        Log.i("OnClick", "clicked");
-        notifyDataSetChanged();
     }
 
     // Provide a reference to the views for each data item
