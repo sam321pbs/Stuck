@@ -3,10 +3,12 @@ package com.example.sammengistu.stuck.adapters;
 import com.example.sammengistu.stuck.R;
 import com.example.sammengistu.stuck.StuckConstants;
 import com.example.sammengistu.stuck.activities.StuckVoteActivity;
+import com.example.sammengistu.stuck.dialogs.PopUpMapDialog;
 import com.example.sammengistu.stuck.model.StuckPost;
 
 import android.app.Activity;
 import android.app.ActivityOptions;
+import android.app.FragmentManager;
 import android.content.Intent;
 import android.os.Build;
 import android.support.v7.widget.RecyclerView;
@@ -137,6 +139,10 @@ public class CardViewListAdapter extends RecyclerView.Adapter<CardViewListAdapte
                     @Override
                     public void onClick(View v) {
                         //Todo: open google maps
+                        FragmentManager fm = activity.getFragmentManager();
+                        PopUpMapDialog popUpMapDialog = PopUpMapDialog.newInstance(
+                            mStuckPostLocation.getText().toString());
+                        popUpMapDialog.show(fm, "");
                     }
                 });
             }
