@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical"
+              android:descendantFocusability="beforeDescendants"
+              android:focusableInTouchMode="true">
+
+    <EditText
+            android:id="@+id/fragment_location_pop_title_of_location"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_gravity="center_horizontal"
+            android:textSize="25sp"
+            android:layout_marginBottom="6dp"
+            android:layout_marginStart="@dimen/title_margin"
+            android:layout_marginEnd="@dimen/title_margin"
+            android:layout_marginTop="12dp"/>
+
+    <com.google.android.gms.maps.MapView
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/mapView"
+            android:layout_gravity="center_horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="230dp"
+            android:layout_marginStart="@dimen/pop_up_map_margin_side"
+            android:layout_marginEnd="@dimen/pop_up_map_margin_side"
+            android:layout_marginTop="@dimen/pop_up_map_margin_top"/>
+
+    <include
+            layout="@layout/commute_info_for_address"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="6dp"
+            android:layout_marginTop="@dimen/pop_up_map_margin_top"/>
+
+
+</LinearLayout>

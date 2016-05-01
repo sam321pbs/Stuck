@@ -8,6 +8,8 @@
     <!-- A CardView that contains a TextView -->
     <android.support.v7.widget.CardView
             android:id="@+id/stuck_view_choice_card_view"
+            android:layout_marginEnd="@dimen/choice_card_margin"
+            android:layout_marginStart="@dimen/choice_card_margin"
             style="@style/card_view_basic_style">
 
         <LinearLayout android:layout_width="match_parent"

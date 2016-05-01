@@ -62,7 +62,6 @@ public class CardViewListAdapter extends RecyclerView.Adapter<CardViewListAdapte
         holder.mChoice3 = mStuckPosts.get(position).getChoice3();
         holder.mChoice4 = mStuckPosts.get(position).getChoice4();
 
-
     }
 
     // Return the size of your dataset (invoked by the layout manager)
@@ -131,6 +130,13 @@ public class CardViewListAdapter extends RecyclerView.Adapter<CardViewListAdapte
                         }
 
 
+                    }
+                });
+
+                mStuckPostLocation.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        //Todo: open google maps
                     }
                 });
             }

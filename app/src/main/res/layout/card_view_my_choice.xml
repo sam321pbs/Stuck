@@ -8,6 +8,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/new_choice_card_view"
+            android:layout_marginEnd="@dimen/choice_card_margin"
+            android:layout_marginStart="@dimen/choice_card_margin"
             style="@style/card_view_basic_style">
 
         <EditText

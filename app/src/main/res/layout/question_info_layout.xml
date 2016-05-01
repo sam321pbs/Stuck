@@ -4,11 +4,13 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:orientation="horizontal"
+              android:baselineAligned="false"
               android:layout_margin="10dp">
 
     <LinearLayout android:layout_width="0dp"
                   android:layout_height="wrap_content"
                   android:id="@+id/stuck_question_info"
+                  android:baselineAligned="false"
                   android:orientation="vertical"
                   android:layout_weight=".7">
         <TextView
@@ -20,8 +22,7 @@
 
         <LinearLayout android:layout_width="match_parent"
                       android:layout_height="wrap_content"
-                      android:orientation="horizontal"
-                      android:layout_below="@+id/single_item_question">
+                      android:orientation="horizontal">
 
             <TextView android:layout_width="0dp"
                       android:layout_height="wrap_content"
@@ -48,6 +49,5 @@
         </LinearLayout>
 
     </LinearLayout>
-
 
 </LinearLayout>
