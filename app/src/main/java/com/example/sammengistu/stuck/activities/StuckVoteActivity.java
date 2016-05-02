@@ -17,6 +17,9 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 
 public class StuckVoteActivity extends AppCompatActivity {
 
@@ -24,12 +27,17 @@ public class StuckVoteActivity extends AppCompatActivity {
     private RecyclerView.Adapter mAdapterChoices;
     private RecyclerView.LayoutManager mLayoutManagerChoices;
     private StuckPost mStuckPost;
-    private Toolbar mVoteToolbar;
+
+    @BindView(R.id.vote_toolbar) Toolbar mVoteToolbar;
+    @BindView(R.id.single_item_question) TextView mQuestion;
+    @BindView(R.id.sneak_peak_choice_1) TextView mSneakPeakChoice;
+    @BindView(R.id.post_location) TextView mPostLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_stuck_vote);
+        ButterKnife.bind(this);
 
         // use a linear layout manager
         mLayoutManagerChoices = new LinearLayoutManager(this);
@@ -45,13 +53,9 @@ public class StuckVoteActivity extends AppCompatActivity {
             getIntent().getStringExtra(StuckConstants.LOCATION_VIEW_HOLDER)
         );
 
-        TextView mQuestion = (TextView) findViewById(R.id.single_item_question);
-        TextView sneakPeakChoice = (TextView) findViewById(R.id.sneak_peak_choice_1);
-        TextView postLocation = (TextView) findViewById(R.id.post_location);
-
         mQuestion.setText(mStuckPost.getQuestion());
-        sneakPeakChoice.setText("");
-        postLocation.setText(mStuckPost.getStuckPostLocation());
+        mSneakPeakChoice.setText("");
+        mPostLocation.setText(mStuckPost.getStuckPostLocation());
 
         setUpRecyclerViewChoices();
     }
@@ -77,17 +81,18 @@ public class StuckVoteActivity extends AppCompatActivity {
     }
 
     private void setUpToolbar(){
-        // my_child_toolbar is defined in the layout file
-        mVoteToolbar =
-            (Toolbar) findViewById(R.id.vote_toolbar);
+
         setSupportActionBar(mVoteToolbar);
 
         // Get a support ActionBar corresponding to this toolbar
         ActionBar ab = getSupportActionBar();
 
-        // Enable the Up button
-        ab.setDisplayHomeAsUpEnabled(true);
+        if (ab != null) {
+            // Enable the Up button
+            ab.setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+        }
 
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
+
     }
 }

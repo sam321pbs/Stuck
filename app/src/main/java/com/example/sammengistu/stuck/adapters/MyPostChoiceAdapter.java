@@ -2,24 +2,23 @@ package com.example.sammengistu.stuck.adapters;
 
 import com.example.sammengistu.stuck.R;
 import com.example.sammengistu.stuck.model.Choice;
+import com.example.sammengistu.stuck.viewHolders.MyPostChoiceADViewHolder;
 
 import android.content.Context;
 import android.content.DialogInterface;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.Toast;
 
 import java.util.List;
 
 
-public class MyPostChoiceAdapter extends RecyclerView.Adapter<MyPostChoiceAdapter.ViewHolder> {
+public class MyPostChoiceAdapter extends RecyclerView.Adapter<MyPostChoiceADViewHolder> {
     private List<Choice> mChoiceDataSet;
     private Context mAppContext;
 
@@ -36,19 +35,19 @@ public class MyPostChoiceAdapter extends RecyclerView.Adapter<MyPostChoiceAdapte
 
     // Create new views (invoked by the layout manager)
     @Override
-    public MyPostChoiceAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,
-                                                             int viewType) {
+    public MyPostChoiceADViewHolder onCreateViewHolder(ViewGroup parent,
+                                                       int viewType) {
         // create a new view
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
 
         View v = inflater.inflate(R.layout.card_view_my_choice, parent, false);
 
-        return new ViewHolder(v);
+        return new MyPostChoiceADViewHolder(v);
     }
 
     // Replace the contents of a view (invoked by the layout manager)
     @Override
-    public void onBindViewHolder(final ViewHolder holder, int position) {
+    public void onBindViewHolder(final MyPostChoiceADViewHolder holder, int position) {
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
         final int pos = holder.getAdapterPosition();
@@ -104,7 +103,6 @@ public class MyPostChoiceAdapter extends RecyclerView.Adapter<MyPostChoiceAdapte
         });
 
         holder.mChoiceCardView.setOnLongClickListener(deleteChoiceListener);
-
     }
 
     // Return the size of your dataset (invoked by the layout manager)
@@ -113,15 +111,4 @@ public class MyPostChoiceAdapter extends RecyclerView.Adapter<MyPostChoiceAdapte
         return mChoiceDataSet.size();
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
-        // each data item is just a string in this case
-        public EditText mChoiceEditText;
-        public CardView mChoiceCardView;
-
-        public ViewHolder(View v) {
-            super(v);
-            mChoiceEditText = (EditText) v.findViewById(R.id.my_choice_edit_text);
-            mChoiceCardView = (CardView) v.findViewById(R.id.new_choice_card_view);
-        }
-    }
 }

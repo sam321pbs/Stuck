@@ -20,21 +20,35 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class StuckNewPostActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private EditText mQuestionEditText;
-    private RecyclerView mMyChoicesRecyclerView;
-    private Button mAddChoiceButton;
+    @BindView(R.id.my_post_edit_text)
+    EditText mQuestionEditText;
+
+    @BindView(R.id.recycler_view_single_choice_view)
+    RecyclerView mMyChoicesRecyclerView;
+
+    @BindView(R.id.add_choice_button)
+    Button mAddChoiceButton;
+
+    @BindView(R.id.new_post_done)
+    TextView mNewPostDone;
+
+    @BindView(R.id.new_stuck_post_toolbar)
+    Toolbar mNewPostToolbar;
+
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     private List<Choice> mChoicesList;
-    private Toolbar mNewPostToolbar;
-    private TextView mNewPostDone;
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_stuck_post);
+        ButterKnife.bind(this);
 
         setUpToolbar();
 
@@ -55,21 +69,14 @@ public class StuckNewPostActivity extends AppCompatActivity implements View.OnCl
     }
 
     private void initializeViews(){
-        mQuestionEditText = (EditText) findViewById(R.id.my_post_edit_text);
-        mMyChoicesRecyclerView = (RecyclerView) findViewById(R.id.recycler_view_single_choice_view);
-        mAddChoiceButton = (Button) findViewById(R.id.add_choice_button);
+
         mAddChoiceButton.setOnClickListener(this);
 
     }
 
     private void setUpToolbar(){
 
-        // my_child_toolbar is defined in the layout file
-        mNewPostToolbar =
-            (Toolbar) findViewById(R.id.new_stuck_post_toolbar);
         setSupportActionBar(mNewPostToolbar);
-
-        mNewPostDone = (TextView) findViewById(R.id.new_post_done);
 
         mNewPostDone.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -116,7 +123,7 @@ public class StuckNewPostActivity extends AppCompatActivity implements View.OnCl
         mAdapter.notifyDataSetChanged();
 
         if (mChoicesList.size() == 5){
-//            mAddChoiceButton.setVisibility(View.INVISIBLE);
+            mAddChoiceButton.setVisibility(View.INVISIBLE);
             mAddChoiceButton.setEnabled(false);
         }
     }

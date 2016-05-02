@@ -6,6 +6,7 @@
 
     <EditText android:layout_width="match_parent"
               android:layout_height="wrap_content"
+              android:id="@+id/filter_edit_text"
               android:hint="Type city or state"
               android:layout_marginStart="@dimen/activity_horizontal_margin"
               android:layout_marginEnd="@dimen/activity_horizontal_margin"
@@ -13,6 +14,7 @@
 
     <ListView android:layout_width="wrap_content"
               android:layout_height="match_parent"
+              android:layout_margin="@dimen/activity_horizontal_margin"
               android:id="@android:id/list"/>
 
 </LinearLayout>
