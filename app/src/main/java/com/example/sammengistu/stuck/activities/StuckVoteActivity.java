@@ -3,6 +3,7 @@ package com.example.sammengistu.stuck.activities;
 import com.example.sammengistu.stuck.R;
 import com.example.sammengistu.stuck.StuckConstants;
 import com.example.sammengistu.stuck.adapters.VoteChoicesAdapter;
+import com.example.sammengistu.stuck.model.Choice;
 import com.example.sammengistu.stuck.model.StuckPost;
 import com.example.sammengistu.stuck.model.VoteChoice;
 
@@ -28,10 +29,14 @@ public class StuckVoteActivity extends AppCompatActivity {
     private RecyclerView.LayoutManager mLayoutManagerChoices;
     private StuckPost mStuckPost;
 
-    @BindView(R.id.vote_toolbar) Toolbar mVoteToolbar;
-    @BindView(R.id.single_item_question) TextView mQuestion;
-    @BindView(R.id.sneak_peak_choice_1) TextView mSneakPeakChoice;
-    @BindView(R.id.post_location) TextView mPostLocation;
+    @BindView(R.id.vote_toolbar)
+    Toolbar mVoteToolbar;
+    @BindView(R.id.single_item_question)
+    TextView mQuestion;
+    @BindView(R.id.sneak_peak_choice_1)
+    TextView mSneakPeakChoice;
+    @BindView(R.id.post_location)
+    TextView mPostLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,10 +51,10 @@ public class StuckVoteActivity extends AppCompatActivity {
 
         mStuckPost = new StuckPost(
             getIntent().getStringExtra(StuckConstants.QUESTION_VIEW_HOLDER),
-            getIntent().getStringExtra(StuckConstants.CHOICE_1_VIEW_HOLDER),
-            getIntent().getStringExtra(StuckConstants.CHOICE_2_VIEW_HOLDER),
-            getIntent().getStringExtra(StuckConstants.CHOICE_3_VIEW_HOLDER),
-            getIntent().getStringExtra(StuckConstants.CHOICE_4_VIEW_HOLDER),
+            new Choice(getIntent().getStringExtra(StuckConstants.CHOICE_1_VIEW_HOLDER), 0),
+            new Choice(getIntent().getStringExtra(StuckConstants.CHOICE_2_VIEW_HOLDER), 0),
+            new Choice(getIntent().getStringExtra(StuckConstants.CHOICE_3_VIEW_HOLDER), 0),
+            new Choice(getIntent().getStringExtra(StuckConstants.CHOICE_4_VIEW_HOLDER), 0),
             getIntent().getStringExtra(StuckConstants.LOCATION_VIEW_HOLDER)
         );
 
@@ -71,16 +76,16 @@ public class StuckVoteActivity extends AppCompatActivity {
         mRecyclerViewChoices.setHasFixedSize(true);
 
         List<VoteChoice> stuckPostChoices = new ArrayList<>();
-        stuckPostChoices.add(new VoteChoice(mStuckPost.getChoice1(), false, 10));
-        stuckPostChoices.add(new VoteChoice(mStuckPost.getChoice2(), false, 1));
-        stuckPostChoices.add(new VoteChoice(mStuckPost.getChoice3(), false, 4));
-        stuckPostChoices.add(new VoteChoice(mStuckPost.getChoice4(), false, 9));
+        stuckPostChoices.add(new VoteChoice(mStuckPost.getChoice1().getChoice(), false, 10));
+        stuckPostChoices.add(new VoteChoice(mStuckPost.getChoice2().getChoice(), false, 1));
+        stuckPostChoices.add(new VoteChoice(mStuckPost.getChoice3().getChoice(), false, 4));
+        stuckPostChoices.add(new VoteChoice(mStuckPost.getChoice4().getChoice(), false, 9));
 
         mAdapterChoices = new VoteChoicesAdapter(stuckPostChoices, this);
         mRecyclerViewChoices.setAdapter(mAdapterChoices);
     }
 
-    private void setUpToolbar(){
+    private void setUpToolbar() {
 
         setSupportActionBar(mVoteToolbar);
 

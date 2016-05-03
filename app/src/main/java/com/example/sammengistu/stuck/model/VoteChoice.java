@@ -9,6 +9,9 @@ public class VoteChoice {
     private boolean mVotedFor;
     private int mVotes;
 
+    public VoteChoice() {
+    }
+
     public VoteChoice(String choice, boolean votedFor, int votes) {
         mChoice = choice;
         mVotedFor = votedFor;

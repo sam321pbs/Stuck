@@ -5,9 +5,14 @@ package com.example.sammengistu.stuck.model;
  */
 public class Choice {
     private String mChoice;
+    private int mVote;
 
-    public Choice(String choice) {
+    public Choice() {
+    }
+
+    public Choice(String choice, int vote) {
         mChoice = choice;
+        mVote = vote;
     }
 
     public String getChoice() {
@@ -16,5 +21,13 @@ public class Choice {
 
     public void setChoice(String choice) {
         mChoice = choice;
+    }
+
+    public int getVote() {
+        return mVote;
+    }
+
+    public void setVote(int vote) {
+        mVote = vote;
     }
 }

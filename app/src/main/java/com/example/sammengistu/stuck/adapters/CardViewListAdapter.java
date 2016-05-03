@@ -46,15 +46,15 @@ public class CardViewListAdapter extends RecyclerView.Adapter<CardViewListADView
         // - replace the contents of the view with that element
         holder.mStuckPostQuestion.setText(mStuckPosts.get(position).getQuestion());
         holder.mStuckPostLocation.setText(mStuckPosts.get(position).getStuckPostLocation());
-        holder.mStuckPostSneakPeakChoice.setText(mStuckPosts.get(position).getChoice1().substring(0, 2));
+        holder.mStuckPostSneakPeakChoice.setText(mStuckPosts.get(position).getChoice1().getChoice().substring(0, 2));
 
         //Set up stuck info for stuck vote activity
         holder.mQuestion = mStuckPosts.get(position).getQuestion();
         holder.mLocation = mStuckPosts.get(position).getStuckPostLocation();
-        holder.mChoice1 = mStuckPosts.get(position).getChoice1();
-        holder.mChoice2 = mStuckPosts.get(position).getChoice2();
-        holder.mChoice3 = mStuckPosts.get(position).getChoice3();
-        holder.mChoice4 = mStuckPosts.get(position).getChoice4();
+        holder.mChoice1 = mStuckPosts.get(position).getChoice1().getChoice();
+        holder.mChoice2 = mStuckPosts.get(position).getChoice2().getChoice();
+        holder.mChoice3 = mStuckPosts.get(position).getChoice3().getChoice();
+        holder.mChoice4 = mStuckPosts.get(position).getChoice4().getChoice();
 
     }
 

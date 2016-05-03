@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:orientation="vertical"
+             android:background="@color/colorPrimary"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent">
+
+    <RelativeLayout android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal|center_vertical">
+
+        <EditText
+                android:id="@+id/telaphone_number_edit_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/login_edit_text_box"
+                android:hint="Type phone number here"/>
+
+        <EditText android:id="@+id/sms_code_edit_text"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_below="@+id/telaphone_number_edit_text"
+                  android:layout_marginTop="@dimen/activity_horizontal_margin"
+                  android:hint="SMS Code"
+                  style="@style/login_edit_text_box"
+                  android:layout_centerHorizontal="true"/>
+
+    </RelativeLayout>
+
+    <Button android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal|bottom"
+            android:layout_marginBottom="@dimen/activity_horizontal_margin"
+            android:text="Sign up"/>
+
+
+</FrameLayout>

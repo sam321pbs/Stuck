@@ -7,18 +7,21 @@ public class StuckPost {
 
     private UUID mUUID;
     private String mQuestion;
-    private String mChoice1;
-    private String mChoice2;
-    private String mChoice3;
-    private String mChoice4;
+    private Choice mChoice1;
+    private Choice mChoice2;
+    private Choice mChoice3;
+    private Choice mChoice4;
 
     private String mStuckPostLocation;
 
-    public StuckPost (String question, String choice1,
-                       String choice2, String choice3, String choice4,
+    public StuckPost() {
+    }
+
+    public StuckPost (String question, Choice choice1,
+                      Choice choice2, Choice choice3, Choice choice4,
                       String stuckPostLocation){
 
-        mUUID = UUID.randomUUID();
+//        mUUID = UUID.randomUUID();
         mQuestion = question;
         mChoice1 = choice1;
         mChoice2 = choice2;
@@ -27,27 +30,46 @@ public class StuckPost {
         mStuckPostLocation = stuckPostLocation;
     }
 
-    public UUID getUUID() {
-        return mUUID;
+    public StuckPost( String question, Choice choice1, Choice choice2, String stuckPostLocation) {
+//        mUUID = UUID.randomUUID();
+        mQuestion = question;
+        mChoice1 = choice1;
+        mChoice2 = choice2;
+        mChoice3 = new Choice("", 0);
+        mChoice4 = new Choice("", 0);
+        mStuckPostLocation = stuckPostLocation;
     }
+
+    public StuckPost(String question, Choice choice1, Choice choice2, Choice choice3, String stuckPostLocation) {
+        mQuestion = question;
+        mChoice1 = choice1;
+        mChoice2 = choice2;
+        mChoice3 = choice3;
+        mChoice4 = new Choice("", 0);
+        mStuckPostLocation = stuckPostLocation;
+    }
+
+//    public UUID getUUID() {
+//        return mUUID;
+//    }
 
     public String getQuestion() {
         return mQuestion;
     }
 
-    public String getChoice1() {
+    public Choice getChoice1() {
         return mChoice1;
     }
 
-    public String getChoice2() {
+    public Choice getChoice2() {
         return mChoice2;
     }
 
-    public String getChoice3() {
+    public Choice getChoice3() {
         return mChoice3;
     }
 
-    public String getChoice4() {
+    public Choice getChoice4() {
         return mChoice4;
     }
 

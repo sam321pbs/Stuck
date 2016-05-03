@@ -94,25 +94,33 @@ public class StuckMainListActivity extends AppCompatActivity {
 
         List<StuckPost> myDataset = new ArrayList<>();
 
-        myDataset.add(new StuckPost(
-            "Where should I take my girl friend to Dinner?",
-            "Chipotle",
-            "Mcdonald's",
-            "Five guys",
-            "Red Lobster",
-            "College Park, MD"));
-
-        myDataset.add(new StuckPost(
-            "Where should I travel to next?",
-            "Italy",
-            "France",
-            "Canada",
-            "Ethiopia",
-            "Arlington, VA"));
+//        myDataset.add(new StuckPost(
+//            "Where should I take my girl friend to Dinner?",
+//            "Chipotle",
+//            "Mcdonald's",
+//            "Five guys",
+//            "Red Lobster",
+//            "College Park, MD"));
+//
+//        myDataset.add(new StuckPost(
+//            "Where should I travel to next?",
+//            "Italy",
+//            "France",
+//            "Canada",
+//            "Ethiopia",
+//            "Arlington, VA"));
 
         // specify an adapter (see also next example)
         mAdapter = new CardViewListAdapter(myDataset, this, StuckVoteActivity.class);
         mRecyclerViewQuestions.setAdapter(mAdapter);
+    }
+
+    @Override
+    protected void onResume(){
+        super.onResume();
+        //Todo: load up posts
+
+
     }
 
     //TODO: implement logic to load
