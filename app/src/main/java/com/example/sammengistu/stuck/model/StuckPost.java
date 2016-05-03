@@ -5,6 +5,7 @@ import java.util.UUID;
 
 public class StuckPost {
 
+
     private UUID mUUID;
     private String mQuestion;
     private Choice mChoice1;

@@ -4,9 +4,12 @@ import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 
 import com.example.sammengistu.stuck.R;
-import com.example.sammengistu.stuck.adapters.CardViewListAdapter;
+import com.example.sammengistu.stuck.StuckConstants;
+import com.example.sammengistu.stuck.adapters.CardViewListFBAdapter;
 import com.example.sammengistu.stuck.dialogs.FilterDialog;
-import com.example.sammengistu.stuck.model.StuckPost;
+import com.example.sammengistu.stuck.model.StuckPostSimple;
+import com.firebase.client.Firebase;
+import com.firebase.ui.FirebaseRecyclerAdapter;
 
 import android.app.ActivityOptions;
 import android.content.Intent;
@@ -25,9 +28,6 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -42,6 +42,8 @@ public class StuckMainListActivity extends AppCompatActivity {
     SwipeRefreshLayout mSwipeRefreshLayout;
     @BindView(R.id.filter_stuck_posts)
     TextView mFilterTextView;
+    @BindView(R.id.recycler_view_question_post)
+    RecyclerView mRecyclerViewQuestions;
 
     @OnClick(R.id.filter_stuck_posts)
     public void showFilter(View view) {
@@ -77,7 +79,6 @@ public class StuckMainListActivity extends AppCompatActivity {
             .setRequestAgent("android_studio:ad_template").build();
         adView.loadAd(adRequest);
 
-        RecyclerView mRecyclerViewQuestions = (RecyclerView) findViewById(R.id.recycler_view_question_post);
         // use a linear layout manager
         mLayoutManager = new LinearLayoutManager(this);
 
@@ -85,33 +86,22 @@ public class StuckMainListActivity extends AppCompatActivity {
             // use this setting to improve performance if you know that changes
             // in content do not change the layout size of the RecyclerView
             mRecyclerViewQuestions.setHasFixedSize(true);
+            mRecyclerViewQuestions.setLayoutManager(mLayoutManager);
         }
-
-        mRecyclerViewQuestions.setLayoutManager(mLayoutManager);
 
         setUpToolbar();
         setUpFloatingActionButton();
 
-        List<StuckPost> myDataset = new ArrayList<>();
+        initializeAdapter();
 
-//        myDataset.add(new StuckPost(
-//            "Where should I take my girl friend to Dinner?",
-//            "Chipotle",
-//            "Mcdonald's",
-//            "Five guys",
-//            "Red Lobster",
-//            "College Park, MD"));
-//
-//        myDataset.add(new StuckPost(
-//            "Where should I travel to next?",
-//            "Italy",
-//            "France",
-//            "Canada",
-//            "Ethiopia",
-//            "Arlington, VA"));
+    }
 
-        // specify an adapter (see also next example)
-        mAdapter = new CardViewListAdapter(myDataset, this, StuckVoteActivity.class);
+    private void initializeAdapter(){
+        Firebase ref = new Firebase(StuckConstants.FIREBASE_URL);
+
+        mAdapter = new CardViewListFBAdapter(StuckPostSimple.class, R.layout.stuck_single_item_question,
+            CardViewListFBAdapter.CardViewListADViewHolder.class, ref);
+
         mRecyclerViewQuestions.setAdapter(mAdapter);
     }
 
@@ -119,7 +109,6 @@ public class StuckMainListActivity extends AppCompatActivity {
     protected void onResume(){
         super.onResume();
         //Todo: load up posts
-
 
     }
 
@@ -170,6 +159,12 @@ public class StuckMainListActivity extends AppCompatActivity {
             params.setMargins(0, actionBarHeight / 2, 16, 0);
             mNewPostFAB.setLayoutParams(params);
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        ((FirebaseRecyclerAdapter )mAdapter).cleanup();
     }
 
 }

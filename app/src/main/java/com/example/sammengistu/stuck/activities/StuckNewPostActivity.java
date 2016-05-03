@@ -8,6 +8,7 @@ import com.example.sammengistu.stuck.model.StuckPostSimple;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
+import com.firebase.client.ServerValue;
 import com.firebase.client.ValueEventListener;
 
 import android.os.Bundle;
@@ -23,6 +24,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import butterknife.BindView;
@@ -52,7 +54,7 @@ public class StuckNewPostActivity extends AppCompatActivity implements View.OnCl
     private String avtivePost = "activePost";
 
     @Override
-    protected void onCreate(Bundle savedInstanceState){
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_stuck_post);
         ButterKnife.bind(this);
@@ -75,13 +77,13 @@ public class StuckNewPostActivity extends AppCompatActivity implements View.OnCl
         mMyChoicesRecyclerView.setAdapter(mAdapter);
     }
 
-    private void initializeViews(){
+    private void initializeViews() {
 
         mAddChoiceButton.setOnClickListener(this);
 
     }
 
-    private void setUpToolbar(){
+    private void setUpToolbar() {
 
         setSupportActionBar(mNewPostToolbar);
 
@@ -90,15 +92,36 @@ public class StuckNewPostActivity extends AppCompatActivity implements View.OnCl
             public void onClick(View v) {
                 //TODO: Check all boxs are filled
 //                if (isQuestionFilled() && isAllChoicesFilled()) {
+/**
+ * Create Firebase references
+ */
+                Firebase ref = new Firebase(StuckConstants.FIREBASE_URL);
+                Firebase newListRef = ref.push();
 
-                    Firebase ref = new Firebase(StuckConstants.FIREBASE_URL);
+
+                /* Save listsRef.push() to maintain same random Id */
+                final String listId = newListRef.getKey();
+
+                /**
+                 * Set raw version of date to the ServerValue.TIMESTAMP value and save into
+                 * timestampCreatedMap
+                 */
+                HashMap<String, Object> timestampCreated = new HashMap<>();
+                timestampCreated.put(StuckConstants.FIREBASE_PROPERTY_TIMESTAMP, ServerValue.TIMESTAMP);
+
 
                 StuckPostSimple stuckPost = new StuckPostSimple(
                     mQuestionEditText.getText().toString(),
                     mChoicesList.get(0).getChoice(),
                     mChoicesList.get(1).getChoice(),
                     "Sup sam",
-                    "College Park");
+                    "You the man",
+                    "College Park",
+                    timestampCreated);
+
+                                /* Add the shopping list */
+                newListRef.setValue(stuckPost);
+
 
 //                StuckPost stuckPost = new StuckPost();
 //                switch (mChoicesList.size()){
@@ -129,7 +152,8 @@ public class StuckNewPostActivity extends AppCompatActivity implements View.OnCl
 //                }
 
 
-                    ref.child(avtivePost).setValue(stuckPost);
+//                ref.push().setValue(stuckPost);
+//                    ref.child(avtivePost).setValue(stuckPost);
 
 //                    ref.addValueEventListener(new ValueEventListener() {
 //                        @Override
@@ -166,13 +190,13 @@ public class StuckNewPostActivity extends AppCompatActivity implements View.OnCl
         getSupportActionBar().setDisplayShowTitleEnabled(false);
     }
 
-    private boolean isQuestionFilled(){
+    private boolean isQuestionFilled() {
         return !mQuestionEditText.getText().toString().equals("");
     }
 
-    private boolean isAllChoicesFilled(){
-        for (Choice choice: mChoicesList){
-            if (choice.getChoice().equals("")){
+    private boolean isAllChoicesFilled() {
+        for (Choice choice : mChoicesList) {
+            if (choice.getChoice().equals("")) {
                 return false;
             }
         }
@@ -189,11 +213,9 @@ public class StuckNewPostActivity extends AppCompatActivity implements View.OnCl
 
                 StuckPostSimple stuckPost1 = dataSnapshot.getValue(StuckPostSimple.class);
 
-                if (stuckPost1 != null){
+                if (stuckPost1 != null) {
                     Log.i("Firebase Data", "Data changed " + stuckPost1.getChoiceOne());
                 }
-
-
             }
 
             @Override
