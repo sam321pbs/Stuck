@@ -29,17 +29,11 @@
     </android.support.v7.widget.Toolbar>
 
     <android.support.design.widget.FloatingActionButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="25dp"
-            android:layout_gravity="end|bottom"
-            android:layout_marginBottom="65dp"
-            app:fabSize="normal"
-            app:elevation="6dp"
-            app:pressedTranslationZ="12dp"
+            style="@style/floating_action_button_prop"
             android:id="@+id/fab_add"
-            android:src="@drawable/fab_plus"
-            android:layout_marginEnd="16dp"/>
+            app:elevation="6dp"
+            app:fabSize="normal"
+            app:pressedTranslationZ="12dp"/>
 
     <android.support.v4.widget.SwipeRefreshLayout
             android:id="@+id/swipe_refresh_layout"

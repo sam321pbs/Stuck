@@ -92,7 +92,7 @@ public class StuckMainListActivity extends AppCompatActivity {
         setUpToolbar();
         setUpFloatingActionButton();
 
-        initializeAdapter();
+
 
     }
 
@@ -100,7 +100,7 @@ public class StuckMainListActivity extends AppCompatActivity {
         Firebase ref = new Firebase(StuckConstants.FIREBASE_URL);
 
         mAdapter = new CardViewListFBAdapter(StuckPostSimple.class, R.layout.stuck_single_item_question,
-            CardViewListFBAdapter.CardViewListADViewHolder.class, ref);
+            CardViewListFBAdapter.CardViewListADViewHolder.class, ref, StuckMainListActivity.this);
 
         mRecyclerViewQuestions.setAdapter(mAdapter);
     }
@@ -109,6 +109,7 @@ public class StuckMainListActivity extends AppCompatActivity {
     protected void onResume(){
         super.onResume();
         //Todo: load up posts
+        initializeAdapter();
 
     }
 

@@ -8,6 +8,12 @@
             style="@style/toolbar_properties"
             android:id="@+id/vote_toolbar">
 
+        <ImageView android:layout_width="wrap_content"
+                   android:layout_height="wrap_content"
+                   android:id="@+id/delete_post_image_view"
+                   android:src="@drawable/trash_can"
+                   android:layout_gravity="end"/>
+
         <include
             layout="@layout/stuck_app_name_text_view"/>
     </android.support.v7.widget.Toolbar>

@@ -2,7 +2,7 @@
 <RelativeLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent" xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <android.support.v7.widget.Toolbar
             style="@style/toolbar_properties"
@@ -47,16 +47,13 @@
                 android:layout_marginTop="15dp"
                 android:layout_weight="50"/>
 
-        <Button
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+        <android.support.design.widget.FloatingActionButton
                 android:id="@+id/add_choice_button"
-                android:layout_gravity="bottom"
-                android:layout_marginBottom="10dp"
-                android:background="@color/colorWhite"
-                android:text="@string/add_choice"
-                android:elevation="10dp"
-                android:layout_weight="0"/>
+                style="@style/floating_action_button_prop"
+                app:elevation="6dp"
+                app:fabSize="normal"
+                app:pressedTranslationZ="12dp"
+                android:layout_marginBottom="@dimen/activity_horizontal_margin"/>
 
     </LinearLayout>
 

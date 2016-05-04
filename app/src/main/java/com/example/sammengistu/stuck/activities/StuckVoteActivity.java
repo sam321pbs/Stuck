@@ -3,9 +3,12 @@ package com.example.sammengistu.stuck.activities;
 import com.example.sammengistu.stuck.R;
 import com.example.sammengistu.stuck.StuckConstants;
 import com.example.sammengistu.stuck.adapters.VoteChoicesAdapter;
-import com.example.sammengistu.stuck.model.Choice;
-import com.example.sammengistu.stuck.model.StuckPost;
+import com.example.sammengistu.stuck.model.StuckPostSimple;
 import com.example.sammengistu.stuck.model.VoteChoice;
+import com.firebase.client.DataSnapshot;
+import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
+import com.firebase.client.ValueEventListener;
 
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
@@ -13,13 +16,17 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 
 public class StuckVoteActivity extends AppCompatActivity {
@@ -27,7 +34,7 @@ public class StuckVoteActivity extends AppCompatActivity {
     private RecyclerView mRecyclerViewChoices;
     private RecyclerView.Adapter mAdapterChoices;
     private RecyclerView.LayoutManager mLayoutManagerChoices;
-    private StuckPost mStuckPost;
+    private StuckPostSimple mStuckPostSimple;
 
     @BindView(R.id.vote_toolbar)
     Toolbar mVoteToolbar;
@@ -37,6 +44,38 @@ public class StuckVoteActivity extends AppCompatActivity {
     TextView mSneakPeakChoice;
     @BindView(R.id.post_location)
     TextView mPostLocation;
+    @BindView(R.id.delete_post_image_view)
+    ImageView mDeleteImageView;
+
+    @OnClick(R.id.delete_post_image_view)
+    public void setDeleteImageView(View view) {
+        mRefPost.removeValue();
+    }
+
+    private Firebase mRefPost;
+    private List<VoteChoice> mStuckPostChoices;
+
+    private ValueEventListener mValueEventListener = new ValueEventListener() {
+        @Override
+        public void onDataChange(DataSnapshot dataSnapshot) {
+            mStuckPostSimple = dataSnapshot.getValue(StuckPostSimple.class);
+            mStuckPostChoices.clear();
+            mStuckPostChoices.add(new VoteChoice(mStuckPostSimple.getChoiceOne(),
+                false, mStuckPostSimple.getChoiceOneVotes()));
+            mStuckPostChoices.add(new VoteChoice(mStuckPostSimple.getChoiceTwo(),
+                false, mStuckPostSimple.getChoiceTwoVotes()));
+            mStuckPostChoices.add(new VoteChoice(mStuckPostSimple.getChoiceThree(),
+                false, mStuckPostSimple.getChoiceThreeVotes()));
+            mStuckPostChoices.add(new VoteChoice(mStuckPostSimple.getChoiceFour(),
+                false, mStuckPostSimple.getChoiceFourVotes()));
+            mAdapterChoices.notifyDataSetChanged();
+        }
+
+        @Override
+        public void onCancelled(FirebaseError firebaseError) {
+
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,18 +88,26 @@ public class StuckVoteActivity extends AppCompatActivity {
 
         setUpToolbar();
 
-        mStuckPost = new StuckPost(
+        mStuckPostSimple = new StuckPostSimple(
             getIntent().getStringExtra(StuckConstants.QUESTION_VIEW_HOLDER),
-            new Choice(getIntent().getStringExtra(StuckConstants.CHOICE_1_VIEW_HOLDER), 0),
-            new Choice(getIntent().getStringExtra(StuckConstants.CHOICE_2_VIEW_HOLDER), 0),
-            new Choice(getIntent().getStringExtra(StuckConstants.CHOICE_3_VIEW_HOLDER), 0),
-            new Choice(getIntent().getStringExtra(StuckConstants.CHOICE_4_VIEW_HOLDER), 0),
-            getIntent().getStringExtra(StuckConstants.LOCATION_VIEW_HOLDER)
+            getIntent().getStringExtra(StuckConstants.LOCATION_VIEW_HOLDER),
+            getIntent().getStringExtra(StuckConstants.CHOICE_1_VIEW_HOLDER),
+            getIntent().getStringExtra(StuckConstants.CHOICE_2_VIEW_HOLDER),
+            getIntent().getStringExtra(StuckConstants.CHOICE_3_VIEW_HOLDER),
+            getIntent().getStringExtra(StuckConstants.CHOICE_4_VIEW_HOLDER),
+            getIntent().getIntExtra(StuckConstants.CHOICE_1_VOTES_VIEW_HOLDER, 0),
+            getIntent().getIntExtra(StuckConstants.CHOICE_1_VOTES_VIEW_HOLDER, 0),
+            getIntent().getIntExtra(StuckConstants.CHOICE_1_VOTES_VIEW_HOLDER, 0),
+            getIntent().getIntExtra(StuckConstants.CHOICE_1_VOTES_VIEW_HOLDER, 0),
+            new HashMap<String, Object>()
         );
 
-        mQuestion.setText(mStuckPost.getQuestion());
+        mRefPost = new Firebase(getIntent().getStringExtra(StuckConstants.FIREBASE_REF));
+
+
+        mQuestion.setText(mStuckPostSimple.getQuestion());
         mSneakPeakChoice.setText("");
-        mPostLocation.setText(mStuckPost.getStuckPostLocation());
+        mPostLocation.setText(mStuckPostSimple.getLocation());
 
         setUpRecyclerViewChoices();
     }
@@ -75,14 +122,22 @@ public class StuckVoteActivity extends AppCompatActivity {
         // in content do not change the layout size of the RecyclerView
         mRecyclerViewChoices.setHasFixedSize(true);
 
-        List<VoteChoice> stuckPostChoices = new ArrayList<>();
-        stuckPostChoices.add(new VoteChoice(mStuckPost.getChoice1().getChoice(), false, 10));
-        stuckPostChoices.add(new VoteChoice(mStuckPost.getChoice2().getChoice(), false, 1));
-        stuckPostChoices.add(new VoteChoice(mStuckPost.getChoice3().getChoice(), false, 4));
-        stuckPostChoices.add(new VoteChoice(mStuckPost.getChoice4().getChoice(), false, 9));
 
-        mAdapterChoices = new VoteChoicesAdapter(stuckPostChoices, this);
+        mStuckPostChoices = new ArrayList<>();
+        mStuckPostChoices.add(new VoteChoice(mStuckPostSimple.getChoiceOne(),
+            false, mStuckPostSimple.getChoiceOneVotes()));
+        mStuckPostChoices.add(new VoteChoice(mStuckPostSimple.getChoiceTwo(),
+            false, mStuckPostSimple.getChoiceTwoVotes()));
+        mStuckPostChoices.add(new VoteChoice(mStuckPostSimple.getChoiceThree(),
+            false, mStuckPostSimple.getChoiceThreeVotes()));
+        mStuckPostChoices.add(new VoteChoice(mStuckPostSimple.getChoiceFour(),
+            false, mStuckPostSimple.getChoiceFourVotes()));
+
+        mAdapterChoices = new VoteChoicesAdapter(mStuckPostChoices, this,
+            getIntent().getStringExtra(StuckConstants.FIREBASE_REF));
         mRecyclerViewChoices.setAdapter(mAdapterChoices);
+
+        mRefPost.addValueEventListener(mValueEventListener);
     }
 
     private void setUpToolbar() {
@@ -99,5 +154,10 @@ public class StuckVoteActivity extends AppCompatActivity {
         }
 
 
+    }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mRefPost.removeEventListener(mValueEventListener);
     }
 }

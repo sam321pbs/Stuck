@@ -1,11 +1,14 @@
 package com.example.sammengistu.stuck.adapters;
 
 import com.example.sammengistu.stuck.R;
+import com.example.sammengistu.stuck.StuckConstants;
 import com.example.sammengistu.stuck.model.VoteChoice;
 import com.example.sammengistu.stuck.viewHolders.VoteChoicesADViewHolder;
+import com.firebase.client.Firebase;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,12 +24,15 @@ public class VoteChoicesAdapter extends RecyclerView.Adapter<VoteChoicesADViewHo
     private List<VoteChoice> mStuckPostChoices;
     private Context mContext;
     private int mShowAnimation;
+    private Firebase mFireBaseRef;
+
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    public VoteChoicesAdapter(List<VoteChoice> myDataset, Context context) {
+    public VoteChoicesAdapter(List<VoteChoice> myDataset, Context context, String fireBaseRef) {
         mStuckPostChoices = myDataset;
         mContext = context;
         mShowAnimation = 0;
+        mFireBaseRef = new Firebase(fireBaseRef);
     }
 
     // Create new views (invoked by the layout manager)
@@ -44,8 +50,9 @@ public class VoteChoicesAdapter extends RecyclerView.Adapter<VoteChoicesADViewHo
     // Replace the contents of a view (invoked by the layout manager)
     @SuppressWarnings("deprecation")
     @Override
-    public void onBindViewHolder(VoteChoicesADViewHolder holder, int position) {
+    public void onBindViewHolder(VoteChoicesADViewHolder holder, final int position) {
 
+        final int pos = position;
         final VoteChoicesADViewHolder currentViewHolder = holder;
         final VoteChoice currentChoice = mStuckPostChoices.get(position);
         // - get element from your dataset at this position
@@ -53,22 +60,18 @@ public class VoteChoicesAdapter extends RecyclerView.Adapter<VoteChoicesADViewHo
         holder.mChoice.setText(currentChoice.getChoice());
         holder.mNumberOfVotes.setText(currentChoice.getVotes() + "");
 
-        if (currentChoice.isVotedFor()){
-            currentViewHolder.mCardViewChoice.setBackgroundColor(
-                mContext.getResources().getColor(R.color.colorVoted));
-
-        } else {
-                currentViewHolder.mCardViewChoice.setBackgroundColor(
-                    mContext.getResources().getColor(R.color.colorWhite));
-        }
+        changeViewColor(currentChoice, currentViewHolder);
 
         holder.mCardViewChoice.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //Todo: Don't change value if user already voted for it
+
                 //Change previous selected vote back down to one
                 for (VoteChoice vc: mStuckPostChoices){
                     if (vc.isVotedFor()){
                         vc.setVotes(vc.getVotes() - 1);
+//                        changeViewColor(vc, currentViewHolder);
                     }
                 }
 
@@ -77,6 +80,16 @@ public class VoteChoicesAdapter extends RecyclerView.Adapter<VoteChoicesADViewHo
                 } else {
                     currentChoice.setVotedFor(true);
                     currentChoice.setVotes(currentChoice.getVotes() + 1);
+
+                    if (pos == 0){
+                        mFireBaseRef.child(StuckConstants.CHILD_CHOICE_ONE_VOTES).setValue(currentChoice.getVotes());
+                    } else if (pos == 1){
+                        mFireBaseRef.child(StuckConstants.CHILD_CHOICE_TWO_VOTES).setValue(currentChoice.getVotes());
+                    } else if (pos == 2){
+                        mFireBaseRef.child(StuckConstants.CHILD_CHOICE_THREE_VOTES).setValue(currentChoice.getVotes());
+                    } else {
+                        mFireBaseRef.child(StuckConstants.CHILD_CHOICE_FOUR_VOTES).setValue(currentChoice.getVotes());
+                    }
                 }
 
                 //Changes all other votes to false
@@ -86,6 +99,7 @@ public class VoteChoicesAdapter extends RecyclerView.Adapter<VoteChoicesADViewHo
                     }
                 }
 
+                Log.i("VoteChoiceAda", "Notifying");
                 notifyDataSetChanged();
             }
         });
@@ -107,4 +121,17 @@ public class VoteChoicesAdapter extends RecyclerView.Adapter<VoteChoicesADViewHo
 
         return mStuckPostChoices.size();
     }
+
+    @SuppressWarnings("deprecation")
+    private void changeViewColor(VoteChoice currentChoice, VoteChoicesADViewHolder currentViewHolder) {
+        if (currentChoice.isVotedFor()){
+            currentViewHolder.mCardViewChoice.setBackgroundColor(
+                mContext.getResources().getColor(R.color.colorVoted));
+
+        } else {
+            currentViewHolder.mCardViewChoice.setBackgroundColor(
+                mContext.getResources().getColor(R.color.colorWhite));
+        }
+    }
+
 }

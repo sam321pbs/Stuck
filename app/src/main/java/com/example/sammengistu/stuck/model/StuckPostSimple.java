@@ -17,10 +17,78 @@ public class StuckPostSimple {
     private String location;
     private String choiceThree;
     private String choiceFour;
+    private int choiceOneVotes;
+    private int choiceTwoVotes;
+    private int choiceThreeVotes;
+    private int choiceFourVotes;
     private HashMap<String, Object> timestampCreated;
     private HashMap<String, Object> timestampLastChanged;
 
     public StuckPostSimple() {
+    }
+
+    public StuckPostSimple(String question, String location, String choiceOne, String choiceTwo,
+                           int choiceOneVotes, int choiceTwoVotes,HashMap<String, Object> timestampCreated) {
+        this.question = question;
+        this.choiceOne = choiceOne;
+        this.choiceTwo = choiceTwo;
+        this.choiceThree = "";
+        this.choiceFour = "";
+        this.location = location;
+        this.choiceOneVotes = choiceOneVotes;
+        this.choiceTwoVotes = choiceTwoVotes;
+        this.choiceThreeVotes = 0;
+        this.choiceFourVotes = 0;
+
+        this.timestampCreated = timestampCreated;
+        HashMap<String, Object> timestampNowObject = new HashMap<String, Object>();
+        timestampNowObject.put(StuckConstants.FIREBASE_PROPERTY_TIMESTAMP, ServerValue.TIMESTAMP);
+        this.timestampLastChanged = timestampNowObject;
+
+    }
+
+    public StuckPostSimple(String question, String location, String choiceOne, String choiceTwo,
+                           String choiceThree, int choiceOneVotes, int choiceTwoVotes,
+                           int choiceThreeVotes, HashMap<String, Object> timestampCreated) {
+        this.question = question;
+        this.choiceOne = choiceOne;
+        this.choiceTwo = choiceTwo;
+        this.location = location;
+        this.choiceThree = choiceThree;
+        this.choiceFour = "";
+        this.choiceOneVotes = choiceOneVotes;
+        this.choiceTwoVotes = choiceTwoVotes;
+        this.choiceThreeVotes = choiceThreeVotes;
+        this.choiceFourVotes = 0;
+
+        this.timestampCreated = timestampCreated;
+        HashMap<String, Object> timestampNowObject = new HashMap<String, Object>();
+        timestampNowObject.put(StuckConstants.FIREBASE_PROPERTY_TIMESTAMP, ServerValue.TIMESTAMP);
+        this.timestampLastChanged = timestampNowObject;
+
+    }
+
+    public StuckPostSimple(String question, String location, String choiceOne, String choiceTwo,
+                           String choiceThree, String choiceFour, int choiceOneVotes,
+                           int choiceTwoVotes, int choiceThreeVotes, int choiceFourVotes,
+                           HashMap<String, Object> timestampCreated) {
+        this.question = question;
+        this.choiceOne = choiceOne;
+        this.choiceTwo = choiceTwo;
+        this.location = location;
+        this.choiceThree = choiceThree;
+        this.choiceFour = choiceFour;
+        this.choiceOneVotes = choiceOneVotes;
+        this.choiceTwoVotes = choiceTwoVotes;
+        this.choiceThreeVotes = choiceThreeVotes;
+        this.choiceFourVotes = choiceFourVotes;
+        this.timestampCreated = timestampCreated;
+
+        this.timestampCreated = timestampCreated;
+        HashMap<String, Object> timestampNowObject = new HashMap<String, Object>();
+        timestampNowObject.put(StuckConstants.FIREBASE_PROPERTY_TIMESTAMP, ServerValue.TIMESTAMP);
+        this.timestampLastChanged = timestampNowObject;
+
     }
 
     public StuckPostSimple(String question, String choiceOne, String choiceTwo,
@@ -37,22 +105,22 @@ public class StuckPostSimple {
         this.timestampLastChanged = timestampNowObject;
     }
 
-    public StuckPostSimple(String question, String choiceOne,
-                           String choiceTwo, String choiceThree, String choiceFour, String location,
-                           HashMap<String, Object> timestampCreated) {
-
-        this.question = question;
-        this.choiceOne = choiceOne;
-        this.choiceTwo = choiceTwo;
-        this.choiceThree = choiceThree;
-        this.choiceFour = choiceFour;
-        this.location = location;
-
-        this.timestampCreated = timestampCreated;
-        HashMap<String, Object> timestampNowObject = new HashMap<>();
-        timestampNowObject.put(StuckConstants.FIREBASE_PROPERTY_TIMESTAMP, ServerValue.TIMESTAMP);
-        this.timestampLastChanged = timestampNowObject;
-    }
+//    public StuckPostSimple(String question, String choiceOne,
+//                           String choiceTwo, String choiceThree, String choiceFour, String location,
+//                           HashMap<String, Object> timestampCreated) {
+//
+//        this.question = question;
+//        this.choiceOne = choiceOne;
+//        this.choiceTwo = choiceTwo;
+//        this.choiceThree = choiceThree;
+//        this.choiceFour = choiceFour;
+//        this.location = location;
+//
+//        this.timestampCreated = timestampCreated;
+//        HashMap<String, Object> timestampNowObject = new HashMap<>();
+//        timestampNowObject.put(StuckConstants.FIREBASE_PROPERTY_TIMESTAMP, ServerValue.TIMESTAMP);
+//        this.timestampLastChanged = timestampNowObject;
+//    }
 
     public StuckPostSimple(String question, String choiceOne, String choiceTwo, String location,
                            HashMap<String, Object> timestampCreated) {
@@ -93,6 +161,37 @@ public class StuckPostSimple {
         return choiceTwo;
     }
 
+    public int getChoiceOneVotes() {
+        return choiceOneVotes;
+    }
+
+    public void setChoiceOneVotes(int choiceOneVotes) {
+        this.choiceOneVotes = choiceOneVotes;
+    }
+
+    public int getChoiceTwoVotes() {
+        return choiceTwoVotes;
+    }
+
+    public void setChoiceTwoVotes(int choiceTwoVotes) {
+        this.choiceTwoVotes = choiceTwoVotes;
+    }
+
+    public int getChoiceThreeVotes() {
+        return choiceThreeVotes;
+    }
+
+    public void setChoiceThreeVotes(int choiceThreeVotes) {
+        this.choiceThreeVotes = choiceThreeVotes;
+    }
+
+    public int getChoiceFourVotes() {
+        return choiceFourVotes;
+    }
+
+    public void setChoiceFourVotes(int choiceFourVotes) {
+        this.choiceFourVotes = choiceFourVotes;
+    }
 
     public HashMap<String, Object> getTimestampCreated() {
         return timestampCreated;
