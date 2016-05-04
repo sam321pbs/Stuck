@@ -10,6 +10,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -51,6 +52,7 @@ public class MyPostChoiceAdapter extends RecyclerView.Adapter<MyPostChoiceADView
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
         final int pos = holder.getAdapterPosition();
+        Log.i("PostAdapter", "Current pos = " + pos + " Choice list value = " + mChoiceDataSet.get(pos).getChoice());
         View.OnLongClickListener deleteChoiceListener = new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
@@ -84,6 +86,7 @@ public class MyPostChoiceAdapter extends RecyclerView.Adapter<MyPostChoiceADView
 
 
         holder.mChoiceEditText.setOnLongClickListener(deleteChoiceListener);
+        holder.mChoiceEditText.setText(mChoiceDataSet.get(pos).getChoice());
         holder.mChoiceEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {

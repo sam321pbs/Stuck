@@ -98,80 +98,64 @@ public class StuckNewPostActivity extends AppCompatActivity implements View.OnCl
  * Create Firebase references
  */
                 /* Save listsRef.push() to maintain same random Id */
-                final String listId = mNewListRef.getKey();
+                    final String listId = mNewListRef.getKey();
 
-                /**
-                 * Set raw version of date to the ServerValue.TIMESTAMP value and save into
-                 * timestampCreatedMap
-                 */
-                HashMap<String, Object> timestampCreated = new HashMap<>();
-                timestampCreated.put(StuckConstants.FIREBASE_PROPERTY_TIMESTAMP, ServerValue.TIMESTAMP);
-
-
-//                StuckPostSimple stuckPost = new StuckPostSimple(
-//                    mQuestionEditText.getText().toString(),
-//                    "College Park",
-//                    mChoicesList.get(0).getChoice(),
-//                    mChoicesList.get(1).getChoice(),
-//                    "Sup sam",
-//                    "You the man",
-//                    0,
-//                    0,
-//                    0,
-//                    0,
-//                    timestampCreated);
+                    /**
+                     * Set raw version of date to the ServerValue.TIMESTAMP value and save into
+                     * timestampCreatedMap
+                     */
+                    HashMap<String, Object> timestampCreated = new HashMap<>();
+                    timestampCreated.put(StuckConstants.FIREBASE_PROPERTY_TIMESTAMP, ServerValue.TIMESTAMP);
 
                                 /* Add the shopping list */
 
+                    StuckPostSimple stuckPost = new StuckPostSimple();
+                    switch (mChoicesList.size()) {
+                        case 2:
+                            stuckPost = new StuckPostSimple(
+                                mQuestionEditText.getText().toString(),
+                                "College Park",
+                                mChoicesList.get(0).getChoice(),
+                                mChoicesList.get(1).getChoice(),
+                                "",
+                                "",
+                                0,
+                                0,
+                                0,
+                                0,
+                                timestampCreated);
+                            break;
 
+                        case 3:
+                            stuckPost = new StuckPostSimple(
+                                mQuestionEditText.getText().toString(),
+                                "College Park",
+                                mChoicesList.get(0).getChoice(),
+                                mChoicesList.get(1).getChoice(),
+                                mChoicesList.get(2).getChoice(),
+                                "",
+                                0,
+                                0,
+                                0,
+                                0,
+                                timestampCreated);
+                            break;
+                        case 4:
+                            stuckPost = new StuckPostSimple(
+                                mQuestionEditText.getText().toString(),
+                                "College Park",
+                                mChoicesList.get(0).getChoice(),
+                                mChoicesList.get(1).getChoice(),
+                                mChoicesList.get(2).getChoice(),
+                                mChoicesList.get(3).getChoice(),
+                                0,
+                                0,
+                                0,
+                                0,
+                                timestampCreated);
+                    }
 
-                StuckPostSimple stuckPost = new StuckPostSimple();
-                switch (mChoicesList.size()){
-                    case 2:
-                        stuckPost = new StuckPostSimple(
-                            mQuestionEditText.getText().toString(),
-                            "College Park",
-                            mChoicesList.get(0).getChoice(),
-                            mChoicesList.get(1).getChoice(),
-                            "",
-                            "",
-                            0,
-                            0,
-                            0,
-                            0,
-                            timestampCreated);
-                        break;
-
-                    case 3:
-                        stuckPost = new StuckPostSimple(
-                            mQuestionEditText.getText().toString(),
-                            "College Park",
-                            mChoicesList.get(0).getChoice(),
-                            mChoicesList.get(1).getChoice(),
-                            mChoicesList.get(2).getChoice(),
-                            "",
-                            0,
-                            0,
-                            0,
-                            0,
-                            timestampCreated);
-                        break;
-                    case 4:
-                        stuckPost = new StuckPostSimple(
-                            mQuestionEditText.getText().toString(),
-                            "College Park",
-                            mChoicesList.get(0).getChoice(),
-                            mChoicesList.get(1).getChoice(),
-                            mChoicesList.get(2).getChoice(),
-                            mChoicesList.get(3).getChoice(),
-                            0,
-                            0,
-                            0,
-                            0,
-                            timestampCreated);
-                }
-
-                mNewListRef.setValue(stuckPost);
+                    mNewListRef.setValue(stuckPost);
 
 //                ref.push().setValue(stuckPost);
 //                    ref.child(avtivePost).setValue(stuckPost);
@@ -245,9 +229,26 @@ public class StuckNewPostActivity extends AppCompatActivity implements View.OnCl
 //            }
 //        });
         mChoicesList.add(new Choice("", 0));
+
+
+//        List<Choice> mChoiceTemp = new ArrayList<>();
+
+//
+//        for (int j = 0; j < mChoicesList.size(); j++){
+//
+//            mChoiceTemp.add();
+//        }
+
+//        for (Choice choice : mChoicesList) {
+//            Log.i("NewPost", choice.getChoice() + " ~");
+//        }
+
+// specify an adapter (see also next example)
+        mAdapter = new MyPostChoiceAdapter(mChoicesList, this);
+        mMyChoicesRecyclerView.setAdapter(mAdapter);
         mAdapter.notifyDataSetChanged();
 
-        if (mChoicesList.size() == 4){
+        if (mChoicesList.size() == 4) {
             mAddChoiceButton.setVisibility(View.INVISIBLE);
             mAddChoiceButton.setEnabled(false);
         }
