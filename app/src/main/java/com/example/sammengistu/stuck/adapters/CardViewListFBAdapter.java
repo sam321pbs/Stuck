@@ -49,7 +49,15 @@ public class CardViewListFBAdapter extends FirebaseRecyclerAdapter<StuckPostSimp
         // - replace the contents of the view with that element
         cardViewListADViewHolder.mStuckPostQuestion.setText(stuckPostSimple.getQuestion());
         cardViewListADViewHolder.mStuckPostLocation.setText(stuckPostSimple.getLocation());
-        cardViewListADViewHolder.mStuckPostSneakPeakChoice.setText(stuckPostSimple.getChoiceOne().substring(0, 2));
+
+        String choiceOne = stuckPostSimple.getChoiceOne()
+            ;
+        if (choiceOne.length() > 9){
+            cardViewListADViewHolder.mStuckPostSneakPeakChoice.setText(choiceOne.substring(0,9));
+        } else {
+            cardViewListADViewHolder.mStuckPostSneakPeakChoice.setText(choiceOne);
+        }
+
         cardViewListADViewHolder.mRef = getRef(i);
 
         //Set up stuck info for stuck vote activity

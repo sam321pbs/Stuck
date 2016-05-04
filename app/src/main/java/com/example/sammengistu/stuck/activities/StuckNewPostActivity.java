@@ -17,6 +17,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -201,6 +202,7 @@ public class StuckNewPostActivity extends AppCompatActivity implements View.OnCl
 
     private boolean isAllChoicesFilled() {
         for (Choice choice : mChoicesList) {
+            Log.i("NewPost", "current choice = " + choice.getChoice());
             if (choice.getChoice().equals("")) {
                 return false;
             }
