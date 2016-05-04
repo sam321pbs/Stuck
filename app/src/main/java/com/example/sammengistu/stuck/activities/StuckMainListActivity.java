@@ -89,10 +89,17 @@ public class StuckMainListActivity extends AppCompatActivity {
             mRecyclerViewQuestions.setLayoutManager(mLayoutManager);
         }
 
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                initializeAdapter();
+                mAdapter.notifyDataSetChanged();
+                mSwipeRefreshLayout.setRefreshing(false);
+            }
+        });
+
         setUpToolbar();
         setUpFloatingActionButton();
-
-
 
     }
 
@@ -114,7 +121,7 @@ public class StuckMainListActivity extends AppCompatActivity {
     }
 
     //TODO: implement logic to load
-    private void updateRefreshingUI() {
+    private void swipeRefreshingUI() {
 //        mSwipeRefreshLayout.setRefreshing(mIsRefreshing);
     }
 
