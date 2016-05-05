@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:orientation="vertical"
+             android:background="@color/colorPrimary"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent">
+
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+              android:text="STUCK"
+              android:textColor="@color/colorWhite"
+              android:textSize="45sp"
+              android:layout_gravity="center_horizontal"
+              android:layout_marginTop="60dp"/>
+
+    <LinearLayout android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:orientation="vertical"
+                  android:layout_gravity="center_horizontal|center_vertical">
+
+        <EditText
+                android:id="@+id/email_edit_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/login_edit_text_box"
+                android:inputType="textEmailAddress"
+                android:hint="Type your email here"/>
+
+        <EditText
+                android:id="@+id/password_edit_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/login_edit_text_box"
+                android:hint="Type your password here"
+                android:inputType="textPassword"
+                android:layout_marginTop="@dimen/activity_horizontal_margin"/>
+        <EditText
+                android:id="@+id/reenter_password_edit_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/login_edit_text_box"
+                android:hint="Re-enter password"
+                android:inputType="textPassword"
+                android:layout_marginTop="@dimen/activity_horizontal_margin"/>
+
+        <com.google.android.gms.common.SignInButton
+                android:layout_marginTop="15dp"
+                android:id="@+id/sign_in_button_google"
+                android:layout_gravity="center_horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        <TextView
+                android:id="@+id/sign_up_login_account"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:textSize="14sp"
+                android:padding="10dp"
+                android:text="Already have an account: Login"
+                android:textColor="@color/colorWhite"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="15dp"/>
+
+    </LinearLayout>
+
+    <Button android:id="@+id/create_account_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal|bottom"
+            android:layout_marginBottom="50dp"
+            android:text="Create account"/>
+
+
+</FrameLayout>

@@ -30,6 +30,7 @@ buildscript {
     }
     dependencies {
         classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
+
     }
 }
 
@@ -53,3 +54,4 @@ dependencies {
     compile 'com.firebase:firebase-client-android:2.5.2'
     compile 'com.firebaseui:firebase-ui:0.3.1'
 }
+apply plugin: 'com.google.gms.google-services'

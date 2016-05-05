@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "861485926984",
+    "project_id": "stuck-c7dd3"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:861485926984:android:d76ed905c287370a",
+        "android_client_info": {
+          "package_name": "com.example.sammengistu.stuck"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "861485926984-hmmknk7heqj1o4d6hl0eh7op1qt2u1fn.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.sammengistu.stuck",
+            "certificate_hash": "0CA134CA057CAA4D06E4E6BA98046193F77213B1"
+          }
+        },
+        {
+          "client_id": "861485926984-opvbr60731srvbteiurmlmdotsvqmnu3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyANodPeh-uB40iFcpIOkgh1qf_CjldvrKI"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

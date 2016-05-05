@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:orientation="vertical"
+             android:background="@color/colorPrimary"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent">
+
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+              android:text="STUCK"
+              android:textColor="@color/colorWhite"
+              android:textSize="45sp"
+              android:layout_gravity="center_horizontal"
+              android:layout_marginTop="80dp"/>
+
+    <LinearLayout android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:orientation="vertical"
+                  android:layout_gravity="center_horizontal|center_vertical"
+                  android:layout_marginBottom="40dp">
+
+        <EditText
+                android:id="@+id/login_email_edit_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/login_edit_text_box"
+                android:hint="Type your email here"
+                android:inputType="textEmailAddress"/>
+
+        <EditText
+                android:id="@+id/login_password_edit_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/login_edit_text_box"
+                android:hint="Type your password here"
+                android:layout_marginTop="@dimen/activity_horizontal_margin"
+                android:inputType="textPassword"/>
+
+        <TextView
+                android:id="@+id/login_sign_up_accout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:textSize="14sp"
+                android:text="Need an account: SignUp"
+                android:padding="10dp"
+                android:textColor="@color/colorWhite"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="15dp"/>
+
+    </LinearLayout>
+
+    <Button
+            android:id="@+id/login_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal|bottom"
+            android:layout_marginBottom="90dp"
+            android:text="Login"/>
+
+
+</FrameLayout>
