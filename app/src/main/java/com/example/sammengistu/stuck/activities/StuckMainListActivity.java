@@ -104,6 +104,7 @@ public class StuckMainListActivity extends AppCompatActivity {
 
         SharedPreferences pref = getApplicationContext()
             .getSharedPreferences(StuckConstants.SHARED_PREFRENCE_USER, 0); // 0 - for private mode
+
         mEmail = pref.getString(StuckConstants.KEY_ENCODED_EMAIL, "");
 
         // Load an ad into the AdMob banner view.

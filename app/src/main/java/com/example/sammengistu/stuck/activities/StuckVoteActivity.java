@@ -71,10 +71,15 @@ public class StuckVoteActivity extends AppCompatActivity {
                 false, mStuckPostSimple.getChoiceOneVotes()));
             mStuckPostChoices.add(new VoteChoice(mStuckPostSimple.getChoiceTwo(),
                 false, mStuckPostSimple.getChoiceTwoVotes()));
-            mStuckPostChoices.add(new VoteChoice(mStuckPostSimple.getChoiceThree(),
-                false, mStuckPostSimple.getChoiceThreeVotes()));
-            mStuckPostChoices.add(new VoteChoice(mStuckPostSimple.getChoiceFour(),
-                false, mStuckPostSimple.getChoiceFourVotes()));
+            if (!mStuckPostSimple.getChoiceThree().equals("")) {
+                mStuckPostChoices.add(new VoteChoice(mStuckPostSimple.getChoiceThree(),
+                    false, mStuckPostSimple.getChoiceThreeVotes()));
+            }
+            if (!mStuckPostSimple.getChoiceFour().equals("")) {
+                mStuckPostChoices.add(new VoteChoice(mStuckPostSimple.getChoiceFour(),
+                    false, mStuckPostSimple.getChoiceFourVotes()));
+            }
+
             mAdapterChoices.notifyDataSetChanged();
         }
 
@@ -95,8 +100,6 @@ public class StuckVoteActivity extends AppCompatActivity {
 
         // use a linear layout manager
         mLayoutManagerChoices = new LinearLayoutManager(this);
-
-        setUpToolbar();
 
         mSharedPreferences = getApplicationContext()
             .getSharedPreferences(StuckConstants.SHARED_PREFRENCE_USER, 0); // 0 - for private mode
@@ -132,6 +135,7 @@ public class StuckVoteActivity extends AppCompatActivity {
             }
         };
 
+        setUpToolbar();
         mFirebaseRef.addAuthStateListener(mAuthListener);
 
         mRefPost = new Firebase(getIntent().getStringExtra(StuckConstants.FIREBASE_REF));
@@ -153,15 +157,23 @@ public class StuckVoteActivity extends AppCompatActivity {
         mRecyclerViewChoices.setHasFixedSize(true);
 
         mStuckPostChoices = new ArrayList<>();
+
         mStuckPostChoices.add(new VoteChoice(mStuckPostSimple.getChoiceOne(),
             false, mStuckPostSimple.getChoiceOneVotes()));
         mStuckPostChoices.add(new VoteChoice(mStuckPostSimple.getChoiceTwo(),
             false, mStuckPostSimple.getChoiceTwoVotes()));
-        mStuckPostChoices.add(new VoteChoice(mStuckPostSimple.getChoiceThree(),
-            false, mStuckPostSimple.getChoiceThreeVotes()));
-        mStuckPostChoices.add(new VoteChoice(mStuckPostSimple.getChoiceFour(),
-            false, mStuckPostSimple.getChoiceFourVotes()));
 
+        if (!mStuckPostSimple.getChoiceThree().equals("")) {
+            mStuckPostChoices.add(new VoteChoice(mStuckPostSimple.getChoiceThree(),
+                false, mStuckPostSimple.getChoiceThreeVotes()));
+        }
+
+        if (!mStuckPostSimple.getChoiceFour().equals("")){
+            mStuckPostChoices.add(new VoteChoice(mStuckPostSimple.getChoiceFour(),
+                false, mStuckPostSimple.getChoiceFourVotes()));
+        }
+
+        Log.i(TAG, "Choice 4 = " + mStuckPostSimple.getChoiceFour());
         mAdapterChoices = new VoteChoicesAdapter(mStuckPostChoices, this,
             getIntent().getStringExtra(StuckConstants.FIREBASE_REF));
         mRecyclerViewChoices.setAdapter(mAdapterChoices);
@@ -182,10 +194,18 @@ public class StuckVoteActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayShowTitleEnabled(false);
         }
 
-        if (mStuckPostSimple.getEmail().equals(
-            mSharedPreferences.getString(StuckConstants.SHARED_PREFRENCE_USER, ""))){
+        Log.i(TAG, "Post email = " + mStuckPostSimple.getEmail().replaceAll("\\s" , "") + " user email = "
+            + mSharedPreferences.getString(StuckConstants.KEY_ENCODED_EMAIL, "").replaceAll("\\s" , ""));
 
-            mDeleteImageView.setEnabled(false);
+        if (mStuckPostSimple.getEmail().replaceAll("\\s" , "").equals(
+            mSharedPreferences.getString(
+                StuckConstants.KEY_ENCODED_EMAIL, "").replaceAll("\\s" , ""))){
+
+            mDeleteImageView.setEnabled(true);
+            mDeleteImageView.setVisibility(View.VISIBLE);
+        } else {
+
+            mDeleteImageView.setEnabled(true);
             mDeleteImageView.setVisibility(View.INVISIBLE);
         }
     }
