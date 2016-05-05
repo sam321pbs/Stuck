@@ -8,12 +8,12 @@ import com.example.sammengistu.stuck.StuckConstants;
 import com.example.sammengistu.stuck.adapters.CardViewListFBAdapter;
 import com.example.sammengistu.stuck.dialogs.FilterDialog;
 import com.example.sammengistu.stuck.model.StuckPostSimple;
+import com.firebase.client.AuthData;
 import com.firebase.client.Firebase;
 import com.firebase.ui.FirebaseRecyclerAdapter;
 
-import android.app.ActivityOptions;
 import android.content.Intent;
-import android.os.Build;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -22,11 +22,13 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -34,6 +36,7 @@ import butterknife.OnClick;
 
 public class StuckMainListActivity extends AppCompatActivity {
 
+    private static final String TAG = "StuckMainListActivity";
     @BindView(R.id.main_list_stuck_toolbar)
     Toolbar mMainListToolbar;
     @BindView(R.id.fab_add)
@@ -47,24 +50,31 @@ public class StuckMainListActivity extends AppCompatActivity {
 
     @OnClick(R.id.filter_stuck_posts)
     public void showFilter(View view) {
+
         FilterDialog filterDialog = new FilterDialog();
         filterDialog.show(getSupportFragmentManager(), "Filter");
     }
 
     @OnClick(R.id.fab_add)
     public void setNewPostFAB(View view) {
-        Intent intent = new Intent(this, StuckNewPostActivity.class);
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            startActivity(intent,
-                ActivityOptions.makeSceneTransitionAnimation(this).toBundle());
-        } else {
 
-            startActivity(intent);
-        }
+        mFirebaseRef.unauth();
+//        Intent intent = new Intent(this, StuckNewPostActivity.class);
+//        intent.putExtra(StuckConstants.PASSED_IN_EMAIL, mEmail);
+//        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+//            startActivity(intent,
+//                ActivityOptions.makeSceneTransitionAnimation(this).toBundle());
+//        } else {
+//
+//            startActivity(intent);
+//        }
     }
 
+    private String mEmail;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
+    private Firebase.AuthStateListener mAuthListener;
+    private Firebase mFirebaseRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +82,29 @@ public class StuckMainListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_stuck_main_list);
 
         ButterKnife.bind(this);
+
+        mFirebaseRef = new Firebase(StuckConstants.FIREBASE_URL)
+            .child(StuckConstants.FIREBASE_URL_USERS);
+        mAuthListener = new Firebase.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(AuthData authData) {
+                /* The user has been logged out */
+                if (authData == null) {
+
+                    Log.i(TAG, "USer has been logged out");
+                    takeUserToLoginScreenOnUnAuth();
+                } else {
+                    //not logged out
+                    Log.i(TAG, "USer not been logged out");
+                    Log.i(TAG, authData.getProviderData().containsKey("email") + " " + authData.getProviderData().get("email"));
+                }
+            }
+        };
+        mFirebaseRef.addAuthStateListener(mAuthListener);
+
+        SharedPreferences pref = getApplicationContext()
+            .getSharedPreferences(StuckConstants.SHARED_PREFRENCE_USER, 0); // 0 - for private mode
+        mEmail = pref.getString(StuckConstants.KEY_ENCODED_EMAIL, "");
 
         // Load an ad into the AdMob banner view.
         AdView adView = (AdView) findViewById(R.id.adView);
@@ -82,7 +115,7 @@ public class StuckMainListActivity extends AppCompatActivity {
         // use a linear layout manager
         mLayoutManager = new LinearLayoutManager(this);
 
-        if (mRecyclerViewQuestions != null){
+        if (mRecyclerViewQuestions != null) {
             // use this setting to improve performance if you know that changes
             // in content do not change the layout size of the RecyclerView
             mRecyclerViewQuestions.setHasFixedSize(true);
@@ -100,20 +133,29 @@ public class StuckMainListActivity extends AppCompatActivity {
 
         setUpToolbar();
         setUpFloatingActionButton();
-
+        Toast.makeText(this, mEmail, Toast.LENGTH_LONG).show();
     }
 
-    private void initializeAdapter(){
-        Firebase ref = new Firebase(StuckConstants.FIREBASE_URL);
+    private void takeUserToLoginScreenOnUnAuth() {
+        Intent intent = new Intent(this, StuckLoginActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+    }
 
-        mAdapter = new CardViewListFBAdapter(StuckPostSimple.class, R.layout.stuck_single_item_question,
-            CardViewListFBAdapter.CardViewListADViewHolder.class, ref, StuckMainListActivity.this);
+    private void initializeAdapter() {
+        Firebase ref = new Firebase(StuckConstants.FIREBASE_URL)
+            .child(StuckConstants.FIREBASE_URL_ACTIVE_POSTS);
+
+        mAdapter = new CardViewListFBAdapter(StuckPostSimple.class,
+            R.layout.stuck_single_item_question,
+            CardViewListFBAdapter.CardViewListADViewHolder.class, ref,
+            StuckMainListActivity.this, mEmail);
 
         mRecyclerViewQuestions.setAdapter(mAdapter);
     }
 
     @Override
-    protected void onResume(){
+    protected void onResume() {
         super.onResume();
         //Todo: load up posts
         initializeAdapter();
@@ -128,7 +170,7 @@ public class StuckMainListActivity extends AppCompatActivity {
     private void setUpToolbar() {
         setSupportActionBar(mMainListToolbar);
 
-        if(getSupportActionBar() != null){
+        if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(false);
             getSupportActionBar().setDisplayShowTitleEnabled(false);
         }
@@ -172,7 +214,8 @@ public class StuckMainListActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        ((FirebaseRecyclerAdapter )mAdapter).cleanup();
+        ((FirebaseRecyclerAdapter) mAdapter).cleanup();
+        mFirebaseRef.removeAuthStateListener(mAuthListener);
     }
 
 }

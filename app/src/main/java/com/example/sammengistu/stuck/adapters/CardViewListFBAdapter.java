@@ -23,6 +23,7 @@ import android.widget.TextView;
 public class CardViewListFBAdapter extends FirebaseRecyclerAdapter<StuckPostSimple, CardViewListFBAdapter.CardViewListADViewHolder> {
 
     private static Activity mShowPostActivity;
+    private static String mEmail;
 
     public CardViewListFBAdapter(Class<StuckPostSimple> modelClass, int modelLayout,
                                  Class<CardViewListFBAdapter.CardViewListADViewHolder> viewHolderClass,
@@ -32,9 +33,10 @@ public class CardViewListFBAdapter extends FirebaseRecyclerAdapter<StuckPostSimp
 
     public CardViewListFBAdapter(Class<StuckPostSimple> modelClass, int modelLayout,
                                  Class<CardViewListFBAdapter.CardViewListADViewHolder> viewHolderClass,
-                                 Firebase ref, Activity activity) {
+                                 Firebase ref, Activity activity, String email) {
         super(modelClass, modelLayout, viewHolderClass, ref);
         mShowPostActivity = activity;
+        mEmail = email;
     }
 
     @Override
@@ -120,6 +122,7 @@ public class CardViewListFBAdapter extends FirebaseRecyclerAdapter<StuckPostSimp
 
                     Intent stuckVoteIntent = new Intent(CardViewListFBAdapter.mShowPostActivity, StuckVoteActivity.class);
 
+                    stuckVoteIntent.putExtra(StuckConstants.PASSED_IN_EMAIL, mEmail);
                     stuckVoteIntent.putExtra(StuckConstants.LOCATION_VIEW_HOLDER, mLocation);
                     stuckVoteIntent.putExtra(StuckConstants.QUESTION_VIEW_HOLDER, mQuestion);
                     stuckVoteIntent.putExtra(StuckConstants.CHOICE_1_VIEW_HOLDER, mChoice1);

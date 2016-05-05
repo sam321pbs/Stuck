@@ -11,6 +11,7 @@ import java.util.HashMap;
  */
 public class StuckPostSimple {
 
+    private String email;
     private String question;
     private String choiceOne;
     private String choiceTwo;
@@ -27,8 +28,9 @@ public class StuckPostSimple {
     public StuckPostSimple() {
     }
 
-    public StuckPostSimple(String question, String location, String choiceOne, String choiceTwo,
+    public StuckPostSimple(String email, String question, String location, String choiceOne, String choiceTwo,
                            int choiceOneVotes, int choiceTwoVotes,HashMap<String, Object> timestampCreated) {
+        this.email = email;
         this.question = question;
         this.choiceOne = choiceOne;
         this.choiceTwo = choiceTwo;
@@ -47,9 +49,10 @@ public class StuckPostSimple {
 
     }
 
-    public StuckPostSimple(String question, String location, String choiceOne, String choiceTwo,
+    public StuckPostSimple(String email, String question, String location, String choiceOne, String choiceTwo,
                            String choiceThree, int choiceOneVotes, int choiceTwoVotes,
                            int choiceThreeVotes, HashMap<String, Object> timestampCreated) {
+        this.email = email;
         this.question = question;
         this.choiceOne = choiceOne;
         this.choiceTwo = choiceTwo;
@@ -68,10 +71,11 @@ public class StuckPostSimple {
 
     }
 
-    public StuckPostSimple(String question, String location, String choiceOne, String choiceTwo,
+    public StuckPostSimple(String email, String question, String location, String choiceOne, String choiceTwo,
                            String choiceThree, String choiceFour, int choiceOneVotes,
                            int choiceTwoVotes, int choiceThreeVotes, int choiceFourVotes,
                            HashMap<String, Object> timestampCreated) {
+        this.email = email;
         this.question = question;
         this.choiceOne = choiceOne;
         this.choiceTwo = choiceTwo;
@@ -91,50 +95,8 @@ public class StuckPostSimple {
 
     }
 
-    public StuckPostSimple(String question, String choiceOne, String choiceTwo,
-                           String choiceThree, String location, HashMap<String, Object> timestampCreated) {
-        this.question = question;
-        this.choiceOne = choiceOne;
-        this.choiceTwo = choiceTwo;
-        this.choiceThree = choiceThree;
-        this.location = location;
-
-        this.timestampCreated = timestampCreated;
-        HashMap<String, Object> timestampNowObject = new HashMap<String, Object>();
-        timestampNowObject.put(StuckConstants.FIREBASE_PROPERTY_TIMESTAMP, ServerValue.TIMESTAMP);
-        this.timestampLastChanged = timestampNowObject;
-    }
-
-//    public StuckPostSimple(String question, String choiceOne,
-//                           String choiceTwo, String choiceThree, String choiceFour, String location,
-//                           HashMap<String, Object> timestampCreated) {
-//
-//        this.question = question;
-//        this.choiceOne = choiceOne;
-//        this.choiceTwo = choiceTwo;
-//        this.choiceThree = choiceThree;
-//        this.choiceFour = choiceFour;
-//        this.location = location;
-//
-//        this.timestampCreated = timestampCreated;
-//        HashMap<String, Object> timestampNowObject = new HashMap<>();
-//        timestampNowObject.put(StuckConstants.FIREBASE_PROPERTY_TIMESTAMP, ServerValue.TIMESTAMP);
-//        this.timestampLastChanged = timestampNowObject;
-//    }
-
-    public StuckPostSimple(String question, String choiceOne, String choiceTwo, String location,
-                           HashMap<String, Object> timestampCreated) {
-        this.question = question;
-        this.choiceOne = choiceOne;
-        this.choiceTwo = choiceTwo;
-        this.choiceThree = "";
-        this.choiceFour = "";
-        this.location = location;
-
-        this.timestampCreated = timestampCreated;
-        HashMap<String, Object> timestampNowObject = new HashMap<String, Object>();
-        timestampNowObject.put(StuckConstants.FIREBASE_PROPERTY_TIMESTAMP, ServerValue.TIMESTAMP);
-        this.timestampLastChanged = timestampNowObject;
+    public String getEmail() {
+        return email;
     }
 
     public String getLocation() {

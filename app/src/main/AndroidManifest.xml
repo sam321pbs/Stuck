@@ -23,6 +23,7 @@ The ACCESS_COARSE/FINE_LOCATION permissions are not required to use
             android:supportsRtl="true"
             android:name=".StuckApplication"
             android:theme="@style/AppTheme">
+
         <activity android:name=".activities.StuckMainListActivity">
 
         </activity>

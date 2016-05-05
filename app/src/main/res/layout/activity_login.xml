@@ -35,13 +35,20 @@
                 android:layout_marginTop="@dimen/activity_horizontal_margin"
                 android:inputType="textPassword"/>
 
+        <com.google.android.gms.common.SignInButton
+                android:layout_marginTop="15dp"
+                android:id="@+id/log_in_button_google"
+                android:layout_gravity="center_horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
         <TextView
                 android:id="@+id/login_sign_up_accout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textStyle="bold"
                 android:textSize="14sp"
-                android:text="Need an account: SignUp"
+                android:text="Need an account: Sign Up"
                 android:padding="10dp"
                 android:textColor="@color/colorWhite"
                 android:layout_gravity="center_horizontal"

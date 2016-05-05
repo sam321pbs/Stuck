@@ -5,17 +5,20 @@ import com.example.sammengistu.stuck.StuckConstants;
 import com.example.sammengistu.stuck.adapters.VoteChoicesAdapter;
 import com.example.sammengistu.stuck.model.StuckPostSimple;
 import com.example.sammengistu.stuck.model.VoteChoice;
+import com.firebase.client.AuthData;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -31,6 +34,7 @@ import butterknife.OnClick;
 
 public class StuckVoteActivity extends AppCompatActivity {
 
+    private static String TAG = "StuckVoteActivity";
     private RecyclerView mRecyclerViewChoices;
     private RecyclerView.Adapter mAdapterChoices;
     private RecyclerView.LayoutManager mLayoutManagerChoices;
@@ -47,13 +51,16 @@ public class StuckVoteActivity extends AppCompatActivity {
     @BindView(R.id.delete_post_image_view)
     ImageView mDeleteImageView;
 
+    private Firebase.AuthStateListener mAuthListener;
+    private Firebase mRefPost;
+    private Firebase mFirebaseRef;
+    private List<VoteChoice> mStuckPostChoices;
+
+
     @OnClick(R.id.delete_post_image_view)
     public void setDeleteImageView(View view) {
         mRefPost.removeValue();
     }
-
-    private Firebase mRefPost;
-    private List<VoteChoice> mStuckPostChoices;
 
     private ValueEventListener mValueEventListener = new ValueEventListener() {
         @Override
@@ -77,18 +84,25 @@ public class StuckVoteActivity extends AppCompatActivity {
         }
     };
 
+    private SharedPreferences mSharedPreferences;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_stuck_vote);
         ButterKnife.bind(this);
+        Firebase.setAndroidContext(this);
 
         // use a linear layout manager
         mLayoutManagerChoices = new LinearLayoutManager(this);
 
         setUpToolbar();
 
+        mSharedPreferences = getApplicationContext()
+            .getSharedPreferences(StuckConstants.SHARED_PREFRENCE_USER, 0); // 0 - for private mode
+
         mStuckPostSimple = new StuckPostSimple(
+            getIntent().getStringExtra(StuckConstants.PASSED_IN_EMAIL),
             getIntent().getStringExtra(StuckConstants.QUESTION_VIEW_HOLDER),
             getIntent().getStringExtra(StuckConstants.LOCATION_VIEW_HOLDER),
             getIntent().getStringExtra(StuckConstants.CHOICE_1_VIEW_HOLDER),
@@ -102,8 +116,25 @@ public class StuckVoteActivity extends AppCompatActivity {
             new HashMap<String, Object>()
         );
 
-        mRefPost = new Firebase(getIntent().getStringExtra(StuckConstants.FIREBASE_REF));
+        mFirebaseRef = new Firebase(StuckConstants.FIREBASE_URL);
+        mAuthListener = new Firebase.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(AuthData authData) {
+                /* The user has been logged out */
+                if (authData == null) {
 
+                    Log.i(TAG, "USer has been logged out");
+//                    takeUserToLoginScreenOnUnAuth();
+                } else {
+                    //not logged out
+                    Log.i(TAG, "USer not been logged out");
+                }
+            }
+        };
+
+        mFirebaseRef.addAuthStateListener(mAuthListener);
+
+        mRefPost = new Firebase(getIntent().getStringExtra(StuckConstants.FIREBASE_REF));
 
         mQuestion.setText(mStuckPostSimple.getQuestion());
         mSneakPeakChoice.setText("");
@@ -115,13 +146,11 @@ public class StuckVoteActivity extends AppCompatActivity {
     private void setUpRecyclerViewChoices() {
         mRecyclerViewChoices = (RecyclerView) findViewById(R.id.recycler_view_choices_vote);
 
-
         mRecyclerViewChoices.setLayoutManager(mLayoutManagerChoices);
 
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
         mRecyclerViewChoices.setHasFixedSize(true);
-
 
         mStuckPostChoices = new ArrayList<>();
         mStuckPostChoices.add(new VoteChoice(mStuckPostSimple.getChoiceOne(),
@@ -153,8 +182,14 @@ public class StuckVoteActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayShowTitleEnabled(false);
         }
 
+        if (mStuckPostSimple.getEmail().equals(
+            mSharedPreferences.getString(StuckConstants.SHARED_PREFRENCE_USER, ""))){
 
+            mDeleteImageView.setEnabled(false);
+            mDeleteImageView.setVisibility(View.INVISIBLE);
+        }
     }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
