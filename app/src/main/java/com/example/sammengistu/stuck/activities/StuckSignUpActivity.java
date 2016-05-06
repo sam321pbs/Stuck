@@ -10,6 +10,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.GoogleApiClient;
 
+import com.example.sammengistu.stuck.NetworkStatus;
 import com.example.sammengistu.stuck.R;
 import com.example.sammengistu.stuck.StuckConstants;
 import com.example.sammengistu.stuck.model.User;
@@ -73,55 +74,63 @@ public class StuckSignUpActivity extends AppCompatActivity {
 
     @OnClick(R.id.sign_in_button_google)
     public void signInWithGoogle() {
-        signIn();
+        if (NetworkStatus.isOnline(this)) {
+            signIn();
+        } else {
+            NetworkStatus.showOffLineDialog(this);
+        }
     }
 
     @OnClick(R.id.create_account_button)
     public void onClickCreate() {
+        if (NetworkStatus.isOnline(this)) {
+            if (allFieldsAreEntered() && passwordsMatch() && vaildEmail(mEmailField)) {
+                if (mPasswordField.getText().toString().length() >= 5) {
+                    final ProgressDialog dialog = new ProgressDialog(this);
+                    dialog.setMessage("Creating account..");
+                    dialog.show();
 
-        if (allFieldsAreEntered() && passwordsMatch() && vaildEmail(mEmailField)) {
-            if (mPasswordField.getText().toString().length() >= 5) {
-                final ProgressDialog dialog = new ProgressDialog(this);
-                dialog.setMessage("Creating account..");
-                dialog.show();
+                    firebase.createUser(mEmailField.getText().toString(),
+                        mPasswordField.getText().toString(),
+                        new Firebase.ValueResultHandler<Map<String, Object>>() {
+                            @Override
+                            public void onSuccess(Map<String, Object> stringObjectMap) {
+                                Log.i(TAG, "Successfully created user account with uid: " + stringObjectMap.get("uid"));
+                                dialog.dismiss();
 
-                firebase.createUser(mEmailField.getText().toString(),
-                    mPasswordField.getText().toString(),
-                    new Firebase.ValueResultHandler<Map<String, Object>>() {
-                        @Override
-                        public void onSuccess(Map<String, Object> stringObjectMap) {
-                            Log.i(TAG, "Successfully created user account with uid: " + stringObjectMap.get("uid"));
-                            dialog.dismiss();
+                                email = encodeEmail(mEmailField.getText().toString());
+                                String uid = (String) stringObjectMap.get("uid");
+                                createUserInFirebaseHelper(email);
 
-                            email = encodeEmail(mEmailField.getText().toString());
-                            String uid = (String) stringObjectMap.get("uid");
-                            createUserInFirebaseHelper(email);
+                                Log.i(TAG, "after created user in db");
+                                SharedPreferences pref = getApplicationContext()
+                                    .getSharedPreferences(StuckConstants.SHARED_PREFRENCE_USER, 0);
+                                SharedPreferences.Editor editor = pref.edit();
+                                //on the login store the login
+                                editor.putString(StuckConstants.KEY_ENCODED_EMAIL, email);
+                                editor.putString(StuckConstants.PROVIDER,
+                                    StuckConstants.SHARED_PREFRENCE_PROVIDER_TYPE_PASSWORD);
+                                editor.apply();
 
-                            Log.i(TAG, "after created user in db");
-                            SharedPreferences pref = getApplicationContext()
-                                .getSharedPreferences(StuckConstants.SHARED_PREFRENCE_USER, 0);
-                            SharedPreferences.Editor editor = pref.edit();
-                            //on the login store the login
-                            editor.putString(StuckConstants.KEY_ENCODED_EMAIL, email);
-                            editor.putString(StuckConstants.PROVIDER,
-                                StuckConstants.SHARED_PREFRENCE_PROVIDER_TYPE_PASSWORD);
-                            editor.apply();
+                                Intent intent = new Intent(StuckSignUpActivity.this, StuckLoginActivity.class);
+                                startActivity(intent);
+                            }
 
-                            Intent intent = new Intent(StuckSignUpActivity.this, StuckLoginActivity.class);
-                            startActivity(intent);
-                        }
-
-                        @Override
-                        public void onError(FirebaseError firebaseError) {
-                            dialog.dismiss();
-                            Toast.makeText(StuckSignUpActivity.this, "There was an error", Toast.LENGTH_LONG).show();
-                            Log.i(TAG, firebaseError.getMessage());
-                        }
-                    });
-            } else {
-                Toast.makeText(this, "Password needs to be atleast 5 characters long", Toast.LENGTH_LONG).show();
+                            @Override
+                            public void onError(FirebaseError firebaseError) {
+                                dialog.dismiss();
+                                Toast.makeText(StuckSignUpActivity.this, "There was an error", Toast.LENGTH_LONG).show();
+                                Log.i(TAG, firebaseError.getMessage());
+                            }
+                        });
+                } else {
+                    Toast.makeText(this, "Password needs to be atleast 5 characters long", Toast.LENGTH_LONG).show();
+                }
             }
+        } else {
+            NetworkStatus.showOffLineDialog(this);
         }
+
     }
 
     private void createUserInFirebaseHelper(String emailUser) {

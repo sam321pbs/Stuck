@@ -39,6 +39,10 @@ public class StuckVoteActivity extends AppCompatActivity {
     private RecyclerView.Adapter mAdapterChoices;
     private RecyclerView.LayoutManager mLayoutManagerChoices;
     private StuckPostSimple mStuckPostSimple;
+    private Firebase.AuthStateListener mAuthListener;
+    private Firebase mRefPost;
+    private Firebase mFirebaseRef;
+    private List<VoteChoice> mStuckPostChoices;
 
     @BindView(R.id.vote_toolbar)
     Toolbar mVoteToolbar;
@@ -50,12 +54,6 @@ public class StuckVoteActivity extends AppCompatActivity {
     TextView mPostLocation;
     @BindView(R.id.delete_post_image_view)
     ImageView mDeleteImageView;
-
-    private Firebase.AuthStateListener mAuthListener;
-    private Firebase mRefPost;
-    private Firebase mFirebaseRef;
-    private List<VoteChoice> mStuckPostChoices;
-
 
     @OnClick(R.id.delete_post_image_view)
     public void setDeleteImageView(View view) {
@@ -96,7 +94,6 @@ public class StuckVoteActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_stuck_vote);
         ButterKnife.bind(this);
-        Firebase.setAndroidContext(this);
 
         // use a linear layout manager
         mLayoutManagerChoices = new LinearLayoutManager(this);
@@ -127,7 +124,7 @@ public class StuckVoteActivity extends AppCompatActivity {
                 if (authData == null) {
 
                     Log.i(TAG, "USer has been logged out");
-//                    takeUserToLoginScreenOnUnAuth();
+                    StuckMainListActivity.takeUserToLoginScreenOnUnAuth(StuckVoteActivity.this);
                 } else {
                     //not logged out
                     Log.i(TAG, "USer not been logged out");

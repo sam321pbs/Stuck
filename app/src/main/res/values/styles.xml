@@ -48,4 +48,15 @@
         <item name="android:layout_marginEnd">16dp</item>
     </style>
 
+    <style name="stuck_title_main_page">
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:text">STUCK</item>
+        <item name="android:textColor">@color/colorWhite</item>
+        <item name="android:textSize">45sp</item>
+        <item name="android:layout_gravity">center_horizontal</item>
+        <item name="android:layout_marginTop">60dp</item>
+
+    </style>
+
 </resources>

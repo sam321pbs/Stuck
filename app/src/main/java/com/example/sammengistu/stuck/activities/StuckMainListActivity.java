@@ -3,6 +3,7 @@ package com.example.sammengistu.stuck.activities;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 
+import com.example.sammengistu.stuck.NetworkStatus;
 import com.example.sammengistu.stuck.R;
 import com.example.sammengistu.stuck.StuckConstants;
 import com.example.sammengistu.stuck.adapters.CardViewListFBAdapter;
@@ -12,8 +13,11 @@ import com.firebase.client.AuthData;
 import com.firebase.client.Firebase;
 import com.firebase.ui.FirebaseRecyclerAdapter;
 
+import android.app.Activity;
+import android.app.ActivityOptions;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -58,16 +62,14 @@ public class StuckMainListActivity extends AppCompatActivity {
     @OnClick(R.id.fab_add)
     public void setNewPostFAB(View view) {
 
-        mFirebaseRef.unauth();
-//        Intent intent = new Intent(this, StuckNewPostActivity.class);
-//        intent.putExtra(StuckConstants.PASSED_IN_EMAIL, mEmail);
-//        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-//            startActivity(intent,
-//                ActivityOptions.makeSceneTransitionAnimation(this).toBundle());
-//        } else {
-//
-//            startActivity(intent);
-//        }
+        Intent intent = new Intent(this, StuckNewPostActivity.class);
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            startActivity(intent,
+                ActivityOptions.makeSceneTransitionAnimation(this).toBundle());
+        } else {
+
+            startActivity(intent);
+        }
     }
 
     private String mEmail;
@@ -92,7 +94,7 @@ public class StuckMainListActivity extends AppCompatActivity {
                 if (authData == null) {
 
                     Log.i(TAG, "USer has been logged out");
-                    takeUserToLoginScreenOnUnAuth();
+                    takeUserToLoginScreenOnUnAuth(StuckMainListActivity.this);
                 } else {
                     //not logged out
                     Log.i(TAG, "USer not been logged out");
@@ -126,8 +128,10 @@ public class StuckMainListActivity extends AppCompatActivity {
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+
                 initializeAdapter();
                 mAdapter.notifyDataSetChanged();
+
                 mSwipeRefreshLayout.setRefreshing(false);
             }
         });
@@ -137,22 +141,26 @@ public class StuckMainListActivity extends AppCompatActivity {
         Toast.makeText(this, mEmail, Toast.LENGTH_LONG).show();
     }
 
-    private void takeUserToLoginScreenOnUnAuth() {
-        Intent intent = new Intent(this, StuckLoginActivity.class);
+    public static void takeUserToLoginScreenOnUnAuth(Activity activity) {
+        Intent intent = new Intent(activity, StuckLoginActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
+        activity.startActivity(intent);
     }
 
     private void initializeAdapter() {
-        Firebase ref = new Firebase(StuckConstants.FIREBASE_URL)
-            .child(StuckConstants.FIREBASE_URL_ACTIVE_POSTS);
+        if (!NetworkStatus.isOnline(StuckMainListActivity.this)) {
+            NetworkStatus.showOffLineDialog(StuckMainListActivity.this);
+        } else {
+            Firebase ref = new Firebase(StuckConstants.FIREBASE_URL)
+                .child(StuckConstants.FIREBASE_URL_ACTIVE_POSTS);
 
-        mAdapter = new CardViewListFBAdapter(StuckPostSimple.class,
-            R.layout.stuck_single_item_question,
-            CardViewListFBAdapter.CardViewListADViewHolder.class, ref,
-            StuckMainListActivity.this, mEmail);
+            mAdapter = new CardViewListFBAdapter(StuckPostSimple.class,
+                R.layout.stuck_single_item_question,
+                CardViewListFBAdapter.CardViewListADViewHolder.class, ref,
+                StuckMainListActivity.this, mEmail);
 
-        mRecyclerViewQuestions.setAdapter(mAdapter);
+            mRecyclerViewQuestions.setAdapter(mAdapter);
+        }
     }
 
     @Override
@@ -161,11 +169,6 @@ public class StuckMainListActivity extends AppCompatActivity {
         //Todo: load up posts
         initializeAdapter();
 
-    }
-
-    //TODO: implement logic to load
-    private void swipeRefreshingUI() {
-//        mSwipeRefreshLayout.setRefreshing(mIsRefreshing);
     }
 
     private void setUpToolbar() {
@@ -218,5 +221,4 @@ public class StuckMainListActivity extends AppCompatActivity {
         ((FirebaseRecyclerAdapter) mAdapter).cleanup();
         mFirebaseRef.removeAuthStateListener(mAuthListener);
     }
-
 }

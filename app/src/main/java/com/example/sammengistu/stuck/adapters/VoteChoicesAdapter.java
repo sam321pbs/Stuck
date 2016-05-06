@@ -1,5 +1,6 @@
 package com.example.sammengistu.stuck.adapters;
 
+import com.example.sammengistu.stuck.NetworkStatus;
 import com.example.sammengistu.stuck.R;
 import com.example.sammengistu.stuck.StuckConstants;
 import com.example.sammengistu.stuck.model.VoteChoice;
@@ -67,40 +68,49 @@ public class VoteChoicesAdapter extends RecyclerView.Adapter<VoteChoicesADViewHo
             public void onClick(View v) {
                 //Todo: Don't change value if user already voted for it
 
-                //Change previous selected vote back down to one
-                for (VoteChoice vc: mStuckPostChoices){
-                    if (vc.isVotedFor()){
-                        vc.setVotes(vc.getVotes() - 1);
+                if (NetworkStatus.isOnline(mContext)) {
+                    //Change previous selected vote back down to one
+                    for (VoteChoice vc : mStuckPostChoices) {
+                        if (vc.isVotedFor()) {
+                            vc.setVotes(vc.getVotes() - 1);
 //                        changeViewColor(vc, currentViewHolder);
+                        }
                     }
-                }
 
-                if (currentChoice.isVotedFor()){
-                    currentChoice.setVotedFor(false);
-                } else {
-                    currentChoice.setVotedFor(true);
-                    currentChoice.setVotes(currentChoice.getVotes() + 1);
-
-                    if (pos == 0){
-                        mFireBaseRef.child(StuckConstants.CHILD_CHOICE_ONE_VOTES).setValue(currentChoice.getVotes());
-                    } else if (pos == 1){
-                        mFireBaseRef.child(StuckConstants.CHILD_CHOICE_TWO_VOTES).setValue(currentChoice.getVotes());
-                    } else if (pos == 2){
-                        mFireBaseRef.child(StuckConstants.CHILD_CHOICE_THREE_VOTES).setValue(currentChoice.getVotes());
+                    if (currentChoice.isVotedFor()) {
+                        currentChoice.setVotedFor(false);
                     } else {
-                        mFireBaseRef.child(StuckConstants.CHILD_CHOICE_FOUR_VOTES).setValue(currentChoice.getVotes());
-                    }
-                }
+                        currentChoice.setVotedFor(true);
+                        currentChoice.setVotes(currentChoice.getVotes() + 1);
 
-                //Changes all other votes to false
-                for (VoteChoice vc: mStuckPostChoices){
-                    if (currentChoice != vc){
-                        vc.setVotedFor(false);
+                        if (pos == 0) {
+                            mFireBaseRef.child(StuckConstants.CHILD_CHOICE_ONE_VOTES)
+                                .setValue(currentChoice.getVotes());
+                        } else if (pos == 1) {
+                            mFireBaseRef.child(StuckConstants.CHILD_CHOICE_TWO_VOTES)
+                                .setValue(currentChoice.getVotes());
+                        } else if (pos == 2) {
+                            mFireBaseRef.child(StuckConstants.CHILD_CHOICE_THREE_VOTES)
+                                .setValue(currentChoice.getVotes());
+                        } else {
+                            mFireBaseRef.child(StuckConstants.CHILD_CHOICE_FOUR_VOTES)
+                                .setValue(currentChoice.getVotes());
+                        }
                     }
-                }
 
-                Log.i("VoteChoiceAda", "Notifying");
-                notifyDataSetChanged();
+                    //Changes all other votes to false
+                    for (VoteChoice vc : mStuckPostChoices) {
+                        if (currentChoice != vc) {
+                            vc.setVotedFor(false);
+                        }
+                    }
+
+                    Log.i("VoteChoiceAda", "Notifying");
+                    notifyDataSetChanged();
+
+                } else {
+                    NetworkStatus.showOffLineDialog(mContext);
+                }
             }
         });
 
@@ -118,7 +128,6 @@ public class VoteChoicesAdapter extends RecyclerView.Adapter<VoteChoicesADViewHo
     // Return the size of your dataset (invoked by the layout manager)
     @Override
     public int getItemCount() {
-
         return mStuckPostChoices.size();
     }
 

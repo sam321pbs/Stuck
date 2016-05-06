@@ -10,6 +10,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.GoogleApiClient;
 
+import com.example.sammengistu.stuck.NetworkStatus;
 import com.example.sammengistu.stuck.R;
 import com.example.sammengistu.stuck.StuckConstants;
 import com.firebase.client.AuthData;
@@ -60,7 +61,11 @@ public class StuckLoginActivity extends AppCompatActivity {
 
     @OnClick(R.id.log_in_button_google)
     public void signInWithGoogle() {
-        signIn();
+        if (NetworkStatus.isOnline(this)) {
+            signIn();
+        } else {
+            NetworkStatus.showOffLineDialog(this);
+        }
     }
 
     @OnClick(R.id.login_sign_up_accout)
@@ -69,62 +74,68 @@ public class StuckLoginActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+
     @OnClick(R.id.login_button)
     public void loginButton(){
-        if (allFieldsAreEntered() && StuckSignUpActivity.vaildEmail(mEmailEditText)) {
-            Firebase ref = new Firebase(StuckConstants.FIREBASE_URL)
-                .child(StuckConstants.FIREBASE_URL_USERS);
+        if (NetworkStatus.isOnline(this)) {
+            if (allFieldsAreEntered() && StuckSignUpActivity.vaildEmail(mEmailEditText)) {
+                Firebase ref = new Firebase(StuckConstants.FIREBASE_URL)
+                    .child(StuckConstants.FIREBASE_URL_USERS);
 
-            final ProgressDialog dialog = new ProgressDialog(this);
-            dialog.setMessage("Logging in..");
-            dialog.show();
+                final ProgressDialog dialog = new ProgressDialog(this);
+                dialog.setMessage("Logging in..");
+                dialog.show();
 
-            ref.authWithPassword(mEmailEditText.getText().toString(),
-                mPasswordEditText.getText().toString(),
-                new Firebase.AuthResultHandler() {
-                    @Override
-                    public void onAuthenticated(AuthData authData) {
-                        dialog.dismiss();
+                ref.authWithPassword(mEmailEditText.getText().toString(),
+                    mPasswordEditText.getText().toString(),
+                    new Firebase.AuthResultHandler() {
+                        @Override
+                        public void onAuthenticated(AuthData authData) {
+                            dialog.dismiss();
 
-                        SharedPreferences pref = getApplicationContext()
-                            .getSharedPreferences(StuckConstants.SHARED_PREFRENCE_USER, 0);
-                        SharedPreferences.Editor editor = pref.edit();
-                        //on the login store the login
-                        editor.putString(StuckConstants.KEY_ENCODED_EMAIL,
-                            mEmailEditText.getText().toString());
+                            SharedPreferences pref = getApplicationContext()
+                                .getSharedPreferences(StuckConstants.SHARED_PREFRENCE_USER, 0);
+                            SharedPreferences.Editor editor = pref.edit();
+                            //on the login store the login
+                            editor.putString(StuckConstants.KEY_ENCODED_EMAIL,
+                                mEmailEditText.getText().toString());
 
-                        editor.putString(StuckConstants.PROVIDER, "password");
-                        editor.apply();
-                        Intent intent = new Intent(StuckLoginActivity.this,
-                            StuckMainListActivity.class);
-                        intent.putExtra(StuckConstants.PASSED_IN_EMAIL,
-                            mEmailEditText.getText().toString());
-                        startActivity(intent);
-                    }
-
-                    @Override
-                    public void onAuthenticationError(FirebaseError firebaseError) {
-                        dialog.dismiss();
-
-                        // Something went wrong :(
-                        switch (firebaseError.getCode()) {
-                            case FirebaseError.USER_DOES_NOT_EXIST:
-                                // handle a non existing user
-                                Toast.makeText(StuckLoginActivity.this, "User does not exist", Toast.LENGTH_LONG).show();
-                                break;
-                            case FirebaseError.INVALID_PASSWORD:
-                                // handle an invalid password
-                                Toast.makeText(StuckLoginActivity.this, "Invalid password", Toast.LENGTH_LONG).show();
-                                break;
-                            default:
-                                // handle other errors
-                                Toast.makeText(StuckLoginActivity.this, "Error Logging in, try again", Toast.LENGTH_LONG).show();
-
-                                break;
+                            editor.putString(StuckConstants.PROVIDER, "password");
+                            editor.apply();
+                            Intent intent = new Intent(StuckLoginActivity.this,
+                                StuckMainListActivity.class);
+                            intent.putExtra(StuckConstants.PASSED_IN_EMAIL,
+                                mEmailEditText.getText().toString());
+                            startActivity(intent);
                         }
-                    }
-                });
+
+                        @Override
+                        public void onAuthenticationError(FirebaseError firebaseError) {
+                            dialog.dismiss();
+
+                            // Something went wrong :(
+                            switch (firebaseError.getCode()) {
+                                case FirebaseError.USER_DOES_NOT_EXIST:
+                                    // handle a non existing user
+                                    Toast.makeText(StuckLoginActivity.this, "User does not exist", Toast.LENGTH_LONG).show();
+                                    break;
+                                case FirebaseError.INVALID_PASSWORD:
+                                    // handle an invalid password
+                                    Toast.makeText(StuckLoginActivity.this, "Invalid password", Toast.LENGTH_LONG).show();
+                                    break;
+                                default:
+                                    // handle other errors
+                                    Toast.makeText(StuckLoginActivity.this, "Error Logging in, try again", Toast.LENGTH_LONG).show();
+
+                                    break;
+                            }
+                        }
+                    });
+            }
+        } else {
+            NetworkStatus.showOffLineDialog(this);
         }
+
     }
 
     private boolean allFieldsAreEntered() {

@@ -1,5 +1,6 @@
 package com.example.sammengistu.stuck.activities;
 
+import com.example.sammengistu.stuck.NetworkStatus;
 import com.example.sammengistu.stuck.R;
 import com.example.sammengistu.stuck.StuckConstants;
 import com.example.sammengistu.stuck.adapters.MyPostChoiceAdapter;
@@ -30,10 +31,20 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
-public class StuckNewPostActivity extends AppCompatActivity implements View.OnClickListener {
+public class StuckNewPostActivity extends AppCompatActivity {
 
     private static String TAG = "StuckNewPostActivity";
+    private RecyclerView.Adapter mAdapter;
+    private RecyclerView.LayoutManager mLayoutManager;
+    private List<Choice> mChoicesList;
+    private Firebase mRef;
+    private Firebase mNewListRef;
+    private String mEmail;
+    private Firebase.AuthStateListener mAuthListener;
+    private Firebase mFirebaseRef;
+
     @BindView(R.id.my_post_edit_text)
     EditText mQuestionEditText;
 
@@ -49,30 +60,104 @@ public class StuckNewPostActivity extends AppCompatActivity implements View.OnCl
     @BindView(R.id.new_stuck_post_toolbar)
     Toolbar mNewPostToolbar;
 
-    private RecyclerView.Adapter mAdapter;
-    private RecyclerView.LayoutManager mLayoutManager;
-    private List<Choice> mChoicesList;
+    @OnClick(R.id.add_choice_button)
+    public void setAddChoiceButton() {
 
-    private String avtivePost = "activePost";
-    private Firebase mRef;
-    private Firebase mNewListRef;
-    private String mEmail;
-    private Firebase.AuthStateListener mAuthListener;
-    private Firebase mFirebaseRef;
+        mChoicesList.add(new Choice("", 0));
+
+        // specify an adapter (see also next example)
+        mAdapter = new MyPostChoiceAdapter(mChoicesList, this);
+        mMyChoicesRecyclerView.setAdapter(mAdapter);
+        mAdapter.notifyDataSetChanged();
+
+        if (mChoicesList.size() == 4) {
+            mAddChoiceButton.setVisibility(View.INVISIBLE);
+            mAddChoiceButton.setEnabled(false);
+        }
+    }
+
+    @OnClick(R.id.new_post_done)
+    public void setNewPostDone(){
+        if (NetworkStatus.isOnline(this)) {
+            if (isQuestionFilled() && isAllChoicesFilled()) {
+                /**
+                 * Create Firebase references
+                 */
+                    /* Save listsRef.push() to maintain same random Id */
+                final String listId = mNewListRef.getKey();
+
+                /**
+                 * Set raw version of date to the ServerValue.TIMESTAMP value and save into
+                 * timestampCreatedMap
+                 */
+                HashMap<String, Object> timestampCreated = new HashMap<>();
+                timestampCreated.put(StuckConstants.FIREBASE_PROPERTY_TIMESTAMP, ServerValue.TIMESTAMP);
+
+                    /* Add a posy list */
+
+                StuckPostSimple stuckPost = new StuckPostSimple();
+                switch (mChoicesList.size()) {
+                    case 2:
+                        stuckPost = new StuckPostSimple(
+                            mEmail,
+                            mQuestionEditText.getText().toString(),
+                            "College Park",
+                            mChoicesList.get(0).getChoice(),
+                            mChoicesList.get(1).getChoice(),
+                            "", "", 0, 0, 0, 0,
+                            timestampCreated);
+                        break;
+
+                    case 3:
+                        stuckPost = new StuckPostSimple(
+                            mEmail,
+                            mQuestionEditText.getText().toString(),
+                            "College Park",
+                            mChoicesList.get(0).getChoice(),
+                            mChoicesList.get(1).getChoice(),
+                            mChoicesList.get(2).getChoice(),
+                            "", 0, 0, 0, 0,
+                            timestampCreated);
+                        break;
+                    case 4:
+                        stuckPost = new StuckPostSimple(
+                            mEmail,
+                            mQuestionEditText.getText().toString(),
+                            "College Park",
+                            mChoicesList.get(0).getChoice(),
+                            mChoicesList.get(1).getChoice(),
+                            mChoicesList.get(2).getChoice(),
+                            mChoicesList.get(3).getChoice(),
+                            0, 0, 0, 0,
+                            timestampCreated);
+                }
+
+                mNewListRef.setValue(stuckPost);
+
+                Intent intent = new Intent(StuckNewPostActivity.this, StuckMainListActivity.class);
+                startActivity(intent);
+
+            } else {
+                AlertDialog.Builder fillEveryThingDialog = new AlertDialog.Builder(StuckNewPostActivity.this);
+                fillEveryThingDialog.setTitle("Please fill all boxes");
+                fillEveryThingDialog.show();
+                fillEveryThingDialog.setCancelable(true);
+            }
+        } else {
+            NetworkStatus.showOffLineDialog(this);
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_stuck_post);
         ButterKnife.bind(this);
-        Firebase.setAndroidContext(this);
 
         setUpToolbar();
 
-        initializeViews();
-
         SharedPreferences pref = getApplicationContext()
-            .getSharedPreferences("UserPref", 0); // 0 - for private mode
+            .getSharedPreferences(StuckConstants.SHARED_PREFRENCE_USER, 0); // 0 - for private mode
         mEmail = pref.getString(StuckConstants.KEY_ENCODED_EMAIL, "");
 
         mFirebaseRef = new Firebase(StuckConstants.FIREBASE_URL);
@@ -81,9 +166,8 @@ public class StuckNewPostActivity extends AppCompatActivity implements View.OnCl
             public void onAuthStateChanged(AuthData authData) {
                 /* The user has been logged out */
                 if (authData == null) {
-
                     Log.i(TAG, "USer has been logged out");
-//                    takeUserToLoginScreenOnUnAuth();
+                    StuckMainListActivity.takeUserToLoginScreenOnUnAuth(StuckNewPostActivity.this);
                 } else {
                     //not logged out
                     Log.i(TAG, "USer not been logged out");
@@ -110,123 +194,19 @@ public class StuckNewPostActivity extends AppCompatActivity implements View.OnCl
         mMyChoicesRecyclerView.setAdapter(mAdapter);
     }
 
-    private void initializeViews() {
-
-        mAddChoiceButton.setOnClickListener(this);
-    }
-
     private void setUpToolbar() {
 
         setSupportActionBar(mNewPostToolbar);
 
-        mNewPostDone.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //TODO: Check all boxs are filled
-                if (isQuestionFilled() && isAllChoicesFilled()) {
-                    /**
-                     * Create Firebase references
-                    */
-                    /* Save listsRef.push() to maintain same random Id */
-                    final String listId = mNewListRef.getKey();
-
-                    /**
-                     * Set raw version of date to the ServerValue.TIMESTAMP value and save into
-                     * timestampCreatedMap
-                     */
-                    HashMap<String, Object> timestampCreated = new HashMap<>();
-                    timestampCreated.put(StuckConstants.FIREBASE_PROPERTY_TIMESTAMP, ServerValue.TIMESTAMP);
-
-                    /* Add a posy list */
-
-                    StuckPostSimple stuckPost = new StuckPostSimple();
-                    switch (mChoicesList.size()) {
-                        case 2:
-                            stuckPost = new StuckPostSimple(
-                                mEmail,
-                                mQuestionEditText.getText().toString(),
-                                "College Park",
-                                mChoicesList.get(0).getChoice(),
-                                mChoicesList.get(1).getChoice(),
-                                "",
-                                "",
-                                0,
-                                0,
-                                0,
-                                0,
-                                timestampCreated);
-                            break;
-
-                        case 3:
-                            stuckPost = new StuckPostSimple(
-                                mEmail,
-                                mQuestionEditText.getText().toString(),
-                                "College Park",
-                                mChoicesList.get(0).getChoice(),
-                                mChoicesList.get(1).getChoice(),
-                                mChoicesList.get(2).getChoice(),
-                                "",
-                                0,
-                                0,
-                                0,
-                                0,
-                                timestampCreated);
-                            break;
-                        case 4:
-                            stuckPost = new StuckPostSimple(
-                                mEmail,
-                                mQuestionEditText.getText().toString(),
-                                "College Park",
-                                mChoicesList.get(0).getChoice(),
-                                mChoicesList.get(1).getChoice(),
-                                mChoicesList.get(2).getChoice(),
-                                mChoicesList.get(3).getChoice(),
-                                0,
-                                0,
-                                0,
-                                0,
-                                timestampCreated);
-                    }
-
-                    mNewListRef.setValue(stuckPost);
-
-
-//                ref.push().setValue(stuckPost);
-//                    ref.child(avtivePost).setValue(stuckPost);
-
-//                    ref.addValueEventListener(new ValueEventListener() {
-//                        @Override
-//                        public void onDataChange(DataSnapshot dataSnapshot) {
-//
-//                            StuckPost stuckPost1 = dataSnapshot.getValue(StuckPost.class);
-//
-//                            Log.i("Firebase Data", "Data changed " + stuckPost1.getChoice1());
-//                        }
-//
-//                        @Override
-//                        public void onCancelled(FirebaseError firebaseError) {
-//
-//                        }
-//                    });
-                    Intent intent = new Intent(StuckNewPostActivity.this, StuckMainListActivity.class);
-                    startActivity(intent);
-
-                } else {
-                    AlertDialog.Builder fillEveryThingDialog = new AlertDialog.Builder(StuckNewPostActivity.this);
-                    fillEveryThingDialog.setTitle("Please fill all boxes");
-                    fillEveryThingDialog.show();
-                    fillEveryThingDialog.setCancelable(true);
-                }
-            }
-        });
-
         // Get a support ActionBar corresponding to this toolbar
         ActionBar ab = getSupportActionBar();
 
-        // Enable the Up button
-        ab.setDisplayHomeAsUpEnabled(true);
+        if (ab !=null) {
+            // Enable the Up button
+            ab.setDisplayHomeAsUpEnabled(true);
 
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+        }
     }
 
     private boolean isQuestionFilled() {
@@ -244,43 +224,8 @@ public class StuckNewPostActivity extends AppCompatActivity implements View.OnCl
     }
 
     @Override
-    public void onClick(View v) {
-//        Firebase ref = new Firebase(StuckConstants.FIREBASE_URL).child(avtivePost);
-//
-//        ref.addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(DataSnapshot dataSnapshot) {
-//
-//                StuckPostSimple stuckPost1 = dataSnapshot.getValue(StuckPostSimple.class);
-//
-//                if (stuckPost1 != null) {
-//                    Log.i("Firebase Data", "Data changed " + stuckPost1.getChoiceOne());
-//                }
-//            }
-//
-//            @Override
-//            public void onCancelled(FirebaseError firebaseError) {
-//
-//            }
-//        });
-        mChoicesList.add(new Choice("", 0));
-
-
-// specify an adapter (see also next example)
-        mAdapter = new MyPostChoiceAdapter(mChoicesList, this);
-        mMyChoicesRecyclerView.setAdapter(mAdapter);
-        mAdapter.notifyDataSetChanged();
-
-        if (mChoicesList.size() == 4) {
-            mAddChoiceButton.setVisibility(View.INVISIBLE);
-            mAddChoiceButton.setEnabled(false);
-        }
-    }
-
-    @Override
     public void onDestroy(){
         super.onDestroy();
-
-
+        mRef.removeAuthStateListener(mAuthListener);
     }
 }
