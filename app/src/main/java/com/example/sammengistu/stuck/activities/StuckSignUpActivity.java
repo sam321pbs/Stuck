@@ -84,7 +84,8 @@ public class StuckSignUpActivity extends AppCompatActivity {
     @OnClick(R.id.create_account_button)
     public void onClickCreate() {
         if (NetworkStatus.isOnline(this)) {
-            if (allFieldsAreEntered() && passwordsMatch() && vaildEmail(mEmailField)) {
+            if (allFieldsAreEntered() && passwordsMatch(mPasswordField,
+                mRE_EnterField) && vaildEmail(mEmailField)) {
                 if (mPasswordField.getText().toString().length() >= 5) {
                     final ProgressDialog dialog = new ProgressDialog(this);
                     dialog.setMessage("Creating account..");
@@ -285,8 +286,8 @@ public class StuckSignUpActivity extends AppCompatActivity {
         return emailField.getText().toString().contains("@") && emailField.getText().toString().contains(".");
     }
 
-    private boolean passwordsMatch() {
-        return mPasswordField.getText().toString().equals(mRE_EnterField.getText().toString());
+    public static boolean passwordsMatch(EditText passwordField, EditText reenterField) {
+        return passwordField.getText().toString().equals(reenterField.getText().toString());
     }
 
     private boolean allFieldsAreEntered() {

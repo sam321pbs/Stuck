@@ -21,22 +21,8 @@
                 android:inputType="textEmailAddress"
                 android:hint="Type your email here"/>
 
-        <EditText
-                android:id="@+id/password_edit_text"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                style="@style/login_edit_text_box"
-                android:hint="Type your password here"
-                android:inputType="textPassword"
-                android:layout_marginTop="@dimen/activity_horizontal_margin"/>
-        <EditText
-                android:id="@+id/reenter_password_edit_text"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                style="@style/login_edit_text_box"
-                android:hint="Re-enter password"
-                android:inputType="textPassword"
-                android:layout_marginTop="@dimen/activity_horizontal_margin"/>
+       <include
+           layout="@layout/create_password_layout"/>
 
         <com.google.android.gms.common.SignInButton
                 android:layout_marginTop="15dp"
@@ -48,15 +34,8 @@
 
         <TextView
                 android:id="@+id/sign_up_to_login_account"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textStyle="bold"
-                android:textSize="14sp"
-                android:padding="10dp"
                 android:text="Already have an account: Login"
-                android:textColor="@color/colorWhite"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="15dp"/>
+                style="@style/login_style_text"/>
 
     </LinearLayout>
 

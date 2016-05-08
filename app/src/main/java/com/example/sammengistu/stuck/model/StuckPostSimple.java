@@ -13,9 +13,9 @@ public class StuckPostSimple {
 
     private String email;
     private String question;
+    private String location;
     private String choiceOne;
     private String choiceTwo;
-    private String location;
     private String choiceThree;
     private String choiceFour;
     private int choiceOneVotes;

@@ -16,6 +16,8 @@
     <string name="banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
     <string name="done">DONE</string>
     <string name="add_choice">Add Choice</string>
+    <string name="title_activity_stuck_reset_password">StuckResetPasswordActivity</string>
 
+    <string name="db_authority">stuckProviderAuthorities</string>
 
 </resources>

@@ -7,4 +7,5 @@
     <dimen name="margin_edit_text_my_post">20dp</dimen>
     <dimen name="filter_padding">10dp</dimen>
     <dimen name="choice_card_margin">35dp</dimen>
+    <dimen name="fab_margin">16dp</dimen>
 </resources>
