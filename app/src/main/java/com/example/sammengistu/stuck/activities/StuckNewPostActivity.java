@@ -1,7 +1,12 @@
 package com.example.sammengistu.stuck.activities;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
+
 import com.example.sammengistu.stuck.NetworkStatus;
 import com.example.sammengistu.stuck.R;
+import com.example.sammengistu.stuck.GeneralArea;
 import com.example.sammengistu.stuck.StuckConstants;
 import com.example.sammengistu.stuck.adapters.MyPostChoiceAdapter;
 import com.example.sammengistu.stuck.model.Choice;
@@ -12,11 +17,17 @@ import com.firebase.client.AuthData;
 import com.firebase.client.Firebase;
 import com.firebase.client.ServerValue;
 
+import android.Manifest;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -37,7 +48,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class StuckNewPostActivity extends AppCompatActivity {
+public class StuckNewPostActivity extends AppCompatActivity implements
+    GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     private static String TAG = "StuckNewPostActivity";
     private RecyclerView.Adapter mAdapter;
@@ -48,6 +60,7 @@ public class StuckNewPostActivity extends AppCompatActivity {
     private String mEmail;
     private Firebase.AuthStateListener mAuthListener;
     private Firebase mFirebaseRef;
+    private GoogleApiClient mGoogleApiClient;
 
     @BindView(R.id.my_post_edit_text)
     EditText mQuestionEditText;
@@ -100,6 +113,28 @@ public class StuckNewPostActivity extends AppCompatActivity {
         fillEveryThingDialog.setCancelable(true);
     }
 
+    private Location getLastKnownLocation() {
+
+        if (ActivityCompat.checkSelfPermission(this
+            , Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+            ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) !=
+                PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return null;
+        }
+        android.location.Location location = LocationServices.FusedLocationApi.getLastLocation(
+            mGoogleApiClient);
+
+        return location;
+    }
+
+
     private void createPost() {
         /**
          * Create Firebase references
@@ -116,13 +151,15 @@ public class StuckNewPostActivity extends AppCompatActivity {
 
         /* Add a posy list */
 
+        Location location = getLastKnownLocation();
+
         StuckPostSimple stuckPost = new StuckPostSimple();
         switch (mChoicesList.size()) {
             case 2:
                 stuckPost = new StuckPostSimple(
                     mEmail,
                     mQuestionEditText.getText().toString(),
-                    "College Park",
+                    GeneralArea.getAddressOfCurrentLocation(getLastKnownLocation(), this),
                     mChoicesList.get(0).getChoice(),
                     mChoicesList.get(1).getChoice(),
                     "", "",
@@ -135,7 +172,7 @@ public class StuckNewPostActivity extends AppCompatActivity {
                 stuckPost = new StuckPostSimple(
                     mEmail,
                     mQuestionEditText.getText().toString(),
-                    "College Park",
+                    location.toString(),
                     mChoicesList.get(0).getChoice(),
                     mChoicesList.get(1).getChoice(),
                     mChoicesList.get(2).getChoice(),
@@ -148,7 +185,7 @@ public class StuckNewPostActivity extends AppCompatActivity {
                 stuckPost = new StuckPostSimple(
                     mEmail,
                     mQuestionEditText.getText().toString(),
-                    "College Park",
+                    location.toString(),
                     mChoicesList.get(0).getChoice(),
                     mChoicesList.get(1).getChoice(),
                     mChoicesList.get(2).getChoice(),
@@ -204,6 +241,14 @@ public class StuckNewPostActivity extends AppCompatActivity {
             }
         };
 
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+            .addConnectionCallbacks(this)
+            .addOnConnectionFailedListener(this)
+            .addApi(LocationServices.API)
+            .build();
+
+        mGoogleApiClient.connect();
+
         mFirebaseRef.addAuthStateListener(mAuthListener);
 
         mRef = new Firebase(StuckConstants.FIREBASE_URL).child(StuckConstants.FIREBASE_URL_ACTIVE_POSTS);
@@ -256,5 +301,20 @@ public class StuckNewPostActivity extends AppCompatActivity {
     public void onDestroy() {
         super.onDestroy();
         mRef.removeAuthStateListener(mAuthListener);
+    }
+
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
     }
 }
