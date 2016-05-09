@@ -72,8 +72,9 @@ The ACCESS_COARSE/FINE_LOCATION permissions are not required to use
             android:theme="@style/AppTheme" >
         </activity>
 
-        <provider android:authorities="@string/db_authority"
-                  android:name=".stuck_offline_db.ContentProviderStuck"/>
+        <provider
+            android:name=".stuck_offline_db.ContentProviderStuck"
+            android:authorities="@string/db_authority" />
     </application>
 
 </manifest>

@@ -9,7 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class StuckOfflineDBHelper extends SQLiteOpenHelper{
 
-    private static final String DATABASE_NAME = "Stuck Database offline";
+    public static final String DATABASE_NAME = "Stuck_Database_offline";
     private static final int DB_VERSION = 1;
     private static final String CREATE_DATABASE =
         "CREATE TABLE " + StuckConstants.TABLE_OFFLINE_POST + " ("

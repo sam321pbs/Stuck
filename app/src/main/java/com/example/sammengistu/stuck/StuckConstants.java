@@ -35,6 +35,7 @@ public class StuckConstants {
     public static final String CHILD_CHOICE_FOUR_VOTES = "choiceFourVotes";
     public static final String SHARED_PREFRENCE_USER = "UserPref";
 
+
     public static final String SHARED_PREFRENCE_PROVIDER_TYPE_PASSWORD = "provider password";
 
     //Database constants
@@ -45,9 +46,12 @@ public class StuckConstants {
     public static final String COLUMN_LOCATION = "_Location";
     public static final String COLUMN_CHOICE_ONE = "_Choice_One";
     public static final String COLUMN_CHOICE_TWO = "_Choice_Two";
-    public static final String COLUMN_CHOICE_THREE = "_Choice_Two";
-    public static final String COLUMN_CHOICE_FOUR = "_Choice_Two";
+    public static final String COLUMN_CHOICE_THREE = "_Choice_Three";
+    public static final String COLUMN_CHOICE_FOUR = "_Choice_Four";
 
     public static final String SELECT_FROM = "select * from ";
+
+    //Loader id
+    public static final int LOADER_ID = 22;
 
 }

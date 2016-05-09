@@ -104,14 +104,7 @@ public class StuckSignUpActivity extends AppCompatActivity {
                                 createUserInFirebaseHelper(email);
 
                                 Log.i(TAG, "after created user in db");
-                                SharedPreferences pref = getApplicationContext()
-                                    .getSharedPreferences(StuckConstants.SHARED_PREFRENCE_USER, 0);
-                                SharedPreferences.Editor editor = pref.edit();
-                                //on the login store the login
-                                editor.putString(StuckConstants.KEY_ENCODED_EMAIL, email);
-                                editor.putString(StuckConstants.PROVIDER,
-                                    StuckConstants.SHARED_PREFRENCE_PROVIDER_TYPE_PASSWORD);
-                                editor.apply();
+                                putEmailInSharedPref(email);
 
                                 Intent intent = new Intent(StuckSignUpActivity.this, StuckLoginActivity.class);
                                 startActivity(intent);
@@ -132,6 +125,18 @@ public class StuckSignUpActivity extends AppCompatActivity {
             NetworkStatus.showOffLineDialog(this);
         }
 
+    }
+
+
+    private void putEmailInSharedPref (String email) {
+        SharedPreferences pref = getApplicationContext()
+            .getSharedPreferences(StuckConstants.SHARED_PREFRENCE_USER, 0);
+        SharedPreferences.Editor editor = pref.edit();
+        //on the login store the login
+        editor.putString(StuckConstants.KEY_ENCODED_EMAIL, email);
+        editor.putString(StuckConstants.PROVIDER,
+            StuckConstants.SHARED_PREFRENCE_PROVIDER_TYPE_PASSWORD);
+        editor.apply();
     }
 
     private void createUserInFirebaseHelper(String emailUser) {
@@ -269,9 +274,8 @@ public class StuckSignUpActivity extends AppCompatActivity {
 
                     createUserInFirebaseHelper(encodedEmail);
 
-
+                    putEmailInSharedPref(mEmail);
                     Intent intent = new Intent(StuckSignUpActivity.this, StuckMainListActivity.class);
-                    intent.putExtra(StuckConstants.PASSED_IN_EMAIL, encodedEmail);
                     startActivity(intent);
                 }
 

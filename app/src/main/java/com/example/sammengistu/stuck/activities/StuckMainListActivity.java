@@ -9,14 +9,20 @@ import com.example.sammengistu.stuck.StuckConstants;
 import com.example.sammengistu.stuck.adapters.CardViewListFBAdapter;
 import com.example.sammengistu.stuck.dialogs.FilterDialog;
 import com.example.sammengistu.stuck.model.StuckPostSimple;
+import com.example.sammengistu.stuck.stuck_offline_db.ContentProviderStuck;
 import com.firebase.client.AuthData;
 import com.firebase.client.Firebase;
 import com.firebase.ui.FirebaseRecyclerAdapter;
 
 import android.app.Activity;
 import android.app.ActivityOptions;
+import android.app.LoaderManager;
+import android.content.CursorLoader;
 import android.content.Intent;
+import android.content.Loader;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -34,13 +40,25 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class StuckMainListActivity extends AppCompatActivity {
+public class StuckMainListActivity extends AppCompatActivity
+    implements LoaderManager.LoaderCallbacks<Cursor> {
 
-    private static final String TAG = "StuckMainListActivity";
+    private static final String TAG = "StuckMainListActivity55";
+    private String mEmail;
+    private RecyclerView.Adapter mAdapter;
+    private RecyclerView.LayoutManager mLayoutManager;
+    private Firebase.AuthStateListener mAuthListener;
+    private Firebase mFirebaseRef;
+    private List<StuckPostSimple> stuckPostsLoaded;
+
     @BindView(R.id.main_list_stuck_toolbar)
     Toolbar mMainListToolbar;
     @BindView(R.id.fab_add)
@@ -71,12 +89,6 @@ public class StuckMainListActivity extends AppCompatActivity {
             startActivity(intent);
         }
     }
-
-    private String mEmail;
-    private RecyclerView.Adapter mAdapter;
-    private RecyclerView.LayoutManager mLayoutManager;
-    private Firebase.AuthStateListener mAuthListener;
-    private Firebase mFirebaseRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -164,14 +176,6 @@ public class StuckMainListActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        //Todo: Check if db has user posts
-        initializeAdapter();
-
-    }
-
     private void setUpToolbar() {
         setSupportActionBar(mMainListToolbar);
 
@@ -217,9 +221,105 @@ public class StuckMainListActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        //Check if db has user posts
+        getLoaderManager().initLoader(StuckConstants.LOADER_ID, null, this);
+        initializeAdapter();
+
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         ((FirebaseRecyclerAdapter) mAdapter).cleanup();
         mFirebaseRef.removeAuthStateListener(mAuthListener);
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        Uri contentUri = Uri.withAppendedPath(ContentProviderStuck.CONTENT_URI,
+            StuckConstants.TABLE_OFFLINE_POST);
+
+        CursorLoader loader = new CursorLoader(
+            this,
+            contentUri,
+            null,
+            null,
+            null,
+            null);
+        return loader;
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+
+        stuckPostsLoaded = new ArrayList<>();
+        Log.i(TAG, "Load finished part 2");
+        data.moveToFirst();
+
+        //Got from http://stackoverflow.com/questions/10111166/get-all-rows-from-sqlite
+        if (data.moveToFirst()) {
+
+            while (!data.isAfterLast()) {
+
+                String stuckEmail = data.getString(data
+                    .getColumnIndex(StuckConstants.COLUMN_EMAIL));
+
+                String stuckQuestion = data.getString(data
+                    .getColumnIndex(StuckConstants.COLUMN_QUESTION));
+
+                String stuckLocation = data.getString(data
+                    .getColumnIndex(StuckConstants.COLUMN_LOCATION));
+
+                String stuckChoice1 = data.getString(data
+                    .getColumnIndex(StuckConstants.COLUMN_CHOICE_ONE));
+
+                String stuckChoice2 = data.getString(data
+                    .getColumnIndex(StuckConstants.COLUMN_CHOICE_TWO));
+
+                String stuckChoice3 = data.getString(data
+                    .getColumnIndex(StuckConstants.COLUMN_CHOICE_THREE));
+
+                String stuckChoice4 = data.getString(data
+                    .getColumnIndex(StuckConstants.COLUMN_CHOICE_FOUR));
+
+                StuckPostSimple stuckPostSimple = new StuckPostSimple(StuckSignUpActivity.encodeEmail(stuckEmail), stuckQuestion,
+                    stuckLocation, stuckChoice1, stuckChoice2, stuckChoice3, stuckChoice4,
+                    StuckConstants.ZERO_VOTES, StuckConstants.ZERO_VOTES,
+                    StuckConstants.ZERO_VOTES, StuckConstants.ZERO_VOTES,
+                    new HashMap<String, Object>());
+
+                Log.i(TAG, stuckPostSimple.getEmail() + " " + stuckPostSimple.getQuestion());
+
+                stuckPostsLoaded.add(stuckPostSimple);
+                data.moveToNext();
+            }
+
+        }
+
+        if (stuckPostsLoaded.size() > 0 && NetworkStatus.isOnline(this)) {
+            for (int i = 0; i<stuckPostsLoaded.size();  i++) {
+                StuckPostSimple stuckPostSimple = stuckPostsLoaded.get(i);
+                //Push the post straight to firebase
+                new Firebase(StuckConstants.FIREBASE_URL).child(
+                    StuckConstants.FIREBASE_URL_ACTIVE_POSTS).push().setValue(stuckPostSimple);
+
+                Uri contentUri = Uri.withAppendedPath(ContentProviderStuck.CONTENT_URI,
+                    StuckConstants.TABLE_OFFLINE_POST);
+//
+                Log.i(TAG, "Deleted db = " + this.getContentResolver().delete(contentUri,
+                    StuckConstants.COLUMN_QUESTION + " = ?", new String[]{stuckPostSimple.getQuestion()}));
+
+            }
+
+            getLoaderManager().restartLoader(StuckConstants.LOADER_ID, null, this);
+        }
+
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+
     }
 }

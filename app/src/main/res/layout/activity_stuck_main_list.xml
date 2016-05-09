@@ -8,25 +8,30 @@
         android:layout_height="match_parent"
         tools:context=".activities.StuckMainListActivity">
 
-    <android.support.v7.widget.Toolbar
-            style="@style/toolbar_properties"
-            android:id="@+id/main_list_stuck_toolbar">
+    <android.support.design.widget.AppBarLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+        <android.support.v7.widget.Toolbar
+                style="@style/toolbar_properties"
+                android:id="@+id/main_list_stuck_toolbar">
 
-        <include
-                layout="@layout/stuck_app_name_text_view"/>
+            <include
+                    layout="@layout/stuck_app_name_text_view"/>
 
-        <TextView android:layout_width="wrap_content"
-                  android:layout_height="?actionBarSize"
-                  android:id="@+id/filter_stuck_posts"
-                  android:text="@string/filter"
-                  android:gravity="center_vertical"
-                  android:layout_gravity="center"
-                  android:textSize="20sp"
-                  android:paddingEnd="@dimen/filter_padding"
-                  android:paddingStart="@dimen/filter_padding"
-                  android:textColor="@color/colorWhite"/>
+            <TextView android:layout_width="wrap_content"
+                      android:layout_height="?actionBarSize"
+                      android:id="@+id/filter_stuck_posts"
+                      android:text="@string/filter"
+                      android:gravity="center_vertical"
+                      android:layout_gravity="center"
+                      android:textSize="20sp"
+                      android:paddingEnd="@dimen/filter_padding"
+                      android:paddingStart="@dimen/filter_padding"
+                      android:textColor="@color/colorWhite"/>
 
-    </android.support.v7.widget.Toolbar>
+        </android.support.v7.widget.Toolbar>
+
+    </android.support.design.widget.AppBarLayout>
 
     <android.support.design.widget.FloatingActionButton
             style="@style/floating_action_button_prop"

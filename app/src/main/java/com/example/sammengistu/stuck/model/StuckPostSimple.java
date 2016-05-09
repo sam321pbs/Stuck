@@ -29,49 +29,6 @@ public class StuckPostSimple {
     }
 
     public StuckPostSimple(String email, String question, String location, String choiceOne, String choiceTwo,
-                           int choiceOneVotes, int choiceTwoVotes,HashMap<String, Object> timestampCreated) {
-        this.email = email;
-        this.question = question;
-        this.choiceOne = choiceOne;
-        this.choiceTwo = choiceTwo;
-        this.choiceThree = "";
-        this.choiceFour = "";
-        this.location = location;
-        this.choiceOneVotes = choiceOneVotes;
-        this.choiceTwoVotes = choiceTwoVotes;
-        this.choiceThreeVotes = 0;
-        this.choiceFourVotes = 0;
-
-        this.timestampCreated = timestampCreated;
-        HashMap<String, Object> timestampNowObject = new HashMap<String, Object>();
-        timestampNowObject.put(StuckConstants.FIREBASE_PROPERTY_TIMESTAMP, ServerValue.TIMESTAMP);
-        this.timestampLastChanged = timestampNowObject;
-
-    }
-
-    public StuckPostSimple(String email, String question, String location, String choiceOne, String choiceTwo,
-                           String choiceThree, int choiceOneVotes, int choiceTwoVotes,
-                           int choiceThreeVotes, HashMap<String, Object> timestampCreated) {
-        this.email = email;
-        this.question = question;
-        this.choiceOne = choiceOne;
-        this.choiceTwo = choiceTwo;
-        this.location = location;
-        this.choiceThree = choiceThree;
-        this.choiceFour = "";
-        this.choiceOneVotes = choiceOneVotes;
-        this.choiceTwoVotes = choiceTwoVotes;
-        this.choiceThreeVotes = choiceThreeVotes;
-        this.choiceFourVotes = 0;
-
-        this.timestampCreated = timestampCreated;
-        HashMap<String, Object> timestampNowObject = new HashMap<String, Object>();
-        timestampNowObject.put(StuckConstants.FIREBASE_PROPERTY_TIMESTAMP, ServerValue.TIMESTAMP);
-        this.timestampLastChanged = timestampNowObject;
-
-    }
-
-    public StuckPostSimple(String email, String question, String location, String choiceOne, String choiceTwo,
                            String choiceThree, String choiceFour, int choiceOneVotes,
                            int choiceTwoVotes, int choiceThreeVotes, int choiceFourVotes,
                            HashMap<String, Object> timestampCreated) {
