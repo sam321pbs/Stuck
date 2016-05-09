@@ -33,7 +33,7 @@
 
 
         <TextView
-                android:id="@+id/sign_up_to_login_account"
+                android:id="@+id/go_to_login_account"
                 android:text="Already have an account: Login"
                 style="@style/login_style_text"/>
 

@@ -45,7 +45,7 @@ import butterknife.OnClick;
 
 public class StuckSignUpActivity extends AppCompatActivity {
 
-    private static String TAG = "StuckSignUpActivity";
+    private static String TAG = "StuckSignUpActivity55";
     @BindView(R.id.email_edit_text)
     EditText mEmailField;
 
@@ -58,7 +58,7 @@ public class StuckSignUpActivity extends AppCompatActivity {
     @BindView(R.id.create_account_button)
     Button mCreateAccountButton;
 
-    @BindView(R.id.sign_up_to_login_account)
+    @BindView(R.id.go_to_login_account)
     TextView mLoginTextView;
 
     @BindView(R.id.sign_in_button_google)
@@ -66,7 +66,7 @@ public class StuckSignUpActivity extends AppCompatActivity {
 
     private Firebase firebase = new Firebase(StuckConstants.FIREBASE_URL);
 
-    @OnClick(R.id.sign_up_to_login_account)
+    @OnClick(R.id.go_to_login_account)
     public void onClickLoginActivity() {
         Intent intent = new Intent(this, StuckLoginActivity.class);
         startActivity(intent);
@@ -138,7 +138,8 @@ public class StuckSignUpActivity extends AppCompatActivity {
 
         final String encodedEmail = encodeEmail(emailUser);
         final Firebase userLocation = new Firebase(StuckConstants.FIREBASE_URL)
-            .child(StuckConstants.FIREBASE_URL_USERS).child(encodedEmail);
+            .child(StuckConstants.FIREBASE_URL_USERS)
+            .child(encodedEmail);
 
         /**
          * See if there is already a user (for example, if they already logged in with an associated
@@ -148,10 +149,7 @@ public class StuckSignUpActivity extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
 
-                Firebase userLocationToAddTo = new Firebase(StuckConstants.FIREBASE_URL)
-                    .child(StuckConstants.FIREBASE_URL_USERS);
-
-                Log.i(TAG, dataSnapshot.getChildren().toString());
+                Log.i(TAG, dataSnapshot + "");
                 /* If there is no user, make one */
                 if (dataSnapshot.getValue() == null) {
                                         /* Set raw version of date to the ServerValue.TIMESTAMP value and save into dateCreatedMap */
@@ -159,19 +157,27 @@ public class StuckSignUpActivity extends AppCompatActivity {
                     timestampJoined.put(StuckConstants.FIREBASE_PROPERTY_TIMESTAMP, ServerValue.TIMESTAMP);
 
                     User newUser = new User(encodedEmail, timestampJoined);
-                    userLocationToAddTo.push().setValue(newUser);
+                    userLocation.setValue(encodedEmail);
 
-                } else {
+                    Firebase userLocationToAddTo = new Firebase(StuckConstants.FIREBASE_URL)
+                        .child(StuckConstants.FIREBASE_URL_USERS).child(encodedEmail);
+                    userLocationToAddTo.setValue(newUser, new Firebase.CompletionListener() {
+                        @Override
+                        public void onComplete(FirebaseError firebaseError, Firebase firebase) {
+                            if (firebaseError != null){
+                                Log.i(TAG, firebaseError.getMessage());
+                            }
+                        }
+                    });
 
                 }
             }
 
             @Override
             public void onCancelled(FirebaseError firebaseError) {
-                Log.d("StuckSignUpActivity", "Error logging in" + firebaseError.getMessage());
+                Log.d(TAG, "Error logging in" + firebaseError.getMessage());
             }
         });
-
     }
 
     public static String encodeEmail(String userEmail) {
@@ -213,7 +219,6 @@ public class StuckSignUpActivity extends AppCompatActivity {
             email = acct.getEmail();
 
             new GoogleAuthtokenTask(email).execute();
-
         }
     }
 

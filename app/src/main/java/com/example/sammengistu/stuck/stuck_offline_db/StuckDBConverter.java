@@ -18,7 +18,7 @@ public class StuckDBConverter {
     /**
      * Converts a movie into a ContentValues Object
      */
-    public static ContentValues insertFavoriteMovieToDB(StuckPostSimple stuckPostSimple) {
+    public static ContentValues insertStuckPostToDB(StuckPostSimple stuckPostSimple) {
 
         ContentValues contentValues = new ContentValues();
         contentValues.put(StuckConstants.COLUMN_EMAIL, stuckPostSimple.getEmail());
@@ -38,7 +38,7 @@ public class StuckDBConverter {
      * @param cursor - where to get all the movies from
      * @return - list of movies
      */
-    public static List<StuckPostSimple> getMoviesFromDb(Cursor cursor) {
+    public static List<StuckPostSimple> getStuckPostsFromDb(Cursor cursor) {
 
         List<StuckPostSimple> stuckPostSimples = new ArrayList<>();
 

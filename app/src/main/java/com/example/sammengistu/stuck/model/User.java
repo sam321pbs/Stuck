@@ -17,6 +17,12 @@ public class User {
         this.hasLoggedInWithTempPassword = false;
     }
 
+    public User(String email, HashMap<String, Object> timestampJoined, boolean hasLoggedInWithTempPassword) {
+        this.email = email;
+        this.timestampJoined = timestampJoined;
+        this.hasLoggedInWithTempPassword = hasLoggedInWithTempPassword;
+    }
+
     public String getEmail() {
         return email;
     }
@@ -25,7 +31,7 @@ public class User {
         return timestampJoined;
     }
 
-    public boolean isHasLoggedInWithTempPassword() {
+    public boolean getHasLoggedInWithTempPassword() {
         return hasLoggedInWithTempPassword;
     }
 

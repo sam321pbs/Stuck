@@ -13,7 +13,6 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.example.sammengistu.stuck.NetworkStatus;
 import com.example.sammengistu.stuck.R;
 import com.example.sammengistu.stuck.StuckConstants;
-import com.example.sammengistu.stuck.model.User;
 import com.firebase.client.AuthData;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
@@ -35,7 +34,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
-import java.security.SecureRandom;
+import java.util.HashMap;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -44,11 +44,11 @@ import butterknife.OnClick;
 
 public class StuckLoginActivity extends AppCompatActivity {
 
-    private static String TAG = "StuckLoginActivity";
+    private static String TAG = "StuckLoginActivity55";
     private GoogleApiClient mGoogleApiClient;
     private Firebase mFirebase;
-    private SecureRandom mRandom = new SecureRandom();
     private boolean mSendRestPassword = false;
+    private Firebase mUserRef;
 
     @BindView(R.id.login_email_edit_text)
     EditText mEmailEditText;
@@ -79,6 +79,9 @@ public class StuckLoginActivity extends AppCompatActivity {
         mLoginButton.setText("Send temp email");
         mLoginButtonGoogle.setVisibility(View.INVISIBLE);
         mLoginButtonGoogle.setEnabled(false);
+
+        mForgotPasswordTextView.setEnabled(false);
+        mForgotPasswordTextView.setVisibility(View.INVISIBLE);
     }
 
     @OnClick(R.id.log_in_button_google)
@@ -102,7 +105,7 @@ public class StuckLoginActivity extends AppCompatActivity {
         if (NetworkStatus.isOnline(this)) {
             if (mSendRestPassword && StuckSignUpActivity.vaildEmail(mEmailEditText)) {
 
-               resetPassword();
+                resetPassword();
 
 
             } else {
@@ -113,28 +116,25 @@ public class StuckLoginActivity extends AppCompatActivity {
         }
     }
 
-    private void resetPassword(){
+    private void resetPassword() {
         String email = mEmailEditText.getText().toString();
-        final Firebase mFirebaseRef = new Firebase(StuckConstants.FIREBASE_URL)
-            .child(StuckConstants.FIREBASE_URL_USERS);
 
-        final Firebase userRef = new Firebase(StuckConstants.FIREBASE_URL)
-            .child(StuckConstants.FIREBASE_URL_USERS).child(
-                StuckSignUpActivity.encodeEmail(mEmailEditText.getText().toString()));
-
-        userRef.resetPassword(email, new Firebase.ResultHandler() {
+        mUserRef.resetPassword(email, new Firebase.ResultHandler() {
             @Override
             public void onSuccess() {
 
                 Toast.makeText(StuckLoginActivity.this, "Temp password sent",
                     Toast.LENGTH_LONG).show();
 
+                changeUserUsedTempToTrue();
                 mSendRestPassword = false;
                 mPasswordEditText.setVisibility(View.VISIBLE);
                 mPasswordEditText.setEnabled(true);
                 mLoginButton.setText("Login");
                 mLoginButtonGoogle.setVisibility(View.VISIBLE);
                 mLoginButtonGoogle.setEnabled(true);
+                mForgotPasswordTextView.setEnabled(true);
+                mForgotPasswordTextView.setVisibility(View.VISIBLE);
             }
 
             @Override
@@ -144,7 +144,20 @@ public class StuckLoginActivity extends AppCompatActivity {
         });
     }
 
+
+    private void changeUserUsedTempToTrue() {
+
+        Firebase mRef = mUserRef.child(StuckSignUpActivity.encodeEmail(
+            mEmailEditText.getText().toString()));
+
+        Map<String, Object> changePasswordOnLogin = new HashMap<String, Object>();
+        changePasswordOnLogin.put("hasLoggedInWithTempPassword", true);
+        mRef.updateChildren(changePasswordOnLogin);
+
+    }
+
     private void loginEmailPassword() {
+
         if (allFieldsAreEntered() && StuckSignUpActivity.vaildEmail(mEmailEditText)) {
             Firebase ref = new Firebase(StuckConstants.FIREBASE_URL)
                 .child(StuckConstants.FIREBASE_URL_USERS);
@@ -170,36 +183,33 @@ public class StuckLoginActivity extends AppCompatActivity {
                         editor.putString(StuckConstants.PROVIDER, "password");
                         editor.apply();
 
-                        final Firebase userRef = new Firebase(StuckConstants.FIREBASE_URL)
-                            .child(StuckConstants.FIREBASE_URL_USERS)
-//                            .child(StuckSignUpActivity.encodeEmail(mEmailEditText.getText().toString()))
-                            ;
-
-                        userRef.addValueEventListener(new ValueEventListener() {
+                        Firebase reff = mUserRef.child(StuckSignUpActivity
+                            .encodeEmail(mEmailEditText.getText().toString()))
+                            .child("hasLoggedInWithTempPassword");
+                        reff.addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                Log.i(TAG, dataSnapshot.toString() + "");
+                            public void onDataChange(DataSnapshot snapshot) {
 
-                                User user = dataSnapshot.getValue(User.class);
+                                boolean resetPassword = snapshot.getValue(Boolean.class);
 
-                                if (user.isHasLoggedInWithTempPassword()){
+                                if (resetPassword) {
 
                                     Intent intent = new Intent(StuckLoginActivity.this,
-                                        StuckSignUpActivity.class);
+                                        StuckResetPasswordActivity.class);
                                     intent.putExtra(StuckConstants.RESET_PASSWORD,
                                         mPasswordEditText.getText().toString());
+                                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                                     startActivity(intent);
 
                                 } else {
                                     Intent intent = new Intent(StuckLoginActivity.this,
                                         StuckMainListActivity.class);
+                                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                                     startActivity(intent);
                                 }
                             }
-
                             @Override
                             public void onCancelled(FirebaseError firebaseError) {
-
                             }
                         });
                     }
@@ -208,27 +218,31 @@ public class StuckLoginActivity extends AppCompatActivity {
                     public void onAuthenticationError(FirebaseError firebaseError) {
                         dialog.dismiss();
 
-                        // Something went wrong :(
-                        switch (firebaseError.getCode()) {
-                            case FirebaseError.USER_DOES_NOT_EXIST:
-                                // handle a non existing user
-                                Toast.makeText(StuckLoginActivity.this,
-                                    "User does not exist", Toast.LENGTH_LONG).show();
-                                break;
-                            case FirebaseError.INVALID_PASSWORD:
-                                // handle an invalid password
-                                Toast.makeText(StuckLoginActivity.this,
-                                    "Invalid password", Toast.LENGTH_LONG).show();
-                                break;
-                            default:
-                                // handle other errors
-                                Toast.makeText(StuckLoginActivity.this,
-                                    "Error Logging in, try again", Toast.LENGTH_LONG).show();
-
-                                break;
-                        }
+                        handleLoginError(firebaseError.getCode());
                     }
                 });
+        }
+    }
+
+    private void handleLoginError(int errorCode) {
+        // Something went wrong :(
+        switch (errorCode) {
+            case FirebaseError.USER_DOES_NOT_EXIST:
+                // handle a non existing user
+                Toast.makeText(StuckLoginActivity.this,
+                    "User does not exist", Toast.LENGTH_LONG).show();
+                break;
+            case FirebaseError.INVALID_PASSWORD:
+                // handle an invalid password
+                Toast.makeText(StuckLoginActivity.this,
+                    "Invalid password", Toast.LENGTH_LONG).show();
+                break;
+            default:
+                // handle other errors
+                Toast.makeText(StuckLoginActivity.this,
+                    "Error Logging in, try again", Toast.LENGTH_LONG).show();
+
+                break;
         }
     }
 
@@ -276,6 +290,11 @@ public class StuckLoginActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         mFirebase = new Firebase(StuckConstants.FIREBASE_URL);
+
+        mUserRef = new Firebase(StuckConstants.FIREBASE_URL)
+            .child(StuckConstants.FIREBASE_URL_USERS).child(
+                StuckSignUpActivity.encodeEmail(mEmailEditText.getText().toString()));
+
         // Configure sign-in to request the user's ID, email address, and basic
         // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -360,5 +379,11 @@ public class StuckLoginActivity extends AppCompatActivity {
                 }
             });
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
     }
 }

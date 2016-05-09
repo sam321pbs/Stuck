@@ -24,14 +24,13 @@ public class ContentProviderStuck extends ContentProvider {
 
     @Nullable
     @Override
-    public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+    public Cursor query(Uri uri, String[] projection, String selection,
+                        String[] selectionArgs, String sortOrder) {
         String table = getTableName(uri);
         SQLiteDatabase database = dbHelper.getReadableDatabase();
 
-        Cursor query = database.rawQuery(
+        return database.rawQuery(
             StuckConstants.SELECT_FROM + table, null);
-
-        return query;
     }
 
     @Nullable
@@ -43,9 +42,9 @@ public class ContentProviderStuck extends ContentProvider {
     @Nullable
     @Override
     public Uri insert(Uri uri, ContentValues values) {
-        String table = getTableName(uri);
+        String tableUri = getTableName(uri);
         SQLiteDatabase database = dbHelper.getWritableDatabase();
-        long value = database.insert(table, null, values);
+        long value = database.insert(tableUri, null, values);
         return Uri.withAppendedPath(CONTENT_URI, String.valueOf(value));
     }
 

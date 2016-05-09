@@ -87,6 +87,7 @@ public class StuckMainListActivity extends AppCompatActivity {
 
         mFirebaseRef = new Firebase(StuckConstants.FIREBASE_URL)
             .child(StuckConstants.FIREBASE_URL_USERS);
+
         mAuthListener = new Firebase.AuthStateListener() {
             @Override
             public void onAuthStateChanged(AuthData authData) {
@@ -166,7 +167,7 @@ public class StuckMainListActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        //Todo: load up posts
+        //Todo: Check if db has user posts
         initializeAdapter();
 
     }

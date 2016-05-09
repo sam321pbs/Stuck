@@ -2,27 +2,33 @@ package com.example.sammengistu.stuck.activities;
 
 import com.example.sammengistu.stuck.R;
 import com.example.sammengistu.stuck.StuckConstants;
-import com.example.sammengistu.stuck.model.User;
-import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
-import com.firebase.client.ValueEventListener;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class StuckResetPasswordActivity extends AppCompatActivity {
-    final EditText passwordED = (EditText) findViewById(R.id.password_edit_text);
-    final EditText reenterED = (EditText) findViewById(R.id.reenter_password_edit_text);
-    Button resetButton = (Button) findViewById(R.id.reset_password_button);
-    Firebase userRef;
-    String email ;
+    private static final String TAG = "ResetPasswordActivity55";
+    private EditText passwordED;
+    private EditText reenterED;
+    private Button resetButton;
+
+    private String email ;
+
+    private Firebase userRef;
+    private Firebase mFirebaseRef ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,53 +37,43 @@ public class StuckResetPasswordActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        passwordED = (EditText) findViewById(R.id.password_edit_text);
+        reenterED = (EditText) findViewById(R.id.reenter_password_edit_text);
+        resetButton = (Button) findViewById(R.id.reset_password_button);
+
         SharedPreferences pref = getApplicationContext()
             .getSharedPreferences(StuckConstants.SHARED_PREFRENCE_USER, 0); // 0 - for private mode
-        userRef = new Firebase(StuckConstants.FIREBASE_URL_USERS).child(email);
+
         email = pref.getString(StuckConstants.KEY_ENCODED_EMAIL, "");
 
+        userRef = new Firebase(StuckConstants.FIREBASE_URL)
+            .child(StuckConstants.FIREBASE_URL_USERS)
+            .child(StuckSignUpActivity.encodeEmail(email));
+
+        mFirebaseRef = new Firebase(StuckConstants.FIREBASE_URL)
+            .child(StuckConstants.FIREBASE_URL_USERS);
 
         assert resetButton != null;
         resetButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                /**
-                 * Check if current user has logged in at least once
-                 */
-                userRef.addListenerForSingleValueEvent(mValueEventListener);
-            }
-        });
-    }
 
-    ValueEventListener mValueEventListener = new ValueEventListener() {
-        @Override
-        public void onDataChange(DataSnapshot dataSnapshot) {
-            User user = dataSnapshot.getValue(User.class);
+                if (passwordED.getText().toString().equals(reenterED.getText().toString())) {
 
-//                        Todo: have user RESET PASSWORD
-            if (user != null) {
+                    Firebase firebase = new Firebase(StuckConstants.FIREBASE_URL);
 
-                /**
-                 * If recently registered user has hasLoggedInWithPassword = "false"
-                 * (never logged in using password provider)
-                 */
-                if (!user.isHasLoggedInWithTempPassword()) {
-
-                    /**
-                     * Change password if user that just signed in signed up recently
-                     * to make sure that user will be able to use temporary password
-                     * from the email more than 24 hours
-                     */
-                    userRef.changePassword(email,
-                        getIntent().getStringExtra(StuckConstants.TEMP_PASSWORD),
-                        passwordED.getText().toString(),
-                        new Firebase.ResultHandler() {
+                    firebase.changePassword(email,
+                        getIntent().getStringExtra(StuckConstants.RESET_PASSWORD),
+                        reenterED.getText().toString(), new Firebase.ResultHandler() {
                             @Override
                             public void onSuccess() {
-                                userRef.unauth();
-                                Intent intent  = new Intent(StuckResetPasswordActivity.this,
-                                    StuckLoginActivity.class);
+                                Toast.makeText(StuckResetPasswordActivity.this,
+                                    "Password has been reset", Toast.LENGTH_LONG).show();
 
+                                changeUserUsedTempToFalse();
+
+                                Intent intent = new Intent(StuckResetPasswordActivity.this,
+                                    StuckLoginActivity.class);
                                 startActivity(intent);
                             }
 
@@ -86,13 +82,29 @@ public class StuckResetPasswordActivity extends AppCompatActivity {
 
                             }
                         });
+                } else {
+                    Toast.makeText(StuckResetPasswordActivity.this,
+                        "Passwords don't match", Toast.LENGTH_LONG).show();
                 }
             }
-        }
+        });
+    }
 
-        @Override
-        public void onCancelled(FirebaseError firebaseError) {
+    private void changeUserUsedTempToFalse() {
 
-        }
-    };
+        Map<String, Object> changePasswordOnLogin = new HashMap<String, Object>();
+        changePasswordOnLogin.put("hasLoggedInWithTempPassword", false);
+        userRef.updateChildren(changePasswordOnLogin, new Firebase.CompletionListener() {
+            @Override
+            public void onComplete(FirebaseError firebaseError, Firebase firebase) {
+                Log.i(TAG, firebase.getRef().toString());
+            }
+        });
+    }
+
+    @Override
+    protected void onDestroy(){
+        super.onDestroy();
+        mFirebaseRef.unauth();
+    }
 }

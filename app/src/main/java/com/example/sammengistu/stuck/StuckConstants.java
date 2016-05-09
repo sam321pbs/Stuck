@@ -22,6 +22,8 @@ public class StuckConstants {
     public static final String RESET_PASSWORD = "reset password";
     public static final String TEMP_PASSWORD = "temp password";
 
+    public static final int ZERO_VOTES = 0;
+
 
     public static String FIREBASE_URL = BuildConfig.UNIQUE_FIREBASE_ROOT_URL;
     public static final String FIREBASE_PROPERTY_TIMESTAMP = "timeStamp";

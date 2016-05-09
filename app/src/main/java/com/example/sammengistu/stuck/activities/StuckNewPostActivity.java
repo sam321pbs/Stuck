@@ -6,12 +6,15 @@ import com.example.sammengistu.stuck.StuckConstants;
 import com.example.sammengistu.stuck.adapters.MyPostChoiceAdapter;
 import com.example.sammengistu.stuck.model.Choice;
 import com.example.sammengistu.stuck.model.StuckPostSimple;
+import com.example.sammengistu.stuck.stuck_offline_db.ContentProviderStuck;
+import com.example.sammengistu.stuck.stuck_offline_db.StuckDBConverter;
 import com.firebase.client.AuthData;
 import com.firebase.client.Firebase;
 import com.firebase.client.ServerValue;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
@@ -24,6 +27,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -77,75 +81,100 @@ public class StuckNewPostActivity extends AppCompatActivity {
     }
 
     @OnClick(R.id.new_post_done)
-    public void setNewPostDone(){
-        if (NetworkStatus.isOnline(this)) {
-            if (isQuestionFilled() && isAllChoicesFilled()) {
-                /**
-                 * Create Firebase references
-                 */
-                    /* Save listsRef.push() to maintain same random Id */
-                final String listId = mNewListRef.getKey();
+    public void setNewPostDone() {
 
-                /**
-                 * Set raw version of date to the ServerValue.TIMESTAMP value and save into
-                 * timestampCreatedMap
-                 */
-                HashMap<String, Object> timestampCreated = new HashMap<>();
-                timestampCreated.put(StuckConstants.FIREBASE_PROPERTY_TIMESTAMP, ServerValue.TIMESTAMP);
+        if (isQuestionFilled() && isAllChoicesFilled()) {
 
-                    /* Add a posy list */
-
-                StuckPostSimple stuckPost = new StuckPostSimple();
-                switch (mChoicesList.size()) {
-                    case 2:
-                        stuckPost = new StuckPostSimple(
-                            mEmail,
-                            mQuestionEditText.getText().toString(),
-                            "College Park",
-                            mChoicesList.get(0).getChoice(),
-                            mChoicesList.get(1).getChoice(),
-                            "", "", 0, 0, 0, 0,
-                            timestampCreated);
-                        break;
-
-                    case 3:
-                        stuckPost = new StuckPostSimple(
-                            mEmail,
-                            mQuestionEditText.getText().toString(),
-                            "College Park",
-                            mChoicesList.get(0).getChoice(),
-                            mChoicesList.get(1).getChoice(),
-                            mChoicesList.get(2).getChoice(),
-                            "", 0, 0, 0, 0,
-                            timestampCreated);
-                        break;
-                    case 4:
-                        stuckPost = new StuckPostSimple(
-                            mEmail,
-                            mQuestionEditText.getText().toString(),
-                            "College Park",
-                            mChoicesList.get(0).getChoice(),
-                            mChoicesList.get(1).getChoice(),
-                            mChoicesList.get(2).getChoice(),
-                            mChoicesList.get(3).getChoice(),
-                            0, 0, 0, 0,
-                            timestampCreated);
-                }
-
-                mNewListRef.setValue(stuckPost);
-
-                Intent intent = new Intent(StuckNewPostActivity.this, StuckMainListActivity.class);
-                startActivity(intent);
-
-            } else {
-                AlertDialog.Builder fillEveryThingDialog = new AlertDialog.Builder(StuckNewPostActivity.this);
-                fillEveryThingDialog.setTitle("Please fill all boxes");
-                fillEveryThingDialog.show();
-                fillEveryThingDialog.setCancelable(true);
-            }
+            createPost();
         } else {
-            NetworkStatus.showOffLineDialog(this);
+            alertUserItemMissing();
         }
+
+    }
+
+    private void alertUserItemMissing() {
+        AlertDialog.Builder fillEveryThingDialog = new AlertDialog.Builder(StuckNewPostActivity.this);
+        fillEveryThingDialog.setTitle("Oops, one card is empty");
+        fillEveryThingDialog.setMessage("Please fill all boxes");
+        fillEveryThingDialog.show();
+        fillEveryThingDialog.setCancelable(true);
+    }
+
+    private void createPost() {
+        /**
+         * Create Firebase references
+         */
+                /* Save listsRef.push() to maintain same random Id */
+        final String listId = mNewListRef.getKey();
+
+        /**
+         * Set raw version of date to the ServerValue.TIMESTAMP value and save into
+         * timestampCreatedMap
+         */
+        HashMap<String, Object> timestampCreated = new HashMap<>();
+        timestampCreated.put(StuckConstants.FIREBASE_PROPERTY_TIMESTAMP, ServerValue.TIMESTAMP);
+
+        /* Add a posy list */
+
+        StuckPostSimple stuckPost = new StuckPostSimple();
+        switch (mChoicesList.size()) {
+            case 2:
+                stuckPost = new StuckPostSimple(
+                    mEmail,
+                    mQuestionEditText.getText().toString(),
+                    "College Park",
+                    mChoicesList.get(0).getChoice(),
+                    mChoicesList.get(1).getChoice(),
+                    "", "",
+                    StuckConstants.ZERO_VOTES, StuckConstants.ZERO_VOTES,
+                    StuckConstants.ZERO_VOTES, StuckConstants.ZERO_VOTES,
+                    timestampCreated);
+                break;
+
+            case 3:
+                stuckPost = new StuckPostSimple(
+                    mEmail,
+                    mQuestionEditText.getText().toString(),
+                    "College Park",
+                    mChoicesList.get(0).getChoice(),
+                    mChoicesList.get(1).getChoice(),
+                    mChoicesList.get(2).getChoice(),
+                    "",
+                    StuckConstants.ZERO_VOTES, StuckConstants.ZERO_VOTES,
+                    StuckConstants.ZERO_VOTES, StuckConstants.ZERO_VOTES,
+                    timestampCreated);
+                break;
+            case 4:
+                stuckPost = new StuckPostSimple(
+                    mEmail,
+                    mQuestionEditText.getText().toString(),
+                    "College Park",
+                    mChoicesList.get(0).getChoice(),
+                    mChoicesList.get(1).getChoice(),
+                    mChoicesList.get(2).getChoice(),
+                    mChoicesList.get(3).getChoice(),
+                    StuckConstants.ZERO_VOTES, StuckConstants.ZERO_VOTES,
+                    StuckConstants.ZERO_VOTES, StuckConstants.ZERO_VOTES,
+                    timestampCreated);
+        }
+
+
+        if (!NetworkStatus.isOnline(this)) {
+            //TODO: check later
+            Uri contentUri = Uri.withAppendedPath(ContentProviderStuck.CONTENT_URI,
+                StuckConstants.TABLE_OFFLINE_POST);
+
+            getContentResolver().insert(contentUri,
+                StuckDBConverter.insertStuckPostToDB(stuckPost));
+
+            Toast.makeText(this,
+                "Offline: will make your post when back online", Toast.LENGTH_LONG).show();
+        } else {
+            mNewListRef.setValue(stuckPost);
+        }
+
+        Intent intent = new Intent(StuckNewPostActivity.this, StuckMainListActivity.class);
+        startActivity(intent);
     }
 
     @Override
@@ -201,7 +230,7 @@ public class StuckNewPostActivity extends AppCompatActivity {
         // Get a support ActionBar corresponding to this toolbar
         ActionBar ab = getSupportActionBar();
 
-        if (ab !=null) {
+        if (ab != null) {
             // Enable the Up button
             ab.setDisplayHomeAsUpEnabled(true);
 
@@ -224,7 +253,7 @@ public class StuckNewPostActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onDestroy(){
+    public void onDestroy() {
         super.onDestroy();
         mRef.removeAuthStateListener(mAuthListener);
     }
