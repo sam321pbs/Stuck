@@ -1,7 +1,5 @@
 package com.example.sammengistu.stuck.activities;
 
-import com.google.android.gms.auth.GoogleAuthException;
-import com.google.android.gms.auth.GoogleAuthUtil;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -13,8 +11,8 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.example.sammengistu.stuck.NetworkStatus;
 import com.example.sammengistu.stuck.R;
 import com.example.sammengistu.stuck.StuckConstants;
+import com.example.sammengistu.stuck.asynctask.GoogleAuthTokenTask;
 import com.example.sammengistu.stuck.model.User;
-import com.firebase.client.AuthData;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
@@ -24,7 +22,6 @@ import com.firebase.client.ValueEventListener;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -35,7 +32,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -46,87 +42,52 @@ import butterknife.OnClick;
 public class StuckSignUpActivity extends AppCompatActivity {
 
     private static String TAG = "StuckSignUpActivity55";
+    private Firebase mFirebaseRef = new Firebase(StuckConstants.FIREBASE_URL);
+    private String mEncodedEmail;
+    private GoogleApiClient mGoogleApiClient;
+
     @BindView(R.id.email_edit_text)
     EditText mEmailField;
-
     @BindView(R.id.password_edit_text)
     EditText mPasswordField;
-
     @BindView(R.id.reenter_password_edit_text)
     EditText mRE_EnterField;
-
     @BindView(R.id.create_account_button)
     Button mCreateAccountButton;
-
     @BindView(R.id.go_to_login_account)
     TextView mLoginTextView;
-
     @BindView(R.id.sign_in_button_google)
     SignInButton mSignInButton;
 
-    private Firebase firebase = new Firebase(StuckConstants.FIREBASE_URL);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_create_account);
+        ButterKnife.bind(this);
 
-    @OnClick(R.id.go_to_login_account)
-    public void onClickLoginActivity() {
-        Intent intent = new Intent(this, StuckLoginActivity.class);
-        startActivity(intent);
-    }
+        mRE_EnterField.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
 
-    @OnClick(R.id.sign_in_button_google)
-    public void signInWithGoogle() {
-        if (NetworkStatus.isOnline(this)) {
-            signIn();
-        } else {
-            NetworkStatus.showOffLineDialog(this);
-        }
-    }
+        // Configure sign-in to request the user's ID, mEncodedEmail address, and basic
+        // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestEmail()
+            .build();
 
-    @OnClick(R.id.create_account_button)
-    public void onClickCreate() {
-        if (NetworkStatus.isOnline(this)) {
-            if (allFieldsAreEntered() && passwordsMatch(mPasswordField,
-                mRE_EnterField) && vaildEmail(mEmailField)) {
-                if (mPasswordField.getText().toString().length() >= 5) {
-                    final ProgressDialog dialog = new ProgressDialog(this);
-                    dialog.setMessage("Creating account..");
-                    dialog.show();
+        // Build a GoogleApiClient with access to the Google Sign-In API and the
+        // options specified by gso.
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+            .enableAutoManage(this /* FragmentActivity */, new GoogleApiClient.OnConnectionFailedListener() {
+                @Override
+                public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
-                    firebase.createUser(mEmailField.getText().toString(),
-                        mPasswordField.getText().toString(),
-                        new Firebase.ValueResultHandler<Map<String, Object>>() {
-                            @Override
-                            public void onSuccess(Map<String, Object> stringObjectMap) {
-                                Log.i(TAG, "Successfully created user account with uid: " + stringObjectMap.get("uid"));
-                                dialog.dismiss();
-
-                                email = encodeEmail(mEmailField.getText().toString());
-                                String uid = (String) stringObjectMap.get("uid");
-                                createUserInFirebaseHelper(email);
-
-                                Log.i(TAG, "after created user in db");
-                                putEmailInSharedPref(email);
-
-                                Intent intent = new Intent(StuckSignUpActivity.this, StuckLoginActivity.class);
-                                startActivity(intent);
-                            }
-
-                            @Override
-                            public void onError(FirebaseError firebaseError) {
-                                dialog.dismiss();
-                                Toast.makeText(StuckSignUpActivity.this, "There was an error", Toast.LENGTH_LONG).show();
-                                Log.i(TAG, firebaseError.getMessage());
-                            }
-                        });
-                } else {
-                    Toast.makeText(this, "Password needs to be atleast 5 characters long", Toast.LENGTH_LONG).show();
                 }
-            }
-        } else {
-            NetworkStatus.showOffLineDialog(this);
-        }
+            } /* OnConnectionFailedListener */)
+            .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
+            .build();
 
+        mSignInButton.setSize(SignInButton.SIZE_STANDARD);
+        mSignInButton.setScopes(gso.getScopeArray());
     }
-
 
     private void putEmailInSharedPref (String email) {
         SharedPreferences pref = getApplicationContext()
@@ -139,15 +100,15 @@ public class StuckSignUpActivity extends AppCompatActivity {
         editor.apply();
     }
 
-    private void createUserInFirebaseHelper(String emailUser) {
+    /**
+     *Adds user to firebase and creates a vote location for them to store their votes
+     * @param emailUser - users email
+     */
+    public static void createUserInFirebaseHelper(String emailUser) {
 
         final String encodedEmail = encodeEmail(emailUser);
         final Firebase userLocation = new Firebase(StuckConstants.FIREBASE_URL)
             .child(StuckConstants.FIREBASE_URL_USERS)
-            .child(encodedEmail);
-
-        final Firebase userVoteLocation = new Firebase(StuckConstants.FIREBASE_URL)
-            .child(StuckConstants.FIREBASE_URL_USERS_VOTES)
             .child(encodedEmail);
 
         /**
@@ -171,8 +132,6 @@ public class StuckSignUpActivity extends AppCompatActivity {
                     Firebase userLocationToAddTo = new Firebase(StuckConstants.FIREBASE_URL)
                         .child(StuckConstants.FIREBASE_URL_USERS).child(encodedEmail);
 
-                    userVoteLocation.child("sam awesome").setValue(0);
-
                     userLocationToAddTo.setValue(newUser, new Firebase.CompletionListener() {
                         @Override
                         public void onComplete(FirebaseError firebaseError, Firebase firebase) {
@@ -191,13 +150,16 @@ public class StuckSignUpActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Firebase doesnt allow periods so the period is replaced with a comma
+     * @param userEmail - normal email
+     * @return - encoded email
+     */
     public static String encodeEmail(String userEmail) {
         return userEmail.replace(".", ",");
     }
 
-    private String email;
-
-    private void signIn() {
+    private void signInGoogle() {
         Log.i(TAG, "Google signin ");
         Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
         startActivityForResult(signInIntent, StuckConstants.RC_SIGN_IN);
@@ -207,7 +169,6 @@ public class StuckSignUpActivity extends AppCompatActivity {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
 
         // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
         if (requestCode == StuckConstants.RC_SIGN_IN) {
@@ -227,75 +188,13 @@ public class StuckSignUpActivity extends AppCompatActivity {
             // Signed in successfully, show authenticated UI.
             GoogleSignInAccount acct = result.getSignInAccount();
 
-            email = acct.getEmail();
+            mEncodedEmail = acct.getEmail();
 
-            new GoogleAuthtokenTask(email).execute();
+            new GoogleAuthTokenTask(mEncodedEmail, this, true).execute();
+        } else {
+            Toast.makeText(this, R.string.error_google_sign_in, Toast.LENGTH_LONG).show();
         }
     }
-
-    public class GoogleAuthtokenTask extends AsyncTask<Void, Void, String> {
-
-        private ProgressDialog dialog;
-
-        private String mEmail;
-
-        public GoogleAuthtokenTask(String email) {
-            dialog = new ProgressDialog(StuckSignUpActivity.this);
-            mEmail = email;
-        }
-
-        @Override
-        protected void onPreExecute() {
-
-            dialog.setMessage("Creating account..");
-            dialog.show();
-        }
-
-        @SuppressWarnings("deprecation")
-        @Override
-        protected String doInBackground(Void... params) {
-            String scopes = "oauth2:profile email";
-            String token = null;
-            try {
-                token = GoogleAuthUtil.getToken(getApplicationContext(), mEmail, scopes);
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (GoogleAuthException e) {
-                e.printStackTrace();
-            }
-            // exception handling removed for brevity
-            return token;
-        }
-
-        @Override
-        protected void onPostExecute(String s) {
-            firebase.authWithOAuthToken("google", s, new Firebase.AuthResultHandler() {
-                @Override
-                public void onAuthenticated(AuthData authData) {
-                    // the Google user is now authenticated with your Firebase app
-
-                    dialog.dismiss();
-                    Log.i(TAG, "Google signin success");
-                    String encodedEmail = encodeEmail(mEmail);
-
-                    createUserInFirebaseHelper(encodedEmail);
-
-                    putEmailInSharedPref(mEmail);
-                    Intent intent = new Intent(StuckSignUpActivity.this, StuckMainListActivity.class);
-                    startActivity(intent);
-                }
-
-                @Override
-                public void onAuthenticationError(FirebaseError firebaseError) {
-                    dialog.dismiss();
-                    // there was an error
-                    Log.i(TAG, "Google signin error");
-                }
-            });
-        }
-    }
-
-    private GoogleApiClient mGoogleApiClient;
 
     public static boolean vaildEmail(EditText emailField) {
         return emailField.getText().toString().contains("@") && emailField.getText().toString().contains(".");
@@ -312,33 +211,63 @@ public class StuckSignUpActivity extends AppCompatActivity {
             !mEmailField.getText().toString().equals("");
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_create_account);
-        ButterKnife.bind(this);
+    @OnClick(R.id.go_to_login_account)
+    public void onClickLoginActivity() {
+        Intent intent = new Intent(this, StuckLoginActivity.class);
+        startActivity(intent);
+    }
 
-        mRE_EnterField.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+    @OnClick(R.id.sign_in_button_google)
+    public void signInWithGoogle() {
+        if (NetworkStatus.isOnline(this)) {
+            signInGoogle();
+        } else {
+            NetworkStatus.showOffLineDialog(this);
+        }
+    }
 
-        // Configure sign-in to request the user's ID, email address, and basic
-        // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestEmail()
-            .build();
+    @OnClick(R.id.create_account_button)
+    public void onClickCreate() {
+        if (NetworkStatus.isOnline(this)) {
+            if (allFieldsAreEntered() && passwordsMatch(mPasswordField,
+                mRE_EnterField) && vaildEmail(mEmailField)) {
+                if (mPasswordField.getText().toString().length() >= 5) {
+                    final ProgressDialog dialog = new ProgressDialog(this);
+                    dialog.setMessage(getString(R.string.creating_account_dialog));
+                    dialog.show();
 
-        // Build a GoogleApiClient with access to the Google Sign-In API and the
-        // options specified by gso.
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-            .enableAutoManage(this /* FragmentActivity */, new GoogleApiClient.OnConnectionFailedListener() {
-                @Override
-                public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+                    mFirebaseRef.createUser(mEmailField.getText().toString(),
+                        mPasswordField.getText().toString(),
+                        new Firebase.ValueResultHandler<Map<String, Object>>() {
+                            @Override
+                            public void onSuccess(Map<String, Object> stringObjectMap) {
+                                Log.i(TAG, "Successfully created user account with uid: " + stringObjectMap.get("uid"));
+                                dialog.dismiss();
 
+                                mEncodedEmail = encodeEmail(mEmailField.getText().toString());
+                                createUserInFirebaseHelper(mEncodedEmail);
+
+                                Log.i(TAG, "after created user in db");
+                                putEmailInSharedPref(mEncodedEmail);
+
+                                Intent intent = new Intent(StuckSignUpActivity.this,
+                                    StuckLoginActivity.class);
+                                startActivity(intent);
+                            }
+
+                            @Override
+                            public void onError(FirebaseError firebaseError) {
+                                dialog.dismiss();
+                                Toast.makeText(StuckSignUpActivity.this, R.string.error_toast, Toast.LENGTH_LONG).show();
+                                Log.i(TAG, firebaseError.getMessage());
+                            }
+                        });
+                } else {
+                    Toast.makeText(this, R.string.make_password_longer, Toast.LENGTH_LONG).show();
                 }
-            } /* OnConnectionFailedListener */)
-            .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
-            .build();
-
-        mSignInButton.setSize(SignInButton.SIZE_STANDARD);
-        mSignInButton.setScopes(gso.getScopeArray());
+            }
+        } else {
+            NetworkStatus.showOffLineDialog(this);
+        }
     }
 }

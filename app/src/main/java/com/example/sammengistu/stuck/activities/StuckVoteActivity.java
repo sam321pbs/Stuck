@@ -11,6 +11,7 @@ import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
@@ -34,7 +35,7 @@ import butterknife.OnClick;
 
 public class StuckVoteActivity extends AppCompatActivity {
 
-    private static String TAG = "StuckVoteActivity";
+    private static String TAG = "StuckVoteActivity55";
     private RecyclerView mRecyclerViewChoices;
     private RecyclerView.Adapter mAdapterChoices;
     private RecyclerView.LayoutManager mLayoutManagerChoices;
@@ -43,6 +44,7 @@ public class StuckVoteActivity extends AppCompatActivity {
     private Firebase mRefPost;
     private Firebase mFirebaseRef;
     private List<VoteChoice> mStuckPostChoices;
+    private SharedPreferences mSharedPreferences;
 
     @BindView(R.id.vote_toolbar)
     Toolbar mVoteToolbar;
@@ -54,11 +56,6 @@ public class StuckVoteActivity extends AppCompatActivity {
     TextView mPostLocation;
     @BindView(R.id.delete_post_image_view)
     ImageView mDeleteImageView;
-
-    @OnClick(R.id.delete_post_image_view)
-    public void setDeleteImageView(View view) {
-        mRefPost.removeValue();
-    }
 
     private ValueEventListener mValueEventListener = new ValueEventListener() {
         @Override
@@ -86,8 +83,6 @@ public class StuckVoteActivity extends AppCompatActivity {
 
         }
     };
-
-    private SharedPreferences mSharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -144,14 +139,18 @@ public class StuckVoteActivity extends AppCompatActivity {
         setUpRecyclerViewChoices();
     }
 
+    /**
+     * Creates VoteChoices for all choices for the post and then creates the adapter
+     */
     private void setUpRecyclerViewChoices() {
         mRecyclerViewChoices = (RecyclerView) findViewById(R.id.recycler_view_choices_vote);
 
-        mRecyclerViewChoices.setLayoutManager(mLayoutManagerChoices);
-
-        // use this setting to improve performance if you know that changes
-        // in content do not change the layout size of the RecyclerView
-        mRecyclerViewChoices.setHasFixedSize(true);
+        if (mRecyclerViewChoices != null) {
+            mRecyclerViewChoices.setLayoutManager(mLayoutManagerChoices);
+            // use this setting to improve performance if you know that changes
+            // in content do not change the layout size of the RecyclerView
+            mRecyclerViewChoices.setHasFixedSize(true);
+        }
 
         mStuckPostChoices = new ArrayList<>();
 
@@ -170,8 +169,6 @@ public class StuckVoteActivity extends AppCompatActivity {
                 false, mStuckPostSimple.getChoiceFourVotes()));
         }
 
-        Log.i(TAG, "Choice 4 = " + mStuckPostSimple.getChoiceFour());
-
         mAdapterChoices = new VoteChoicesAdapter(mStuckPostChoices, this,
             getIntent().getStringExtra(StuckConstants.FIREBASE_REF), mStuckPostSimple);
 
@@ -180,6 +177,10 @@ public class StuckVoteActivity extends AppCompatActivity {
         mRefPost.addValueEventListener(mValueEventListener);
     }
 
+    /**
+     * Sets up the toolbar for the activity and if the current user is the creater of the post they
+     * have the choice to delete it
+     */
     private void setUpToolbar() {
 
         setSupportActionBar(mVoteToolbar);
@@ -208,6 +209,19 @@ public class StuckVoteActivity extends AppCompatActivity {
             mDeleteImageView.setVisibility(View.INVISIBLE);
         }
     }
+
+    @OnClick(R.id.delete_post_image_view)
+    public void setDeleteImageView(View view) {
+        mRefPost.removeEventListener(mValueEventListener);
+        mRefPost.removeValue(new Firebase.CompletionListener() {
+            @Override
+            public void onComplete(FirebaseError firebaseError, Firebase firebase) {
+                Intent intent = new Intent(StuckVoteActivity.this, StuckMainListActivity.class);
+                startActivity(intent);
+            }
+        });
+    }
+
 
     @Override
     protected void onDestroy() {

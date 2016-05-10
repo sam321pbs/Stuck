@@ -4,9 +4,9 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 
+import com.example.sammengistu.stuck.GeneralArea;
 import com.example.sammengistu.stuck.NetworkStatus;
 import com.example.sammengistu.stuck.R;
-import com.example.sammengistu.stuck.GeneralArea;
 import com.example.sammengistu.stuck.StuckConstants;
 import com.example.sammengistu.stuck.adapters.MyPostChoiceAdapter;
 import com.example.sammengistu.stuck.model.Choice;
@@ -55,160 +55,22 @@ public class StuckNewPostActivity extends AppCompatActivity implements
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     private List<Choice> mChoicesList;
-    private Firebase mRef;
+    private Firebase mRefActivePosts;
     private String mEmail;
     private Firebase.AuthStateListener mAuthListener;
-    private Firebase mFirebaseRefForUser;
+    private Firebase mFirebaseRef;
     private GoogleApiClient mGoogleApiClient;
 
     @BindView(R.id.my_post_edit_text)
     EditText mQuestionEditText;
-
     @BindView(R.id.recycler_view_single_choice_view)
     RecyclerView mMyChoicesRecyclerView;
-
     @BindView(R.id.add_choice_button)
     FloatingActionButton mAddChoiceButton;
-
     @BindView(R.id.new_post_done)
     TextView mNewPostDone;
-
     @BindView(R.id.new_stuck_post_toolbar)
     Toolbar mNewPostToolbar;
-
-    @OnClick(R.id.add_choice_button)
-    public void setAddChoiceButton() {
-
-        mChoicesList.add(new Choice("", 0));
-
-        // specify an adapter (see also next example)
-        mAdapter = new MyPostChoiceAdapter(mChoicesList, this);
-        mMyChoicesRecyclerView.setAdapter(mAdapter);
-        mAdapter.notifyDataSetChanged();
-
-        if (mChoicesList.size() == 4) {
-            mAddChoiceButton.setVisibility(View.INVISIBLE);
-            mAddChoiceButton.setEnabled(false);
-        }
-    }
-
-    @OnClick(R.id.new_post_done)
-    public void setNewPostDone() {
-
-        if (isQuestionFilled() && isAllChoicesFilled()) {
-
-            createPost();
-        } else {
-            alertUserItemMissing();
-        }
-
-    }
-
-    private void alertUserItemMissing() {
-        AlertDialog.Builder fillEveryThingDialog = new AlertDialog.Builder(StuckNewPostActivity.this);
-        fillEveryThingDialog.setTitle("Oops, one card is empty");
-        fillEveryThingDialog.setMessage("Please fill all boxes");
-        fillEveryThingDialog.show();
-        fillEveryThingDialog.setCancelable(true);
-    }
-
-    private Location getLastKnownLocation() {
-
-        if (ActivityCompat.checkSelfPermission(this
-            , Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-            ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) !=
-                PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return null;
-        }
-        android.location.Location location = LocationServices.FusedLocationApi.getLastLocation(
-            mGoogleApiClient);
-
-        return location;
-    }
-
-
-    private void createPost() {
-        /**
-         * Create Firebase references
-         */
-
-
-        /**
-         * Set raw version of date to the ServerValue.TIMESTAMP value and save into
-         * timestampCreatedMap
-         */
-        HashMap<String, Object> timestampCreated = new HashMap<>();
-        timestampCreated.put(StuckConstants.FIREBASE_PROPERTY_TIMESTAMP, ServerValue.TIMESTAMP);
-
-        /* Add a posy list */
-
-        Location location = getLastKnownLocation();
-
-        StuckPostSimple stuckPost = new StuckPostSimple();
-        switch (mChoicesList.size()) {
-            case 2:
-                stuckPost = new StuckPostSimple(
-                    mEmail,
-                    mQuestionEditText.getText().toString(),
-                    GeneralArea.getAddressOfCurrentLocation(getLastKnownLocation(), this),
-                    mChoicesList.get(0).getChoice(),
-                    mChoicesList.get(1).getChoice(),
-                    "", "",
-                    StuckConstants.ZERO_VOTES, StuckConstants.ZERO_VOTES,
-                    StuckConstants.ZERO_VOTES, StuckConstants.ZERO_VOTES,
-                    timestampCreated);
-                break;
-
-            case 3:
-                stuckPost = new StuckPostSimple(
-                    mEmail,
-                    mQuestionEditText.getText().toString(),
-                    location.toString(),
-                    mChoicesList.get(0).getChoice(),
-                    mChoicesList.get(1).getChoice(),
-                    mChoicesList.get(2).getChoice(),
-                    "",
-                    StuckConstants.ZERO_VOTES, StuckConstants.ZERO_VOTES,
-                    StuckConstants.ZERO_VOTES, StuckConstants.ZERO_VOTES,
-                    timestampCreated);
-                break;
-            case 4:
-                stuckPost = new StuckPostSimple(
-                    mEmail,
-                    mQuestionEditText.getText().toString(),
-                    location.toString(),
-                    mChoicesList.get(0).getChoice(),
-                    mChoicesList.get(1).getChoice(),
-                    mChoicesList.get(2).getChoice(),
-                    mChoicesList.get(3).getChoice(),
-                    StuckConstants.ZERO_VOTES, StuckConstants.ZERO_VOTES,
-                    StuckConstants.ZERO_VOTES, StuckConstants.ZERO_VOTES,
-                    timestampCreated);
-        }
-
-        if (!NetworkStatus.isOnline(this)) {
-            Uri contentUri = Uri.withAppendedPath(ContentProviderStuck.CONTENT_URI,
-                StuckConstants.TABLE_OFFLINE_POST);
-
-            getContentResolver().insert(contentUri,
-                StuckDBConverter.insertStuckPostToDB(stuckPost));
-
-            Toast.makeText(this,
-                "Offline: will make your post when back online", Toast.LENGTH_LONG).show();
-        } else {
-            mRef.push().setValue(stuckPost);
-        }
-
-        Intent intent = new Intent(StuckNewPostActivity.this, StuckMainListActivity.class);
-        startActivity(intent);
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -222,7 +84,9 @@ public class StuckNewPostActivity extends AppCompatActivity implements
             .getSharedPreferences(StuckConstants.SHARED_PREFRENCE_USER, 0); // 0 - for private mode
         mEmail = pref.getString(StuckConstants.KEY_ENCODED_EMAIL, "");
 
-        mFirebaseRefForUser = new Firebase(StuckConstants.FIREBASE_URL);
+        mFirebaseRef = new Firebase(StuckConstants.FIREBASE_URL);
+        mRefActivePosts = new Firebase(StuckConstants.FIREBASE_URL).child(StuckConstants.FIREBASE_URL_ACTIVE_POSTS);
+
         mAuthListener = new Firebase.AuthStateListener() {
             @Override
             public void onAuthStateChanged(AuthData authData) {
@@ -245,10 +109,7 @@ public class StuckNewPostActivity extends AppCompatActivity implements
 
         mGoogleApiClient.connect();
 
-        mFirebaseRefForUser.addAuthStateListener(mAuthListener);
-
-        mRef = new Firebase(StuckConstants.FIREBASE_URL).child(StuckConstants.FIREBASE_URL_ACTIVE_POSTS);
-
+        mFirebaseRef.addAuthStateListener(mAuthListener);
 
         mMyChoicesRecyclerView.setHasFixedSize(true);
         mLayoutManager = new LinearLayoutManager(this);
@@ -280,23 +141,118 @@ public class StuckNewPostActivity extends AppCompatActivity implements
     }
 
     private boolean isQuestionFilled() {
-        return !mQuestionEditText.getText().toString().equals("");
+        return !mQuestionEditText.getText().toString().equals("") ||
+            !mQuestionEditText.getText().toString().equals(" ");
     }
 
     private boolean isAllChoicesFilled() {
         for (Choice choice : mChoicesList) {
             Log.i("NewPost", "current choice = " + choice.getChoice());
-            if (choice.getChoice().equals("")) {
+            if (choice.getChoice().equals("") ||
+                choice.getChoice().equals(" ")) {
                 return false;
             }
         }
         return true;
     }
 
+
+    private void alertUserItemMissing() {
+        AlertDialog.Builder fillEveryThingDialog = new AlertDialog.Builder(StuckNewPostActivity.this);
+        fillEveryThingDialog.setTitle(getString(R.string.one_or_more_cards_are_empty));
+        fillEveryThingDialog.setMessage(getString(R.string.please_fill_all_boxes));
+        fillEveryThingDialog.show();
+        fillEveryThingDialog.setCancelable(true);
+    }
+
+    private Location getLastKnownLocation() {
+
+        if (ActivityCompat.checkSelfPermission(this
+            , Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+            ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) !=
+                PackageManager.PERMISSION_GRANTED) {
+
+            return null;
+        }
+
+        return LocationServices.FusedLocationApi.getLastLocation(
+            mGoogleApiClient);
+    }
+
+
+    /**
+     * Creates a stuck post based on users input, gets the general location of the user, and the time
+     * the post was created
+     */
+    private void createPost() {
+
+        /**
+         * Set raw version of date to the ServerValue.TIMESTAMP value and save into
+         * timestampCreatedMap
+         */
+        HashMap<String, Object> timestampCreated = new HashMap<>();
+        timestampCreated.put(StuckConstants.FIREBASE_PROPERTY_TIMESTAMP, ServerValue.TIMESTAMP);
+
+        StuckPostSimple stuckPost = new StuckPostSimple(
+            StuckSignUpActivity.encodeEmail(mEmail),
+            mQuestionEditText.getText().toString(),
+            GeneralArea.getAddressOfCurrentLocation(getLastKnownLocation(), this),
+            mChoicesList.get(0).getChoice(),
+            mChoicesList.get(1).getChoice(),
+            (mChoicesList.size() == 3 ? mChoicesList.get(2).getChoice(): ""),
+            (mChoicesList.size() == 4 ? mChoicesList.get(3).getChoice(): ""),
+            StuckConstants.ZERO_VOTES, StuckConstants.ZERO_VOTES,
+            StuckConstants.ZERO_VOTES, StuckConstants.ZERO_VOTES,
+            timestampCreated);
+
+        if (!NetworkStatus.isOnline(this)) {
+            Uri contentUri = Uri.withAppendedPath(ContentProviderStuck.CONTENT_URI,
+                StuckConstants.TABLE_OFFLINE_POST);
+
+            getContentResolver().insert(contentUri,
+                StuckDBConverter.insertStuckPostToDB(stuckPost));
+
+            Toast.makeText(this,
+                R.string.make_post_when_when_back_online, Toast.LENGTH_LONG).show();
+        } else {
+            mRefActivePosts.push().setValue(stuckPost);
+        }
+
+        Intent intent = new Intent(StuckNewPostActivity.this, StuckMainListActivity.class);
+        startActivity(intent);
+    }
+
+    @OnClick(R.id.add_choice_button)
+    public void setAddChoiceButton() {
+
+        mChoicesList.add(new Choice("", 0));
+
+        // specify an adapter (see also next example)
+        mAdapter = new MyPostChoiceAdapter(mChoicesList, this);
+        mMyChoicesRecyclerView.setAdapter(mAdapter);
+        mAdapter.notifyDataSetChanged();
+
+        if (mChoicesList.size() == 4) {
+            mAddChoiceButton.setVisibility(View.INVISIBLE);
+            mAddChoiceButton.setEnabled(false);
+        }
+    }
+
+    @OnClick(R.id.new_post_done)
+    public void setNewPostDone() {
+
+        if (isQuestionFilled() && isAllChoicesFilled()) {
+
+            createPost();
+        } else {
+            alertUserItemMissing();
+        }
+    }
+
     @Override
     public void onDestroy() {
         super.onDestroy();
-        mFirebaseRefForUser.removeAuthStateListener(mAuthListener);
+        mFirebaseRef.removeAuthStateListener(mAuthListener);
     }
 
     @Override

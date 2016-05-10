@@ -21,13 +21,10 @@ import java.util.Map;
 
 public class StuckResetPasswordActivity extends AppCompatActivity {
     private static final String TAG = "ResetPasswordActivity55";
-    private EditText passwordED;
-    private EditText reenterED;
-    private Button resetButton;
-
-    private String email ;
-
-    private Firebase userRef;
+    private EditText mPasswordED;
+    private EditText mReenterED;
+    private String mEmail;
+    private Firebase mUserRef;
     private Firebase mFirebaseRef ;
 
     @Override
@@ -37,18 +34,18 @@ public class StuckResetPasswordActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        passwordED = (EditText) findViewById(R.id.password_edit_text);
-        reenterED = (EditText) findViewById(R.id.reenter_password_edit_text);
-        resetButton = (Button) findViewById(R.id.reset_password_button);
+        mPasswordED = (EditText) findViewById(R.id.password_edit_text);
+        mReenterED = (EditText) findViewById(R.id.reenter_password_edit_text);
+        Button resetButton = (Button) findViewById(R.id.reset_password_button);
 
         SharedPreferences pref = getApplicationContext()
             .getSharedPreferences(StuckConstants.SHARED_PREFRENCE_USER, 0); // 0 - for private mode
 
-        email = pref.getString(StuckConstants.KEY_ENCODED_EMAIL, "");
+        mEmail = pref.getString(StuckConstants.KEY_ENCODED_EMAIL, "");
 
-        userRef = new Firebase(StuckConstants.FIREBASE_URL)
+        mUserRef = new Firebase(StuckConstants.FIREBASE_URL)
             .child(StuckConstants.FIREBASE_URL_USERS)
-            .child(StuckSignUpActivity.encodeEmail(email));
+            .child(StuckSignUpActivity.encodeEmail(mEmail));
 
         mFirebaseRef = new Firebase(StuckConstants.FIREBASE_URL)
             .child(StuckConstants.FIREBASE_URL_USERS);
@@ -58,13 +55,13 @@ public class StuckResetPasswordActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                if (passwordED.getText().toString().equals(reenterED.getText().toString())) {
+                if (mPasswordED.getText().toString().equals(mReenterED.getText().toString())) {
 
                     Firebase firebase = new Firebase(StuckConstants.FIREBASE_URL);
 
-                    firebase.changePassword(email,
+                    firebase.changePassword(mEmail,
                         getIntent().getStringExtra(StuckConstants.RESET_PASSWORD),
-                        reenterED.getText().toString(), new Firebase.ResultHandler() {
+                        mReenterED.getText().toString(), new Firebase.ResultHandler() {
                             @Override
                             public void onSuccess() {
                                 Toast.makeText(StuckResetPasswordActivity.this,
@@ -90,11 +87,14 @@ public class StuckResetPasswordActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Next time the user logs in they won't be sent to this activity since it was already reset
+     */
     private void changeUserUsedTempToFalse() {
 
-        Map<String, Object> changePasswordOnLogin = new HashMap<String, Object>();
-        changePasswordOnLogin.put("hasLoggedInWithTempPassword", false);
-        userRef.updateChildren(changePasswordOnLogin, new Firebase.CompletionListener() {
+        Map<String, Object> changePasswordOnLogin = new HashMap<>();
+        changePasswordOnLogin.put(StuckConstants.USER_LOGGED_IN_WITH_TEMP_PASSWORD, false);
+        mUserRef.updateChildren(changePasswordOnLogin, new Firebase.CompletionListener() {
             @Override
             public void onComplete(FirebaseError firebaseError, Firebase firebase) {
                 Log.i(TAG, firebase.getRef().toString());

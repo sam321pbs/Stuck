@@ -68,23 +68,6 @@ public class StuckMainListActivity extends AppCompatActivity
     @BindView(R.id.recycler_view_question_post)
     RecyclerView mRecyclerViewQuestions;
 
-    @OnClick(R.id.filter_stuck_posts)
-    public void showFilter(View view) {
-
-        FilterDialog filterDialog = new FilterDialog();
-        filterDialog.show(getSupportFragmentManager(), "Filter");
-    }
-
-    @OnClick(R.id.fab_add)
-    public void setNewPostFAB(View view) {
-
-        Intent intent = new Intent(this, StuckNewPostActivity.class);
-
-
-        startActivity(intent);
-
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -155,6 +138,9 @@ public class StuckMainListActivity extends AppCompatActivity
         activity.startActivity(intent);
     }
 
+    /**
+     * Checks network status then loads active posts
+     */
     private void initializeAdapter() {
         if (!NetworkStatus.isOnline(StuckMainListActivity.this)) {
             NetworkStatus.showOffLineDialog(StuckMainListActivity.this);
@@ -180,6 +166,11 @@ public class StuckMainListActivity extends AppCompatActivity
         }
     }
 
+    /**
+     * Sets up floating action bar based on the screen size
+     * if the width of the screen is less then 600pixels it
+     * will show th action button on the top of the screen
+     */
     private void setUpFloatingActionButton() {
 
         DisplayMetrics metrics = new DisplayMetrics();
@@ -290,9 +281,14 @@ public class StuckMainListActivity extends AppCompatActivity
                 stuckPostsLoaded.add(stuckPostSimple);
                 data.moveToNext();
             }
-
         }
+        addNewPostsToFirebase();
+    }
 
+    /**
+     * If their are posts in the local database you can add them to firebase then delete them
+     */
+    private void addNewPostsToFirebase (){
         if (stuckPostsLoaded.size() > 0 && NetworkStatus.isOnline(this)) {
             for (int i = 0; i < stuckPostsLoaded.size(); i++) {
                 StuckPostSimple stuckPostSimple = stuckPostsLoaded.get(i);
@@ -302,7 +298,7 @@ public class StuckMainListActivity extends AppCompatActivity
 
                 Uri contentUri = Uri.withAppendedPath(ContentProviderStuck.CONTENT_URI,
                     StuckConstants.TABLE_OFFLINE_POST);
-//
+
                 Log.i(TAG, "Deleted db = " + this.getContentResolver().delete(contentUri,
                     StuckConstants.COLUMN_QUESTION + " = ?", new String[]{stuckPostSimple.getQuestion()}));
 
@@ -310,11 +306,25 @@ public class StuckMainListActivity extends AppCompatActivity
 
             getLoaderManager().restartLoader(StuckConstants.LOADER_ID, null, this);
         }
-
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
+
+    }
+
+    @OnClick(R.id.filter_stuck_posts)
+    public void showFilter(View view) {
+
+        FilterDialog filterDialog = new FilterDialog();
+        filterDialog.show(getSupportFragmentManager(), "Filter");
+    }
+
+    @OnClick(R.id.fab_add)
+    public void setNewPostFAB(View view) {
+
+        Intent intent = new Intent(this, StuckNewPostActivity.class);
+        startActivity(intent);
 
     }
 }
