@@ -115,26 +115,32 @@ public class VoteChoicesAdapter extends RecyclerView.Adapter<VoteChoicesADViewHo
 
 //        changeViewColor(currentChoice, currentViewHolder);
 
-        holder.mCardViewChoice.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //Todo: Don't change value if user already voted for it
+        Log.i(TAG, mStuckPostSimple.getEmail().replaceAll("\\s" , "") +
+            " = " + mUserEmail.replaceAll("\\s" , ""));
 
-                if (NetworkStatus.isOnline(mContext)) {
+        if (!mStuckPostSimple.getEmail().replaceAll("\\s" , "").equals(
+           mUserEmail.replaceAll("\\s" , ""))) {
+            holder.mCardViewChoice.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    //Todo: Don't change value if user already voted for it
 
-                    //Change previous selected vote back down to one
-                    adjustVotes();
+                    if (NetworkStatus.isOnline(mContext)) {
 
-                    updateVotes(currentChoice, pos, mUsersVoteValue, currentViewHolder);
+                        //Change previous selected vote back down to one
+                        adjustVotes();
 
-                    Log.i(TAG, "Notifying");
-                    notifyDataSetChanged();
+                        updateVotes(currentChoice, pos, mUsersVoteValue, currentViewHolder);
 
-                } else {
-                    NetworkStatus.showOffLineDialog(mContext);
+                        Log.i(TAG, "Notifying");
+                        notifyDataSetChanged();
+
+                    } else {
+                        NetworkStatus.showOffLineDialog(mContext);
+                    }
                 }
-            }
-        });
+            });
+        }
 
         //Shows animation when created and not notified
         if (mShowAnimation < mStuckPostChoices.size()) {
