@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by SamMengistu on 5/2/16.
+ * TODO: Create filter
  */
 public class FilterDialog extends DialogFragment {
 
@@ -31,9 +31,6 @@ public class FilterDialog extends DialogFragment {
         mFilteredItemsLV = (ListView) filterView.findViewById(android.R.id.list);
 
         List<String > strings = new ArrayList<>();
-        strings.add("New york");
-        strings.add("Silver Spring");
-        strings.add("Alexandria, Va");
 
         mFilteredItemsLV.setAdapter(new FilterListAdapter(strings, getActivity()));
 

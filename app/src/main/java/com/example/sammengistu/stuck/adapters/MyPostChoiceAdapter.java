@@ -61,8 +61,9 @@ public class MyPostChoiceAdapter extends RecyclerView.Adapter<MyPostChoiceADView
                     AlertDialog.Builder deleteChoiceDialog =
                         new AlertDialog.Builder(mAppContext);
 
-                    deleteChoiceDialog.setTitle("Are you sure you want to delete this choice?");
-                    deleteChoiceDialog.setPositiveButton("Delete",
+                    deleteChoiceDialog.setTitle(mAppContext.getString(R.string.warning_delete_choice));
+                    deleteChoiceDialog.setMessage(mChoiceDataSet.get(pos).getChoice());
+                    deleteChoiceDialog.setPositiveButton(mAppContext.getString(R.string.delete),
                         new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
@@ -71,12 +72,12 @@ public class MyPostChoiceAdapter extends RecyclerView.Adapter<MyPostChoiceADView
                             }
                         });
                     deleteChoiceDialog.setMessage(holder.mChoiceEditText.getText().toString());
-                    deleteChoiceDialog.setNegativeButton("Cancel", null);
+                    deleteChoiceDialog.setNegativeButton(mAppContext.getString(R.string.cancel), null);
                     deleteChoiceDialog.show();
 
                 } else {
                     //Make toast cant
-                    Toast.makeText(mAppContext, "Can't delete, need at least 2 choices",
+                    Toast.makeText(mAppContext, R.string.cant_delete_choice,
                         Toast.LENGTH_SHORT).show();
                 }
 

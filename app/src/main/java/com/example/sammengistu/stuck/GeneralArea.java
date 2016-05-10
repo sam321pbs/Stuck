@@ -9,6 +9,9 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 
+/**
+ * Gets the users general area
+ */
 public class GeneralArea {
 
     private static final String TAG = "GeneralArea";
@@ -20,6 +23,7 @@ public class GeneralArea {
         String currentLocationAddress = "";
 
 
+        //Builder to get only the city and state of the user
         StringBuilder builder = new StringBuilder();
         try {
             List<android.location.Address> address =

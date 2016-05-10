@@ -37,10 +37,9 @@ public class VoteChoicesAdapter extends RecyclerView.Adapter<VoteChoicesADViewHo
     private String mUserEmail;
     private Firebase mUsersVoteValue;
 
-
     // Provide a suitable constructor (depends on the kind of dataset)
     public VoteChoicesAdapter(List<VoteChoice> myDataset, Context context,
-                              String fireBaseRef, StuckPostSimple stuckPostSimple) {
+                              String fireBaseRef, StuckPostSimple stuckPostSimple, String postKey) {
         mStuckPostChoices = myDataset;
         mContext = context;
         mShowAnimation = 0;
@@ -55,7 +54,7 @@ public class VoteChoicesAdapter extends RecyclerView.Adapter<VoteChoicesADViewHo
 
         mUsersVoteValue= new Firebase(StuckConstants.FIREBASE_URL)
             .child(StuckConstants.FIREBASE_URL_USERS_VOTES).child(mUserEmail)
-            .child(mStuckPostSimple.getQuestion());
+            .child(postKey);
     }
 
     // Create new views (invoked by the layout manager)
@@ -173,7 +172,6 @@ public class VoteChoicesAdapter extends RecyclerView.Adapter<VoteChoicesADViewHo
                     mFireBaseRefForVotes.child(StuckConstants.CHILD_CHOICE_FOUR_VOTES)
                         .setValue(currentChoice.getVotes());
                 }
-
             }
         }
     }

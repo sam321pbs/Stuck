@@ -3,24 +3,19 @@
           android:layout_width="match_parent"
           android:layout_height="wrap_content">
 
-    <TextView android:layout_width="0dp"
-              android:layout_height="wrap_content"
-              android:id="@+id/sneak_peak_choice_1"
-              android:layout_marginTop="10dp"
-              android:layout_weight="33"/>
+    <TextView
+            android:id="@+id/sneak_peak_choice_1"
+            android:layout_marginTop="5dp"
+            style="@style/additional_info_style"/>
 
-    <TextView android:layout_width="0dp"
-              android:layout_height="wrap_content"
-              android:id="@+id/post_location"
-              android:layout_marginTop="10dp"
-              android:layout_weight="33"/>
+    <TextView
+            style="@style/additional_info_style"
+            android:layout_marginTop="5dp"
+            android:id="@+id/post_location"/>
 
-    <TextView android:layout_width="0dp"
-              android:layout_height="wrap_content"
-              android:layout_weight="33"
-              android:layout_marginTop="10dp"
-              android:id="@+id/stuck_question_total_votes"/>
-
-
+    <TextView
+            style="@style/additional_info_style"
+            android:layout_marginTop="5dp"
+            android:id="@+id/stuck_question_total_votes"/>
 
 </TableRow>

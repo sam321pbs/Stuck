@@ -12,9 +12,7 @@ import android.widget.TextView;
 
 import java.util.List;
 
-/**
- * Created by SamMengistu on 5/2/16.
- */
+
 public class FilterListAdapter extends ArrayAdapter<String> {
 
     private List<String> mFilteredListItems;

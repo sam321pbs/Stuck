@@ -46,20 +46,30 @@ public class StuckVoteActivity extends AppCompatActivity {
     private List<VoteChoice> mStuckPostChoices;
     private SharedPreferences mSharedPreferences;
 
+    @BindView(R.id.delete_post_image_view)
+    ImageView mDeleteImageView;
     @BindView(R.id.vote_toolbar)
     Toolbar mVoteToolbar;
     @BindView(R.id.single_item_question)
     TextView mQuestion;
-    @BindView(R.id.sneak_peak_choice_1)
-    TextView mSneakPeakChoice;
-    @BindView(R.id.post_location)
+    @BindView(R.id.choice_one_title)
+    TextView mChoiceOneTitle;
+    @BindView(R.id.post_from_title)
+    TextView mPostFromTitle;
+    @BindView(R.id.total_votes_title)
+    TextView mTotalVotesTitle;
+//    @BindView(R.id.stuck_question_total_votes)
+//    TextView mSneakPeakChoice;
+    @BindView(R.id.stuck_question_total_votes)
     TextView mPostLocation;
-    @BindView(R.id.delete_post_image_view)
-    ImageView mDeleteImageView;
+
+    @BindView(R.id.sneak_peak_choice_1)
+    TextView mStuckPostTotalVotes;
 
     private ValueEventListener mValueEventListener = new ValueEventListener() {
         @Override
         public void onDataChange(DataSnapshot dataSnapshot) {
+
             mStuckPostSimple = dataSnapshot.getValue(StuckPostSimple.class);
             mStuckPostChoices.clear();
             mStuckPostChoices.add(new VoteChoice(mStuckPostSimple.getChoiceOne(),
@@ -75,6 +85,12 @@ public class StuckVoteActivity extends AppCompatActivity {
                     false, mStuckPostSimple.getChoiceFourVotes()));
             }
 
+            int totalVotes = mStuckPostSimple.getChoiceOneVotes() +
+                mStuckPostSimple.getChoiceTwoVotes() +
+                mStuckPostSimple.getChoiceThreeVotes() +
+                mStuckPostSimple.getChoiceFourVotes();
+
+            mStuckPostTotalVotes.setText(totalVotes + "");
             mAdapterChoices.notifyDataSetChanged();
         }
 
@@ -133,9 +149,18 @@ public class StuckVoteActivity extends AppCompatActivity {
         mRefPost = new Firebase(getIntent().getStringExtra(StuckConstants.FIREBASE_REF));
 
         mQuestion.setText(mStuckPostSimple.getQuestion());
-        mSneakPeakChoice.setText("");
+//        mSneakPeakChoice.setText("");
         mPostLocation.setText(mStuckPostSimple.getLocation());
 
+        int totalVotes = mStuckPostSimple.getChoiceOneVotes() +
+            mStuckPostSimple.getChoiceTwoVotes() +
+            mStuckPostSimple.getChoiceThreeVotes() +
+            mStuckPostSimple.getChoiceFourVotes();
+
+        mStuckPostTotalVotes.setText(totalVotes + "");
+        mTotalVotesTitle.setText(R.string.post_from);
+        mChoiceOneTitle.setText(R.string.total_votes);
+        mPostFromTitle.setVisibility(View.INVISIBLE);
         setUpRecyclerViewChoices();
     }
 
@@ -168,9 +193,11 @@ public class StuckVoteActivity extends AppCompatActivity {
             mStuckPostChoices.add(new VoteChoice(mStuckPostSimple.getChoiceFour(),
                 false, mStuckPostSimple.getChoiceFourVotes()));
         }
+        Firebase firebasePostRef = new Firebase(getIntent().getStringExtra(StuckConstants.FIREBASE_REF));
 
         mAdapterChoices = new VoteChoicesAdapter(mStuckPostChoices, this,
-            getIntent().getStringExtra(StuckConstants.FIREBASE_REF), mStuckPostSimple);
+            getIntent().getStringExtra(StuckConstants.FIREBASE_REF), mStuckPostSimple,
+            firebasePostRef.getKey());
 
         mRecyclerViewChoices.setAdapter(mAdapterChoices);
 

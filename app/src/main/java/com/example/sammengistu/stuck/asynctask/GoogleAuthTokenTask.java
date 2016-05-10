@@ -20,7 +20,7 @@ import android.util.Log;
 import java.io.IOException;
 
 /**
- * Created by SamMengistu on 5/10/16.
+ * Gets google auth token for user
  */
 public class GoogleAuthTokenTask extends AsyncTask<Void, Void, String> {
 

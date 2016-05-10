@@ -5,6 +5,9 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.v7.app.AlertDialog;
 
+/**
+ * Gets the network status
+ */
 public class NetworkStatus {
 
     public static boolean isOnline(Context context) {

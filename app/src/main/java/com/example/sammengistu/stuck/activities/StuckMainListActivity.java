@@ -151,7 +151,7 @@ public class StuckMainListActivity extends AppCompatActivity
             mAdapter = new CardViewListFBAdapter(StuckPostSimple.class,
                 R.layout.stuck_single_item_question,
                 CardViewListFBAdapter.CardViewListADViewHolder.class, ref,
-                StuckMainListActivity.this, mEmail);
+                StuckMainListActivity.this);
 
             mRecyclerViewQuestions.setAdapter(mAdapter);
         }

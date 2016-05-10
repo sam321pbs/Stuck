@@ -35,6 +35,7 @@
 
     <android.support.design.widget.FloatingActionButton
             style="@style/floating_action_button_prop"
+            android:layout_gravity="top|end"
             android:id="@+id/fab_add"
             app:elevation="6dp"
             app:fabSize="normal"

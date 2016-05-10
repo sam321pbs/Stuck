@@ -9,18 +9,14 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import com.example.sammengistu.stuck.R;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
-import android.content.Intent;
 import android.location.Geocoder;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.List;
@@ -103,19 +99,6 @@ public class PopUpMapDialog extends DialogFragment {
                     .visible(true));
 
             mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), 15));
-        }
-    }
-
-    public static void startGoogleMaps(String address, Activity activity) {
-
-        Uri gmmIntentUri = Uri.parse("geo:0,0?q= " + address);
-        Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
-        mapIntent.setPackage("com.google.android.apps.maps");
-        if (mapIntent.resolveActivity(activity.getPackageManager()) != null) {
-            activity.startActivity(mapIntent);
-        } else {
-            Toast.makeText(activity, "Please download google maps",
-                Toast.LENGTH_SHORT).show();
         }
     }
 
