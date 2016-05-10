@@ -171,8 +171,10 @@ public class StuckVoteActivity extends AppCompatActivity {
         }
 
         Log.i(TAG, "Choice 4 = " + mStuckPostSimple.getChoiceFour());
+
         mAdapterChoices = new VoteChoicesAdapter(mStuckPostChoices, this,
-            getIntent().getStringExtra(StuckConstants.FIREBASE_REF));
+            getIntent().getStringExtra(StuckConstants.FIREBASE_REF), mStuckPostSimple);
+
         mRecyclerViewChoices.setAdapter(mAdapterChoices);
 
         mRefPost.addValueEventListener(mValueEventListener);

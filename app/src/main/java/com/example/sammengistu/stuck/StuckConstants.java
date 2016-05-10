@@ -22,6 +22,9 @@ public class StuckConstants {
     public static final String RESET_PASSWORD = "reset password";
     public static final String TEMP_PASSWORD = "temp password";
 
+    public static final String FIREBASE_URL_USERS_VOTES = "usersVotes";
+
+
     public static final int ZERO_VOTES = 0;
 
 

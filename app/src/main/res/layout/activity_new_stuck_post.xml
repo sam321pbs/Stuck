@@ -2,7 +2,8 @@
 <RelativeLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:layout_width="match_parent" android:layout_height="match_parent">
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
     <android.support.design.widget.AppBarLayout
             android:layout_width="match_parent"
@@ -22,7 +23,7 @@
                       android:paddingEnd="@dimen/activity_horizontal_margin"
                       android:paddingStart="@dimen/activity_horizontal_margin"
                       android:textColor="@color/colorWhite"
-                      android:textSize="15sp"/>
+                      android:textSize="@dimen/toolbar_text_size"/>
 
         </android.support.v7.widget.Toolbar>
     </android.support.design.widget.AppBarLayout>
@@ -49,7 +50,7 @@
                 android:id="@+id/recycler_view_single_choice_view"
                 android:scrollbars="vertical"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="0dp"
                 android:layout_marginTop="15dp"
                 android:layout_weight="50"/>
 

@@ -20,7 +20,7 @@
                     android:id="@+id/single_item_choice"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:text="Sam is the mannnnnnnnnnnnnnnnnnnnnnnnnnn"
+                    android:text="@string/choice"
                     android:gravity="center_vertical"
                     android:layout_weight=".2"/>
 
@@ -29,7 +29,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_gravity="end"
-                    android:text="4000"
+                    android:text="@string/_0"
                     android:gravity="center_vertical"
                     android:layout_weight=".8"/>
         </LinearLayout>

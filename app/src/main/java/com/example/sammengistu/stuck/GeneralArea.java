@@ -27,6 +27,7 @@ public class GeneralArea {
 
             if (address.get(0).getLocality() != null){
                 builder.append(address.get(0).getLocality());
+                builder.append(", ");
             }
 
             if (address.get(0).getAdminArea() != null) {

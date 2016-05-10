@@ -24,7 +24,7 @@
                       android:text="@string/filter"
                       android:gravity="center_vertical"
                       android:layout_gravity="center"
-                      android:textSize="20sp"
+                      android:textSize="@dimen/toolbar_text_size"
                       android:paddingEnd="@dimen/filter_padding"
                       android:paddingStart="@dimen/filter_padding"
                       android:textColor="@color/colorWhite"/>

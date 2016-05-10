@@ -8,4 +8,6 @@
     <dimen name="filter_padding">10dp</dimen>
     <dimen name="choice_card_margin">35dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
+    <dimen name="login_sign_up_button_from_bottom">50dp</dimen>
+    <dimen name="toolbar_text_size">20sp</dimen>
 </resources>

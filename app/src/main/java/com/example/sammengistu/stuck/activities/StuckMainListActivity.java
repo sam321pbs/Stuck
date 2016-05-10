@@ -15,7 +15,6 @@ import com.firebase.client.Firebase;
 import com.firebase.ui.FirebaseRecyclerAdapter;
 
 import android.app.Activity;
-import android.app.ActivityOptions;
 import android.app.LoaderManager;
 import android.content.CursorLoader;
 import android.content.Intent;
@@ -23,7 +22,6 @@ import android.content.Loader;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -81,13 +79,10 @@ public class StuckMainListActivity extends AppCompatActivity
     public void setNewPostFAB(View view) {
 
         Intent intent = new Intent(this, StuckNewPostActivity.class);
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            startActivity(intent,
-                ActivityOptions.makeSceneTransitionAnimation(this).toBundle());
-        } else {
 
-            startActivity(intent);
-        }
+
+        startActivity(intent);
+
     }
 
     @Override
@@ -299,7 +294,7 @@ public class StuckMainListActivity extends AppCompatActivity
         }
 
         if (stuckPostsLoaded.size() > 0 && NetworkStatus.isOnline(this)) {
-            for (int i = 0; i<stuckPostsLoaded.size();  i++) {
+            for (int i = 0; i < stuckPostsLoaded.size(); i++) {
                 StuckPostSimple stuckPostSimple = stuckPostsLoaded.get(i);
                 //Push the post straight to firebase
                 new Firebase(StuckConstants.FIREBASE_URL).child(

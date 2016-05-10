@@ -19,5 +19,22 @@
     <string name="title_activity_stuck_reset_password">StuckResetPasswordActivity</string>
 
     <string name="db_authority">stuckProviderAuthorities</string>
+    <string name="type_your_email_here">Type your email here</string>
+    <string name="type_your_password_here">Type your password here</string>
+    <string name="re_enter_password">Re-enter password</string>
+    <string name="already_have_an_account_login">Already have an account: Login</string>
+    <string name="need_an_account_sign_up">Need an account: Sign Up</string>
+    <string name="forgot_password">Forgot password?</string>
+    <string name="login">Login</string>
+    <string name="create_account">Create account</string>
+    <string name="enter_a_new_password">Enter a new password</string>
+    <string name="reset_password">Reset Password</string>
+    <string name="delete_post">delete post</string>
+    <string name="choice_1">Choice 1:</string>
+    <string name="post_from">Post from:</string>
+    <string name="total_votes">Total votes:</string>
+    <string name="delete_choice">Delete choice</string>
+    <string name="choice">Choice</string>
+    <string name="_0">0</string>
 
 </resources>

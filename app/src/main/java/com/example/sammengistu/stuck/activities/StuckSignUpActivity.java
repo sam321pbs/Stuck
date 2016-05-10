@@ -146,6 +146,10 @@ public class StuckSignUpActivity extends AppCompatActivity {
             .child(StuckConstants.FIREBASE_URL_USERS)
             .child(encodedEmail);
 
+        final Firebase userVoteLocation = new Firebase(StuckConstants.FIREBASE_URL)
+            .child(StuckConstants.FIREBASE_URL_USERS_VOTES)
+            .child(encodedEmail);
+
         /**
          * See if there is already a user (for example, if they already logged in with an associated
          * Google account.
@@ -166,6 +170,9 @@ public class StuckSignUpActivity extends AppCompatActivity {
 
                     Firebase userLocationToAddTo = new Firebase(StuckConstants.FIREBASE_URL)
                         .child(StuckConstants.FIREBASE_URL_USERS).child(encodedEmail);
+
+                    userVoteLocation.child("sam awesome").setValue(0);
+
                     userLocationToAddTo.setValue(newUser, new Firebase.CompletionListener() {
                         @Override
                         public void onComplete(FirebaseError firebaseError, Firebase firebase) {
@@ -174,7 +181,6 @@ public class StuckSignUpActivity extends AppCompatActivity {
                             }
                         }
                     });
-
                 }
             }
 

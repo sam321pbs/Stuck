@@ -13,14 +13,14 @@
                   android:orientation="vertical"
                   android:layout_gravity="center_horizontal|center_vertical"
                   android:layout_marginBottom="40dp"
-                    android:layout_marginTop="40dp">
+                  android:layout_marginTop="40dp">
 
         <EditText
                 android:id="@+id/login_email_edit_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 style="@style/login_edit_text_box"
-                android:hint="Type your email here"
+                android:hint="@string/type_your_email_here"
                 android:inputType="textEmailAddress"/>
 
         <EditText
@@ -28,12 +28,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 style="@style/login_edit_text_box"
-                android:hint="Type your password here"
+                android:hint="@string/type_your_password_here"
                 android:layout_marginTop="@dimen/activity_horizontal_margin"
                 android:inputType="textPassword"/>
 
         <com.google.android.gms.common.SignInButton
-                android:layout_marginTop="15dp"
+                android:layout_marginTop="30dp"
                 android:id="@+id/log_in_button_google"
                 android:layout_gravity="center_horizontal"
                 android:layout_width="wrap_content"
@@ -41,12 +41,12 @@
 
         <TextView
                 android:id="@+id/login_sign_up_accout"
-                android:text="Need an account: Sign Up"
+                android:text="@string/need_an_account_sign_up"
                 style="@style/login_style_text"/>
 
         <TextView
                 android:id="@+id/login_forgot_password_accout"
-                android:text="Forgot password?"
+                android:text="@string/forgot_password"
                 style="@style/login_style_text"/>
 
     </LinearLayout>
@@ -56,8 +56,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal|bottom"
-            android:layout_marginBottom="80dp"
-            android:text="Login"/>
+            android:layout_marginBottom="@dimen/login_sign_up_button_from_bottom"
+            android:text="@string/login"/>
 
 
 </FrameLayout>

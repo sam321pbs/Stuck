@@ -59,11 +59,22 @@ public class CardViewListFBAdapter extends FirebaseRecyclerAdapter<StuckPostSimp
             cardViewListADViewHolder.mStuckPostSneakPeakChoice.setText(choiceOne);
         }
 
+        int totalVotes = stuckPostSimple.getChoiceOneVotes() + stuckPostSimple.getChoiceTwoVotes() +
+            stuckPostSimple.getChoiceThreeVotes() + stuckPostSimple.getChoiceFourVotes();
+
+        cardViewListADViewHolder.mStuckPostTotalVotes.setText(totalVotes + "");
+
         cardViewListADViewHolder.mRef = getRef(i);
 
         //Set up stuck info for stuck vote activity
         cardViewListADViewHolder.mQuestion = stuckPostSimple.getQuestion();
-        cardViewListADViewHolder.mLocation = stuckPostSimple.getLocation();
+        
+        if (stuckPostSimple.getLocation().equals("")){
+            cardViewListADViewHolder.mLocation = "N/a";
+        } else {
+            cardViewListADViewHolder.mLocation = stuckPostSimple.getLocation();
+        }
+
         cardViewListADViewHolder.mChoice1 = stuckPostSimple.getChoiceOne();
         cardViewListADViewHolder.mChoice2 = stuckPostSimple.getChoiceTwo();
         cardViewListADViewHolder.mChoice3 = stuckPostSimple.getChoiceThree();
@@ -85,6 +96,7 @@ public class CardViewListFBAdapter extends FirebaseRecyclerAdapter<StuckPostSimp
         public TextView mStuckPostQuestion;
         public TextView mStuckPostLocation;
         public TextView mStuckPostSneakPeakChoice;
+        public TextView mStuckPostTotalVotes;
         public Firebase mRef;
 
         public String mQuestion;
@@ -98,22 +110,18 @@ public class CardViewListFBAdapter extends FirebaseRecyclerAdapter<StuckPostSimp
         private int mChoice2Votes;
         private int mChoice3Votes;
         private int mChoice4Votes;
-//        private Activity mActivity;
 
         public CardViewListADViewHolder(View v) {
             super(v);
-//            mActivity = activity;
             mStuckPostQuestion = (TextView) v.findViewById(R.id.single_item_question);
             mStuckPostLocation = (TextView) v.findViewById(R.id.post_location);
             mStuckPostSneakPeakChoice = (TextView) v.findViewById(R.id.sneak_peak_choice_1);
+            mStuckPostTotalVotes = (TextView) v.findViewById(R.id.stuck_question_total_votes);
 
-//            if (activity != null) {
+
             v.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
-                    // get the element that receives the click event
-                    final View imgContainerView = v;
 
 //                     get the common element for the transition in this activity
 //                        final View androidRobotView = findViewById(R.id.image_small);

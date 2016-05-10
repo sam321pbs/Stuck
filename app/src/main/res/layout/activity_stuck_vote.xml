@@ -12,7 +12,8 @@
                    android:layout_height="wrap_content"
                    android:id="@+id/delete_post_image_view"
                    android:src="@drawable/trash_can"
-                   android:layout_gravity="end"/>
+                   android:layout_gravity="end"
+                   android:contentDescription="@string/delete_post"/>
 
         <include
             layout="@layout/stuck_app_name_text_view"/>

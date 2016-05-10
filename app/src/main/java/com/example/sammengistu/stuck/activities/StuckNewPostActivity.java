@@ -56,10 +56,9 @@ public class StuckNewPostActivity extends AppCompatActivity implements
     private RecyclerView.LayoutManager mLayoutManager;
     private List<Choice> mChoicesList;
     private Firebase mRef;
-    private Firebase mNewListRef;
     private String mEmail;
     private Firebase.AuthStateListener mAuthListener;
-    private Firebase mFirebaseRef;
+    private Firebase mFirebaseRefForUser;
     private GoogleApiClient mGoogleApiClient;
 
     @BindView(R.id.my_post_edit_text)
@@ -139,8 +138,7 @@ public class StuckNewPostActivity extends AppCompatActivity implements
         /**
          * Create Firebase references
          */
-                /* Save listsRef.push() to maintain same random Id */
-        final String listId = mNewListRef.getKey();
+
 
         /**
          * Set raw version of date to the ServerValue.TIMESTAMP value and save into
@@ -195,9 +193,7 @@ public class StuckNewPostActivity extends AppCompatActivity implements
                     timestampCreated);
         }
 
-
         if (!NetworkStatus.isOnline(this)) {
-            //TODO: check later
             Uri contentUri = Uri.withAppendedPath(ContentProviderStuck.CONTENT_URI,
                 StuckConstants.TABLE_OFFLINE_POST);
 
@@ -207,7 +203,7 @@ public class StuckNewPostActivity extends AppCompatActivity implements
             Toast.makeText(this,
                 "Offline: will make your post when back online", Toast.LENGTH_LONG).show();
         } else {
-            mNewListRef.setValue(stuckPost);
+            mRef.push().setValue(stuckPost);
         }
 
         Intent intent = new Intent(StuckNewPostActivity.this, StuckMainListActivity.class);
@@ -226,7 +222,7 @@ public class StuckNewPostActivity extends AppCompatActivity implements
             .getSharedPreferences(StuckConstants.SHARED_PREFRENCE_USER, 0); // 0 - for private mode
         mEmail = pref.getString(StuckConstants.KEY_ENCODED_EMAIL, "");
 
-        mFirebaseRef = new Firebase(StuckConstants.FIREBASE_URL);
+        mFirebaseRefForUser = new Firebase(StuckConstants.FIREBASE_URL);
         mAuthListener = new Firebase.AuthStateListener() {
             @Override
             public void onAuthStateChanged(AuthData authData) {
@@ -249,10 +245,10 @@ public class StuckNewPostActivity extends AppCompatActivity implements
 
         mGoogleApiClient.connect();
 
-        mFirebaseRef.addAuthStateListener(mAuthListener);
+        mFirebaseRefForUser.addAuthStateListener(mAuthListener);
 
         mRef = new Firebase(StuckConstants.FIREBASE_URL).child(StuckConstants.FIREBASE_URL_ACTIVE_POSTS);
-        mNewListRef = mRef.push();
+
 
         mMyChoicesRecyclerView.setHasFixedSize(true);
         mLayoutManager = new LinearLayoutManager(this);
@@ -300,7 +296,7 @@ public class StuckNewPostActivity extends AppCompatActivity implements
     @Override
     public void onDestroy() {
         super.onDestroy();
-        mRef.removeAuthStateListener(mAuthListener);
+        mFirebaseRefForUser.removeAuthStateListener(mAuthListener);
     }
 
     @Override
