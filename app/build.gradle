@@ -3,11 +3,12 @@ apply plugin: 'com.neenbedankt.android-apt'
 
 android {
     signingConfigs {
-        config {
-            keyAlias 'sam-stuck'
-            keyPassword '*****!'
-            storeFile file('/Users/Sammengistu/Androidstudioprojects/Stuck/stuck.jks')
-            storePassword '*****!'
+
+        config1 {
+            keyAlias 'stuck-sam'
+            keyPassword '*****'
+            storeFile file('/tmp/stuck_app.jks')
+            storePassword '*****'
         }
     }
     compileSdkVersion 23
@@ -23,7 +24,7 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.config
+            signingConfig signingConfigs.config1
         }
     }
     buildTypes.each {
