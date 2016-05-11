@@ -2,7 +2,7 @@
                     android:minWidth="150dp"
                     android:minHeight="100dp"
                     android:updatePeriodMillis="86400000"
-                    android:initialLayout="@layout/widget_card_view"
+                    android:initialLayout="@layout/widget_view"
                     android:resizeMode="horizontal|vertical"
                     android:widgetCategory="home_screen"
                     android:layout_height="match_parent"
