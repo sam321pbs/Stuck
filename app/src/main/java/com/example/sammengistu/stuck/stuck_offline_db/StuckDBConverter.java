@@ -10,15 +10,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-/**
- * Created by SamMengistu on 5/8/16.
- */
+
 public class StuckDBConverter {
 
     /**
      * Converts a movie into a ContentValues Object
      */
-    public static ContentValues insertStuckPostToDB(StuckPostSimple stuckPostSimple) {
+    public static ContentValues insertStuckPostToDB(StuckPostSimple stuckPostSimple, String mostRecentPost) {
 
         ContentValues contentValues = new ContentValues();
         contentValues.put(StuckConstants.COLUMN_EMAIL, stuckPostSimple.getEmail());
@@ -28,6 +26,7 @@ public class StuckDBConverter {
         contentValues.put(StuckConstants.COLUMN_CHOICE_TWO, stuckPostSimple.getChoiceTwo());
         contentValues.put(StuckConstants.COLUMN_CHOICE_THREE, stuckPostSimple.getChoiceThree());
         contentValues.put(StuckConstants.COLUMN_CHOICE_FOUR, stuckPostSimple.getChoiceFour());
+        contentValues.put(StuckConstants.COLUMN_MOST_RECENT_POST, mostRecentPost);
 
         return contentValues;
     }

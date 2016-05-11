@@ -82,6 +82,16 @@ The ACCESS_COARSE/FINE_LOCATION permissions are not required to use
         <provider
                 android:name=".stuck_offline_db.ContentProviderStuck"
                 android:authorities="@string/db_authority"/>
+
+        <service android:name="com.example.sammengistu.stuck.getAPostService"/>
+
+        <receiver android:name=".SinglePostProvider" >
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider"
+                       android:resource="@xml/single_post_widget" />
+        </receiver>
     </application>
 
 </manifest>

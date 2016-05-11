@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:background="@drawable/list_item"
+              android:id="@+id/widget_layout">
+
+    <TextView
+            android:id="@+id/single_item_question"
+            android:layout_width="wrap_content"
+            android:textSize="@dimen/toolbar_text_size"
+            android:textColor="@color/black"
+            android:layout_height="wrap_content"/>
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="10dp">
+
+        <TextView
+                android:text="@string/choice_1"
+                android:id="@+id/choice_one_title"
+                android:textColor="@color/black"
+                style="@style/additional_info_style"/>
+
+        <TextView
+                android:id="@+id/post_from_title"
+                style="@style/additional_info_style"
+                android:textColor="@color/black"
+                android:text="@string/post_from"/>
+
+        <TextView
+                android:id="@+id/total_votes_title"
+                style="@style/additional_info_style"
+                android:textColor="@color/black"
+                android:text="@string/total_votes"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:orientation="horizontal"
+            android:layout_height="wrap_content">
+
+        <TextView
+                android:id="@+id/sneak_peak_choice_1"
+                android:layout_marginTop="5dp"
+                android:textColor="@color/black"
+
+                style="@style/additional_info_style"/>
+
+        <TextView
+                style="@style/additional_info_style"
+                android:layout_marginTop="5dp"
+                android:textColor="@color/black"
+                android:id="@+id/post_location"/>
+
+        <TextView
+                style="@style/additional_info_style"
+                android:textColor="@color/black"
+                android:layout_marginTop="5dp"
+                android:id="@+id/stuck_question_total_votes"/>
+
+    </LinearLayout>
+
+
+</LinearLayout>
+

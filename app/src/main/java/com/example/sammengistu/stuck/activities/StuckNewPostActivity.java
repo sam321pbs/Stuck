@@ -210,7 +210,7 @@ public class StuckNewPostActivity extends AppCompatActivity implements
                 StuckConstants.TABLE_OFFLINE_POST);
 
             getContentResolver().insert(contentUri,
-                StuckDBConverter.insertStuckPostToDB(stuckPost));
+                StuckDBConverter.insertStuckPostToDB(stuckPost, StuckConstants.FALSE));
 
             Toast.makeText(this,
                 R.string.make_post_when_when_back_online, Toast.LENGTH_LONG).show();

@@ -28,6 +28,9 @@ public class StuckConstants {
     public static final int ZERO_VOTES = 0;
     public static final String USER_LOGGED_IN_WITH_TEMP_PASSWORD = "hasLoggedInWithTempPassword";
     public static final String SHARED_PREFERENCE_PASSWORD = "password";
+    public static final String COLUMN_MOST_RECENT_POST = "most_recent";
+    public static final String FALSE = "false";
+    public static final String TRUE = "true";
 
 
     public static String FIREBASE_URL = BuildConfig.UNIQUE_FIREBASE_ROOT_URL;

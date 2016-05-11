@@ -10,8 +10,12 @@ import com.example.sammengistu.stuck.adapters.CardViewListFBAdapter;
 import com.example.sammengistu.stuck.dialogs.FilterDialog;
 import com.example.sammengistu.stuck.model.StuckPostSimple;
 import com.example.sammengistu.stuck.stuck_offline_db.ContentProviderStuck;
+import com.example.sammengistu.stuck.stuck_offline_db.StuckDBConverter;
 import com.firebase.client.AuthData;
+import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
+import com.firebase.client.ValueEventListener;
 import com.firebase.ui.FirebaseRecyclerAdapter;
 
 import android.app.Activity;
@@ -206,13 +210,53 @@ public class StuckMainListActivity extends AppCompatActivity
         }
     }
 
+    private void getFirstPostToPutInDB() {
+        Uri contentUri = Uri.withAppendedPath(ContentProviderStuck.CONTENT_URI,
+            StuckConstants.TABLE_OFFLINE_POST);
+
+        getContentResolver().delete(contentUri,
+            StuckConstants.COLUMN_MOST_RECENT_POST + " = ?",
+            new String[]{StuckConstants.TRUE});
+
+        Firebase ref = new Firebase(StuckConstants.FIREBASE_URL)
+            .child(StuckConstants.FIREBASE_URL_ACTIVE_POSTS);
+
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                if (dataSnapshot != null) {
+                    for (DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()) {
+                        if (dataSnapshot1 != null) {
+                            StuckPostSimple stuckPostSimple = dataSnapshot1.getValue(StuckPostSimple.class);
+
+
+                            Uri contentUri = Uri.withAppendedPath(ContentProviderStuck.CONTENT_URI,
+                                StuckConstants.TABLE_OFFLINE_POST);
+
+                            getContentResolver().insert(contentUri,
+                                StuckDBConverter.insertStuckPostToDB(stuckPostSimple,
+                                    StuckConstants.TRUE));
+                        }
+                        break;
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
         //Check if db has user posts
         getLoaderManager().initLoader(StuckConstants.LOADER_ID, null, this);
         initializeAdapter();
-
+        getFirstPostToPutInDB();
     }
 
     @Override
@@ -226,6 +270,7 @@ public class StuckMainListActivity extends AppCompatActivity
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         Uri contentUri = Uri.withAppendedPath(ContentProviderStuck.CONTENT_URI,
             StuckConstants.TABLE_OFFLINE_POST);
+
 
         CursorLoader loader = new CursorLoader(
             this,
@@ -243,42 +288,45 @@ public class StuckMainListActivity extends AppCompatActivity
         stuckPostsLoaded = new ArrayList<>();
         Log.i(TAG, "Load finished part 2");
         data.moveToFirst();
-
         //Got from http://stackoverflow.com/questions/10111166/get-all-rows-from-sqlite
         if (data.moveToFirst()) {
 
             while (!data.isAfterLast()) {
 
-                String stuckEmail = data.getString(data
-                    .getColumnIndex(StuckConstants.COLUMN_EMAIL));
+                if (data.getString(data.getColumnIndex(StuckConstants.COLUMN_MOST_RECENT_POST))
+                      .equals("false")) {
 
-                String stuckQuestion = data.getString(data
-                    .getColumnIndex(StuckConstants.COLUMN_QUESTION));
+                    String stuckEmail = data.getString(data
+                        .getColumnIndex(StuckConstants.COLUMN_EMAIL));
 
-                String stuckLocation = data.getString(data
-                    .getColumnIndex(StuckConstants.COLUMN_LOCATION));
+                    String stuckQuestion = data.getString(data
+                        .getColumnIndex(StuckConstants.COLUMN_QUESTION));
 
-                String stuckChoice1 = data.getString(data
-                    .getColumnIndex(StuckConstants.COLUMN_CHOICE_ONE));
+                    String stuckLocation = data.getString(data
+                        .getColumnIndex(StuckConstants.COLUMN_LOCATION));
 
-                String stuckChoice2 = data.getString(data
-                    .getColumnIndex(StuckConstants.COLUMN_CHOICE_TWO));
+                    String stuckChoice1 = data.getString(data
+                        .getColumnIndex(StuckConstants.COLUMN_CHOICE_ONE));
 
-                String stuckChoice3 = data.getString(data
-                    .getColumnIndex(StuckConstants.COLUMN_CHOICE_THREE));
+                    String stuckChoice2 = data.getString(data
+                        .getColumnIndex(StuckConstants.COLUMN_CHOICE_TWO));
 
-                String stuckChoice4 = data.getString(data
-                    .getColumnIndex(StuckConstants.COLUMN_CHOICE_FOUR));
+                    String stuckChoice3 = data.getString(data
+                        .getColumnIndex(StuckConstants.COLUMN_CHOICE_THREE));
 
-                StuckPostSimple stuckPostSimple = new StuckPostSimple(StuckSignUpActivity.encodeEmail(stuckEmail), stuckQuestion,
-                    stuckLocation, stuckChoice1, stuckChoice2, stuckChoice3, stuckChoice4,
-                    StuckConstants.ZERO_VOTES, StuckConstants.ZERO_VOTES,
-                    StuckConstants.ZERO_VOTES, StuckConstants.ZERO_VOTES,
-                    new HashMap<String, Object>());
+                    String stuckChoice4 = data.getString(data
+                        .getColumnIndex(StuckConstants.COLUMN_CHOICE_FOUR));
 
-                Log.i(TAG, stuckPostSimple.getEmail() + " " + stuckPostSimple.getQuestion());
+                    StuckPostSimple stuckPostSimple = new StuckPostSimple(StuckSignUpActivity.encodeEmail(stuckEmail), stuckQuestion,
+                        stuckLocation, stuckChoice1, stuckChoice2, stuckChoice3, stuckChoice4,
+                        StuckConstants.ZERO_VOTES, StuckConstants.ZERO_VOTES,
+                        StuckConstants.ZERO_VOTES, StuckConstants.ZERO_VOTES,
+                        new HashMap<String, Object>());
 
-                stuckPostsLoaded.add(stuckPostSimple);
+                    Log.i(TAG, stuckPostSimple.getEmail() + " " + stuckPostSimple.getQuestion());
+
+                    stuckPostsLoaded.add(stuckPostSimple);
+                }
                 data.moveToNext();
             }
         }

@@ -5,9 +5,9 @@ android {
     signingConfigs {
         config {
             keyAlias 'sam-stuck'
-            keyPassword '*****'
+            keyPassword '*****!'
             storeFile file('/Users/Sammengistu/Androidstudioprojects/Stuck/stuck.jks')
-            storePassword '*****'
+            storePassword '*****!'
         }
     }
     compileSdkVersion 23

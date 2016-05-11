@@ -20,7 +20,8 @@ public class StuckOfflineDBHelper extends SQLiteOpenHelper{
             + StuckConstants.COLUMN_CHOICE_ONE + " REAL, "
             + StuckConstants.COLUMN_CHOICE_TWO + " REAL, "
             + StuckConstants.COLUMN_CHOICE_THREE + " REAL, "
-            + StuckConstants.COLUMN_CHOICE_FOUR + " REAL)";
+            + StuckConstants.COLUMN_CHOICE_FOUR + " REAL, "
+            + StuckConstants.COLUMN_MOST_RECENT_POST + " REAL)";
 
     public StuckOfflineDBHelper (Context helperContext) {
         super(helperContext, DATABASE_NAME, null, DB_VERSION);
