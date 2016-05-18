@@ -20,7 +20,8 @@ import android.widget.TextView;
 /**
  * Card view adapter for mainListActivity
  */
-public class CardViewListFBAdapter extends FirebaseRecyclerAdapter<StuckPostSimple, CardViewListFBAdapter.CardViewListADViewHolder> {
+public class CardViewListFBAdapter extends FirebaseRecyclerAdapter<StuckPostSimple,
+    CardViewListFBAdapter.CardViewListADViewHolder> {
 
     private static Activity mShowPostActivity;
 
@@ -32,7 +33,7 @@ public class CardViewListFBAdapter extends FirebaseRecyclerAdapter<StuckPostSimp
 
     public CardViewListFBAdapter(Class<StuckPostSimple> modelClass, int modelLayout,
                                  Class<CardViewListFBAdapter.CardViewListADViewHolder> viewHolderClass,
-                                 Firebase ref, Activity activity) {
+                                 Query ref, Activity activity) {
         super(modelClass, modelLayout, viewHolderClass, ref);
         mShowPostActivity = activity;
     }

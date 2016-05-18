@@ -1,13 +1,9 @@
 package com.example.sammengistu.stuck.activities;
 
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
-
 import com.example.sammengistu.stuck.NetworkStatus;
 import com.example.sammengistu.stuck.R;
 import com.example.sammengistu.stuck.StuckConstants;
 import com.example.sammengistu.stuck.adapters.CardViewListFBAdapter;
-import com.example.sammengistu.stuck.dialogs.FilterDialog;
 import com.example.sammengistu.stuck.model.StuckPostSimple;
 import com.example.sammengistu.stuck.stuck_offline_db.ContentProviderStuck;
 import com.example.sammengistu.stuck.stuck_offline_db.StuckDBConverter;
@@ -15,6 +11,7 @@ import com.firebase.client.AuthData;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
+import com.firebase.client.Query;
 import com.firebase.client.ValueEventListener;
 import com.firebase.ui.FirebaseRecyclerAdapter;
 
@@ -36,13 +33,12 @@ import android.support.v7.widget.Toolbar;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
-import android.view.Gravity;
 import android.view.View;
 import android.widget.FrameLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -67,8 +63,8 @@ public class StuckMainListActivity extends AppCompatActivity
     FloatingActionButton mNewPostFAB;
     @BindView(R.id.swipe_refresh_layout)
     SwipeRefreshLayout mSwipeRefreshLayout;
-    @BindView(R.id.filter_stuck_posts)
-    TextView mFilterTextView;
+//    @BindView(R.id.filter_stuck_posts)
+//    TextView mFilterTextView;
     @BindView(R.id.recycler_view_question_post)
     RecyclerView mRecyclerViewQuestions;
 
@@ -105,10 +101,10 @@ public class StuckMainListActivity extends AppCompatActivity
         mEmail = pref.getString(StuckConstants.KEY_ENCODED_EMAIL, "");
 
         // Load an ad into the AdMob banner view.
-        AdView adView = (AdView) findViewById(R.id.adView);
-        AdRequest adRequest = new AdRequest.Builder()
-            .setRequestAgent("android_studio:ad_template").build();
-        adView.loadAd(adRequest);
+//        AdView adView = (AdView) findViewById(R.id.adView);
+//        AdRequest adRequest = new AdRequest.Builder()
+//            .setRequestAgent("android_studio:ad_template").build();
+//        adView.loadAd(adRequest);
 
         // use a linear layout manager
         mLayoutManager = new LinearLayoutManager(this);
@@ -131,6 +127,7 @@ public class StuckMainListActivity extends AppCompatActivity
             }
         });
 
+        initializeAdapter();
         setUpToolbar();
         setUpFloatingActionButton();
         Toast.makeText(this, mEmail, Toast.LENGTH_LONG).show();
@@ -152,9 +149,20 @@ public class StuckMainListActivity extends AppCompatActivity
             Firebase ref = new Firebase(StuckConstants.FIREBASE_URL)
                 .child(StuckConstants.FIREBASE_URL_ACTIVE_POSTS);
 
+//            Firebase ref = new Firebase("https://dinosaur-facts.firebaseio.com/dinosaurs");
+            Query queryRef = ref.orderByChild("dateTimeStamp");
+
+//            queryRef.addChildEventListener(new ChildEventListener() {
+//                @Override
+//                public void onChildAdded(DataSnapshot snapshot, String previousChild) {
+//                    System.out.println(snapshot.getKey());
+//                }
+//                // ....
+//            });
+
             mAdapter = new CardViewListFBAdapter(StuckPostSimple.class,
                 R.layout.stuck_single_item_question,
-                CardViewListFBAdapter.CardViewListADViewHolder.class, ref,
+                CardViewListFBAdapter.CardViewListADViewHolder.class, queryRef,
                 StuckMainListActivity.this);
 
             mRecyclerViewQuestions.setAdapter(mAdapter);
@@ -204,9 +212,9 @@ public class StuckMainListActivity extends AppCompatActivity
                 FrameLayout.LayoutParams.WRAP_CONTENT
             );
 
-            params.gravity = Gravity.END;
-            params.setMargins(0, actionBarHeight / 2, 16, 0);
-            mNewPostFAB.setLayoutParams(params);
+//            params.gravity = Gravity.END;
+//            params.setMargins(0, actionBarHeight / 2, 16, 0);
+//            mNewPostFAB.setLayoutParams(params);
         }
     }
 
@@ -229,7 +237,6 @@ public class StuckMainListActivity extends AppCompatActivity
                     for (DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()) {
                         if (dataSnapshot1 != null) {
                             StuckPostSimple stuckPostSimple = dataSnapshot1.getValue(StuckPostSimple.class);
-
 
                             Uri contentUri = Uri.withAppendedPath(ContentProviderStuck.CONTENT_URI,
                                 StuckConstants.TABLE_OFFLINE_POST);
@@ -255,7 +262,8 @@ public class StuckMainListActivity extends AppCompatActivity
         super.onResume();
         //Check if db has user posts
         getLoaderManager().initLoader(StuckConstants.LOADER_ID, null, this);
-        initializeAdapter();
+//        initializeAdapter();
+
         getFirstPostToPutInDB();
     }
 
@@ -321,7 +329,7 @@ public class StuckMainListActivity extends AppCompatActivity
                         stuckLocation, stuckChoice1, stuckChoice2, stuckChoice3, stuckChoice4,
                         StuckConstants.ZERO_VOTES, StuckConstants.ZERO_VOTES,
                         StuckConstants.ZERO_VOTES, StuckConstants.ZERO_VOTES,
-                        new HashMap<String, Object>());
+                        new HashMap<String, Object>(), (-1 * new Date().getTime()));
 
                     Log.i(TAG, stuckPostSimple.getEmail() + " " + stuckPostSimple.getQuestion());
 
@@ -361,12 +369,12 @@ public class StuckMainListActivity extends AppCompatActivity
 
     }
 
-    @OnClick(R.id.filter_stuck_posts)
-    public void showFilter(View view) {
-
-        FilterDialog filterDialog = new FilterDialog();
-        filterDialog.show(getSupportFragmentManager(), "Filter");
-    }
+//    @OnClick(R.id.filter_stuck_posts)
+//    public void showFilter(View view) {
+//
+//        FilterDialog filterDialog = new FilterDialog();
+//        filterDialog.show(getSupportFragmentManager(), "Filter");
+//    }
 
     @OnClick(R.id.fab_add)
     public void setNewPostFAB(View view) {

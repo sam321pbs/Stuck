@@ -25,6 +25,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -124,7 +125,8 @@ public class StuckVoteActivity extends AppCompatActivity {
             getIntent().getIntExtra(StuckConstants.CHOICE_1_VOTES_VIEW_HOLDER, 0),
             getIntent().getIntExtra(StuckConstants.CHOICE_1_VOTES_VIEW_HOLDER, 0),
             getIntent().getIntExtra(StuckConstants.CHOICE_1_VOTES_VIEW_HOLDER, 0),
-            new HashMap<String, Object>()
+            new HashMap<String, Object>(),
+            (-1 * new Date().getTime())
         );
 
         mFirebaseRef = new Firebase(StuckConstants.FIREBASE_URL);

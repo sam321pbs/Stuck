@@ -24,6 +24,7 @@ public class StuckPostSimple {
     private int choiceFourVotes;
     private HashMap<String, Object> timestampCreated;
     private HashMap<String, Object> timestampLastChanged;
+    private long dateTimeStamp;
 
     public StuckPostSimple() {
     }
@@ -31,7 +32,7 @@ public class StuckPostSimple {
     public StuckPostSimple(String email, String question, String location, String choiceOne, String choiceTwo,
                            String choiceThree, String choiceFour, int choiceOneVotes,
                            int choiceTwoVotes, int choiceThreeVotes, int choiceFourVotes,
-                           HashMap<String, Object> timestampCreated) {
+                           HashMap<String, Object> timestampCreated, long dateTimeStamp) {
         this.email = email;
         this.question = question;
         this.choiceOne = choiceOne;
@@ -46,10 +47,20 @@ public class StuckPostSimple {
         this.timestampCreated = timestampCreated;
 
         this.timestampCreated = timestampCreated;
-        HashMap<String, Object> timestampNowObject = new HashMap<String, Object>();
+        HashMap<String, Object> timestampNowObject = new HashMap<>();
         timestampNowObject.put(StuckConstants.FIREBASE_PROPERTY_TIMESTAMP, ServerValue.TIMESTAMP);
         this.timestampLastChanged = timestampNowObject;
 
+        this.dateTimeStamp = dateTimeStamp;
+
+    }
+
+    public long getDateTimeStamp() {
+        return dateTimeStamp;
+    }
+
+    public void setDateTimeStamp(long dateTimeStamp) {
+        this.dateTimeStamp = dateTimeStamp;
     }
 
     public String getEmail() {

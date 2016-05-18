@@ -15,6 +15,7 @@ import android.net.Uri;
 import android.util.Log;
 import android.widget.RemoteViews;
 
+import java.util.Date;
 import java.util.HashMap;
 
 public class SinglePostProvider extends AppWidgetProvider {
@@ -34,7 +35,7 @@ public class SinglePostProvider extends AppWidgetProvider {
 
         mContext = context;
         mStuckPostSimple = new StuckPostSimple("", "", "", "", "", "", "",
-            0, 0, 0, 0, new HashMap<String, Object>());
+            0, 0, 0, 0, new HashMap<String, Object>(), (-1 * new Date().getTime()));
 
         for (int widgetId : appWidgetIds) {
 
@@ -119,7 +120,8 @@ public class SinglePostProvider extends AppWidgetProvider {
                         stuckLocation, stuckChoice1, stuckChoice2, stuckChoice3, stuckChoice4,
                         StuckConstants.ZERO_VOTES, StuckConstants.ZERO_VOTES,
                         StuckConstants.ZERO_VOTES, StuckConstants.ZERO_VOTES,
-                        new HashMap<String, Object>());
+                        new HashMap<String, Object>(),
+                        (-1 * new Date().getTime()));
 
                     Uri contentUri = Uri.withAppendedPath(ContentProviderStuck.CONTENT_URI,
                         StuckConstants.TABLE_OFFLINE_POST);

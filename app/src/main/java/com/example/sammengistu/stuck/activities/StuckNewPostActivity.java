@@ -41,6 +41,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -203,7 +204,8 @@ public class StuckNewPostActivity extends AppCompatActivity implements
             (mChoicesList.size() == 4 ? mChoicesList.get(3).getChoice(): ""),
             StuckConstants.ZERO_VOTES, StuckConstants.ZERO_VOTES,
             StuckConstants.ZERO_VOTES, StuckConstants.ZERO_VOTES,
-            timestampCreated);
+            timestampCreated,
+            (-1 * new Date().getTime()));
 
         if (!NetworkStatus.isOnline(this)) {
             Uri contentUri = Uri.withAppendedPath(ContentProviderStuck.CONTENT_URI,

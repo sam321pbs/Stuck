@@ -7,6 +7,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -70,8 +71,8 @@ public class StuckDBConverter {
 
                 StuckPostSimple stuckPostSimple = new StuckPostSimple(
                     stuckEmail, stuckQuestion, stuckLocation, stuckChoiceOne, stuckChoiceTwo,
-                    stuckChoiceThree, stuckChoiceFour, 0, 0,0,0, new HashMap<String, Object>()
-                   );
+                    stuckChoiceThree, stuckChoiceFour, 0, 0,0,0, new HashMap<String, Object>(),
+                    (-1 * new Date().getTime()));
 
                 //TODO: new to change hashmap to timestamp
                 stuckPostSimples.add(stuckPostSimple);
