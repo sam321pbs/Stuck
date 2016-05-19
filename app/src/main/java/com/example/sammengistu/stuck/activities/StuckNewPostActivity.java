@@ -124,7 +124,7 @@ public class StuckNewPostActivity extends AppCompatActivity implements
         mChoicesList.add(new Choice("", 0));
 
         // specify an adapter (see also next example)
-        mAdapter = new MyPostChoiceAdapter(mChoicesList, this);
+        mAdapter = new MyPostChoiceAdapter(mChoicesList, this, mAddChoiceButton);
         mMyChoicesRecyclerView.setAdapter(mAdapter);
     }
 
@@ -272,7 +272,7 @@ public class StuckNewPostActivity extends AppCompatActivity implements
         mChoicesList.add(new Choice("", 0));
 
         // specify an adapter (see also next example)
-        mAdapter = new MyPostChoiceAdapter(mChoicesList, this);
+        mAdapter = new MyPostChoiceAdapter(mChoicesList, this, mAddChoiceButton);
         mMyChoicesRecyclerView.setAdapter(mAdapter);
         mAdapter.notifyDataSetChanged();
 

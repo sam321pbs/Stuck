@@ -6,6 +6,7 @@ import com.example.sammengistu.stuck.viewHolders.MyPostChoiceADViewHolder;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -22,6 +23,7 @@ import java.util.List;
 public class MyPostChoiceAdapter extends RecyclerView.Adapter<MyPostChoiceADViewHolder> {
     private List<Choice> mChoiceDataSet;
     private Context mAppContext;
+    private FloatingActionButton mFloatingActionButton;
 
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
@@ -29,9 +31,11 @@ public class MyPostChoiceAdapter extends RecyclerView.Adapter<MyPostChoiceADView
 
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    public MyPostChoiceAdapter(List<Choice> myDataset, Context appContext) {
+    public MyPostChoiceAdapter(List<Choice> myDataset, Context appContext,
+                               FloatingActionButton floatingActionButton) {
         mChoiceDataSet = myDataset;
         mAppContext = appContext;
+        mFloatingActionButton = floatingActionButton;
     }
 
     // Create new views (invoked by the layout manager)
@@ -69,6 +73,8 @@ public class MyPostChoiceAdapter extends RecyclerView.Adapter<MyPostChoiceADView
                             public void onClick(DialogInterface dialog, int which) {
                                 mChoiceDataSet.remove(pos);
                                 notifyDataSetChanged();
+                                mFloatingActionButton.setVisibility(View.VISIBLE);
+                                mFloatingActionButton.setEnabled(true);
                             }
                         });
                     deleteChoiceDialog.setMessage(holder.mChoiceEditText.getText().toString());
