@@ -55,6 +55,10 @@ public class StuckPostSimple {
 
     }
 
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
     public long getDateTimeStamp() {
         return dateTimeStamp;
     }

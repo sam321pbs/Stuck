@@ -18,11 +18,13 @@ import com.firebase.client.Firebase;
 import com.firebase.client.ServerValue;
 
 import android.Manifest;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -182,7 +184,8 @@ public class StuckNewPostActivity extends AppCompatActivity implements
 
 
     /**
-     * Creates a stuck post based on users input, gets the general location of the user, and the time
+     * Creates a stuck post based on users input, gets the general location of the user, and the
+     * time
      * the post was created
      */
     private void createPost() {
@@ -200,28 +203,67 @@ public class StuckNewPostActivity extends AppCompatActivity implements
             GeneralArea.getAddressOfCurrentLocation(getLastKnownLocation(), this),
             mChoicesList.get(0).getChoice(),
             mChoicesList.get(1).getChoice(),
-            (mChoicesList.size() == 3 ? mChoicesList.get(2).getChoice(): ""),
-            (mChoicesList.size() == 4 ? mChoicesList.get(3).getChoice(): ""),
+            (mChoicesList.size() == 3 || mChoicesList.size() == 4 ?
+                mChoicesList.get(2).getChoice() : ""),
+            (mChoicesList.size() == 4 ? mChoicesList.get(3).getChoice() : ""),
             StuckConstants.ZERO_VOTES, StuckConstants.ZERO_VOTES,
             StuckConstants.ZERO_VOTES, StuckConstants.ZERO_VOTES,
             timestampCreated,
             (-1 * new Date().getTime()));
 
-        if (!NetworkStatus.isOnline(this)) {
-            Uri contentUri = Uri.withAppendedPath(ContentProviderStuck.CONTENT_URI,
-                StuckConstants.TABLE_OFFLINE_POST);
+        new SaveSimplePostToDBTask(stuckPost).execute();
 
-            getContentResolver().insert(contentUri,
-                StuckDBConverter.insertStuckPostToDB(stuckPost, StuckConstants.FALSE));
-
-            Toast.makeText(this,
-                R.string.make_post_when_when_back_online, Toast.LENGTH_LONG).show();
-        } else {
-            mRefActivePosts.push().setValue(stuckPost);
-        }
 
         Intent intent = new Intent(StuckNewPostActivity.this, StuckMainListActivity.class);
         startActivity(intent);
+    }
+
+    private class SaveSimplePostToDBTask extends AsyncTask<Void, Void, Void> {
+
+        private ProgressDialog mProgressDialog;
+        private StuckPostSimple mStuckPostSimple;
+        private boolean mPostToFirebase;
+
+        public SaveSimplePostToDBTask(StuckPostSimple stuckPostSimple) {
+            mStuckPostSimple = stuckPostSimple;
+            mProgressDialog = new ProgressDialog(StuckNewPostActivity.this);
+            mPostToFirebase = true;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            mProgressDialog.setMessage("Uploading post...");
+            mProgressDialog.show();
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+
+            if (!NetworkStatus.isOnline(StuckNewPostActivity.this)) {
+
+                mPostToFirebase = false;
+
+                Uri contentUri = Uri.withAppendedPath(ContentProviderStuck.CONTENT_URI,
+                    StuckConstants.TABLE_OFFLINE_POST);
+
+                getContentResolver().insert(contentUri,
+                    StuckDBConverter.insertStuckPostToDB(mStuckPostSimple, StuckConstants.FALSE));
+            }
+            return null;
+        }
+
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            mProgressDialog.dismiss();
+
+            if (mPostToFirebase) {
+                mRefActivePosts.push().setValue(mStuckPostSimple);
+            } else {
+                Toast.makeText(StuckNewPostActivity.this,
+                    "Offline: will make your post later.", Toast.LENGTH_LONG).show();
+            }
+        }
     }
 
     @OnClick(R.id.add_choice_button)

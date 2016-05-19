@@ -1,5 +1,10 @@
 package com.example.sammengistu.stuck.activities;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
+
+import com.example.sammengistu.stuck.GeneralArea;
 import com.example.sammengistu.stuck.NetworkStatus;
 import com.example.sammengistu.stuck.R;
 import com.example.sammengistu.stuck.StuckConstants;
@@ -15,16 +20,22 @@ import com.firebase.client.Query;
 import com.firebase.client.ValueEventListener;
 import com.firebase.ui.FirebaseRecyclerAdapter;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.LoaderManager;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -47,7 +58,8 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 public class StuckMainListActivity extends AppCompatActivity
-    implements LoaderManager.LoaderCallbacks<Cursor> {
+    implements LoaderManager.LoaderCallbacks<Cursor>,
+    GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener{
 
     private static final String TAG = "StuckMainListActivity55";
     private String mEmail;
@@ -56,6 +68,8 @@ public class StuckMainListActivity extends AppCompatActivity
     private Firebase.AuthStateListener mAuthListener;
     private Firebase mFirebaseRef;
     private List<StuckPostSimple> stuckPostsLoaded;
+    private GoogleApiClient mGoogleApiClient;
+
 
     @BindView(R.id.main_list_stuck_toolbar)
     Toolbar mMainListToolbar;
@@ -99,6 +113,14 @@ public class StuckMainListActivity extends AppCompatActivity
             .getSharedPreferences(StuckConstants.SHARED_PREFRENCE_USER, 0); // 0 - for private mode
 
         mEmail = pref.getString(StuckConstants.KEY_ENCODED_EMAIL, "");
+
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+            .addConnectionCallbacks(this)
+            .addOnConnectionFailedListener(this)
+            .addApi(LocationServices.API)
+            .build();
+
+        mGoogleApiClient.connect();
 
         // Load an ad into the AdMob banner view.
 //        AdView adView = (AdView) findViewById(R.id.adView);
@@ -262,15 +284,16 @@ public class StuckMainListActivity extends AppCompatActivity
         super.onResume();
         //Check if db has user posts
         getLoaderManager().initLoader(StuckConstants.LOADER_ID, null, this);
-//        initializeAdapter();
-
+        initializeAdapter();
         getFirstPostToPutInDB();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        ((FirebaseRecyclerAdapter) mAdapter).cleanup();
+        if (mAdapter != null) {
+            ((FirebaseRecyclerAdapter) mAdapter).cleanup();
+        }
         mFirebaseRef.removeAuthStateListener(mAuthListener);
     }
 
@@ -294,7 +317,6 @@ public class StuckMainListActivity extends AppCompatActivity
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
 
         stuckPostsLoaded = new ArrayList<>();
-        Log.i(TAG, "Load finished part 2");
         data.moveToFirst();
         //Got from http://stackoverflow.com/questions/10111166/get-all-rows-from-sqlite
         if (data.moveToFirst()) {
@@ -325,8 +347,10 @@ public class StuckMainListActivity extends AppCompatActivity
                     String stuckChoice4 = data.getString(data
                         .getColumnIndex(StuckConstants.COLUMN_CHOICE_FOUR));
 
-                    StuckPostSimple stuckPostSimple = new StuckPostSimple(StuckSignUpActivity.encodeEmail(stuckEmail), stuckQuestion,
-                        stuckLocation, stuckChoice1, stuckChoice2, stuckChoice3, stuckChoice4,
+                    StuckPostSimple stuckPostSimple = new StuckPostSimple(
+                        StuckSignUpActivity.encodeEmail(stuckEmail), stuckQuestion,
+                       stuckLocation,
+                        stuckChoice1, stuckChoice2, stuckChoice3, stuckChoice4,
                         StuckConstants.ZERO_VOTES, StuckConstants.ZERO_VOTES,
                         StuckConstants.ZERO_VOTES, StuckConstants.ZERO_VOTES,
                         new HashMap<String, Object>(), (-1 * new Date().getTime()));
@@ -341,6 +365,20 @@ public class StuckMainListActivity extends AppCompatActivity
         addNewPostsToFirebase();
     }
 
+    private Location getLastKnownLocation() {
+
+        if (ActivityCompat.checkSelfPermission(this
+            , Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+            ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) !=
+                PackageManager.PERMISSION_GRANTED) {
+
+            return null;
+        }
+
+        return LocationServices.FusedLocationApi.getLastLocation(
+            mGoogleApiClient);
+    }
+
     /**
      * If their are posts in the local database you can add them to firebase then delete them
      */
@@ -348,6 +386,7 @@ public class StuckMainListActivity extends AppCompatActivity
         if (stuckPostsLoaded.size() > 0 && NetworkStatus.isOnline(this)) {
             for (int i = 0; i < stuckPostsLoaded.size(); i++) {
                 StuckPostSimple stuckPostSimple = stuckPostsLoaded.get(i);
+                stuckPostSimple.setLocation(GeneralArea.getAddressOfCurrentLocation(getLastKnownLocation(), this));
                 //Push the post straight to firebase
                 new Firebase(StuckConstants.FIREBASE_URL).child(
                     StuckConstants.FIREBASE_URL_ACTIVE_POSTS).push().setValue(stuckPostSimple);
@@ -381,6 +420,21 @@ public class StuckMainListActivity extends AppCompatActivity
 
         Intent intent = new Intent(this, StuckNewPostActivity.class);
         startActivity(intent);
+
+    }
+
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
     }
 }
