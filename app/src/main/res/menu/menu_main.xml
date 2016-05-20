@@ -2,8 +2,18 @@
       xmlns:app="http://schemas.android.com/apk/res-auto"
       xmlns:tools="http://schemas.android.com/tools"
       tools:context="com.example.sammengistu.stuck.MainActivity">
-    <item android:id="@+id/action_settings"
-          android:title="@string/action_settings"
+    <item android:id="@+id/action_my_posts"
+          android:title="@string/my_posts"
+          android:orderInCategory="100"
+          app:showAsAction="never"/>
+
+    <item android:id="@+id/action_share"
+          android:title="@string/share"
+          android:orderInCategory="100"
+          app:showAsAction="never"/>
+
+    <item android:id="@+id/action_log_out"
+          android:title="@string/log_out"
           android:orderInCategory="100"
           app:showAsAction="never"/>
 </menu>

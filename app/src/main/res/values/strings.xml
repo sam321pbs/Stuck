@@ -54,5 +54,7 @@
     <string name="cancel">Cancel</string>
     <string name="cant_delete_choice">Can\'t delete, need at least 2 choices</string>
     <string name="my_posts">My Posts</string>
+    <string name="share">Share</string>
+    <string name="log_out">Log out</string>
 
 </resources>

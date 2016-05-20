@@ -47,7 +47,10 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -63,7 +66,8 @@ import butterknife.OnClick;
 
 public class StuckMainListActivity extends AppCompatActivity
     implements LoaderManager.LoaderCallbacks<Cursor>,
-    GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener{
+    GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
+    AdapterView.OnItemSelectedListener{
 
     private static final String TAG = "StuckMainListActivity55";
     private String mEmail;
@@ -159,6 +163,8 @@ public class StuckMainListActivity extends AppCompatActivity
 
         initializeAdapter(mActivePostsRef.orderByChild(StuckConstants.DATE_TIME_STAMP));
         setUpToolbar();
+
+
     }
 
     public static void takeUserToLoginScreenOnUnAuth(Activity activity) {
@@ -185,7 +191,101 @@ public class StuckMainListActivity extends AppCompatActivity
         }
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        mMainListToolbar.inflateMenu(R.menu.menu_main);
+        mMainListToolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                return onOptionsItemSelected(item);
+            }
+        });
+        return true;
+    }
+
+    //New
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_my_posts:
+                showMyPosts(item);
+                break;
+            case R.id.action_log_out:
+                mFirebaseRef.unauth();
+                break;
+
+            case R.id.action_share:
+                Toast.makeText(StuckMainListActivity.this, "Share", Toast.LENGTH_LONG).show();
+                break;
+
+            default:
+                break;
+        }
+
+        return true;
+    }
+
+    private void showMyPosts(MenuItem item){
+        if (!mShowMyPosts){
+            item.setTitle("All posts");
+            mShowMyPosts = true;
+
+            final List<StuckPostSimple> stuckPostList = new ArrayList<>();
+
+            Query queryRef = mActivePostsRef.orderByChild(StuckConstants.FIREBASE_EMAIL)
+                .equalTo(StuckSignUpActivity.encodeEmail(mEmail));
+
+            queryRef.addChildEventListener(new ChildEventListener() {
+                @Override
+                public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                    stuckPostList.add(dataSnapshot.getValue(StuckPostSimple.class));
+
+                    List<StuckPostSimple> temp = new ArrayList<>();
+                    //reverses the list to show most recent first
+                    for (int i = stuckPostList.size() - 1; i >= 0; i-- ){
+                        temp.add(stuckPostList.get(i));
+                    }
+                    mAdapter = new MyPostsAdapter(temp, StuckMainListActivity.this);
+                    mRecyclerViewQuestions.setAdapter(mAdapter);
+                }
+
+                @Override
+                public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+                }
+
+                @Override
+                public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+                }
+
+                @Override
+                public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+                }
+
+                @Override
+                public void onCancelled(FirebaseError firebaseError) {
+
+                }
+            });
+        } else {
+            item.setTitle("My Posts");
+            mShowMyPosts = false;
+            initializeAdapter(mActivePostsRef.orderByChild(StuckConstants.DATE_TIME_STAMP));
+        }
+    }
+
     private void setUpToolbar() {
+        mMainListToolbar.inflateMenu(R.menu.menu_main);
+        mMainListToolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                Toast.makeText(StuckMainListActivity.this, "Yo", Toast.LENGTH_LONG).show();
+                return false;
+            }
+        });
+
         setSupportActionBar(mMainListToolbar);
 
         if (getSupportActionBar() != null) {
@@ -420,54 +520,7 @@ public class StuckMainListActivity extends AppCompatActivity
     @OnClick(R.id.my_posts_main_list)
     public void myPosts(){
 
-        if (!mShowMyPosts){
-            mMyPosts.setText("All posts");
-            mShowMyPosts = true;
 
-            final List<StuckPostSimple> stuckPostList = new ArrayList<>();
-
-            Query queryRef = mActivePostsRef.orderByChild(StuckConstants.FIREBASE_EMAIL)
-                .equalTo(StuckSignUpActivity.encodeEmail(mEmail));
-
-            queryRef.addChildEventListener(new ChildEventListener() {
-                @Override
-                public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                    stuckPostList.add(dataSnapshot.getValue(StuckPostSimple.class));
-
-                    List<StuckPostSimple> temp = new ArrayList<>();
-                    //reverses the list to show most recent first
-                    for (int i = stuckPostList.size() - 1; i >= 0; i-- ){
-                        temp.add(stuckPostList.get(i));
-                    }
-                    mAdapter = new MyPostsAdapter(temp, StuckMainListActivity.this);
-                    mRecyclerViewQuestions.setAdapter(mAdapter);
-                }
-
-                @Override
-                public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-                }
-
-                @Override
-                public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-                }
-
-                @Override
-                public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-                }
-
-                @Override
-                public void onCancelled(FirebaseError firebaseError) {
-
-                }
-            });
-        } else {
-            mMyPosts.setText("My Posts");
-            mShowMyPosts = false;
-            initializeAdapter(mActivePostsRef.orderByChild(StuckConstants.DATE_TIME_STAMP));
-        }
     }
 
     @Override
@@ -482,6 +535,16 @@ public class StuckMainListActivity extends AppCompatActivity
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
 
     }
 }
