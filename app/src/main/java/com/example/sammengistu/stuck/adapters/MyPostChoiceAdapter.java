@@ -91,7 +91,6 @@ public class MyPostChoiceAdapter extends RecyclerView.Adapter<MyPostChoiceADView
             }
         };
 
-
         holder.mChoiceEditText.setOnLongClickListener(deleteChoiceListener);
         holder.mChoiceEditText.setText(mChoiceDataSet.get(pos).getChoice());
         holder.mChoiceEditText.addTextChangedListener(new TextWatcher() {
@@ -107,8 +106,11 @@ public class MyPostChoiceAdapter extends RecyclerView.Adapter<MyPostChoiceADView
 
             @Override
             public void afterTextChanged(Editable s) {
-                mChoiceDataSet.get(pos).setChoice(s.toString());
+                try {
+                    mChoiceDataSet.get(pos).setChoice(s.toString());
+                } catch (IndexOutOfBoundsException e){
 
+                }
             }
         });
 

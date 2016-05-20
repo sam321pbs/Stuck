@@ -51,7 +51,7 @@ public class StuckVoteActivity extends AppCompatActivity {
     ImageView mDeleteImageView;
     @BindView(R.id.vote_toolbar)
     Toolbar mVoteToolbar;
-    @BindView(R.id.single_item_question)
+    @BindView(R.id.single_item_question_text_view)
     TextView mQuestion;
     @BindView(R.id.choice_one_title)
     TextView mChoiceOneTitle;

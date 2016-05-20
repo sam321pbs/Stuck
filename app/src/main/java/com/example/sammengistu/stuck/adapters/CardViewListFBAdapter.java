@@ -13,7 +13,6 @@ import android.app.Activity;
 import android.app.FragmentManager;
 import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -24,12 +23,6 @@ public class CardViewListFBAdapter extends FirebaseRecyclerAdapter<StuckPostSimp
     CardViewListFBAdapter.CardViewListADViewHolder> {
 
     private static Activity mShowPostActivity;
-
-    public CardViewListFBAdapter(Class<StuckPostSimple> modelClass, int modelLayout,
-                                 Class<CardViewListFBAdapter.CardViewListADViewHolder> viewHolderClass,
-                                 Query ref) {
-        super(modelClass, modelLayout, viewHolderClass, ref);
-    }
 
     public CardViewListFBAdapter(Class<StuckPostSimple> modelClass, int modelLayout,
                                  Class<CardViewListFBAdapter.CardViewListADViewHolder> viewHolderClass,
@@ -55,7 +48,8 @@ public class CardViewListFBAdapter extends FirebaseRecyclerAdapter<StuckPostSimp
         String choiceOne = stuckPostSimple.getChoiceOne();
         //Shows preview of the first choice
         if (choiceOne.length() > 9) {
-            cardViewListADViewHolder.mStuckPostSneakPeakChoice.setText(choiceOne.substring(0, 9));
+            String sneakPeak = choiceOne.substring(0, 9) + "...";
+            cardViewListADViewHolder.mStuckPostSneakPeakChoice.setText(sneakPeak);
         } else {
             cardViewListADViewHolder.mStuckPostSneakPeakChoice.setText(choiceOne);
         }
@@ -63,7 +57,8 @@ public class CardViewListFBAdapter extends FirebaseRecyclerAdapter<StuckPostSimp
         int totalVotes = stuckPostSimple.getChoiceOneVotes() + stuckPostSimple.getChoiceTwoVotes() +
             stuckPostSimple.getChoiceThreeVotes() + stuckPostSimple.getChoiceFourVotes();
 
-        cardViewListADViewHolder.mStuckPostTotalVotes.setText(totalVotes + "");
+        String totalVote = totalVotes + "";
+        cardViewListADViewHolder.mStuckPostTotalVotes.setText(totalVote);
 
         cardViewListADViewHolder.mRef = getRef(i);
 
@@ -92,7 +87,7 @@ public class CardViewListFBAdapter extends FirebaseRecyclerAdapter<StuckPostSimp
      */
     public static class CardViewListADViewHolder extends RecyclerView.ViewHolder {
 
-        public String TAG = "ViewHolder";
+        public String TAG = "MyPostViewHolder";
 
         public TextView mStuckPostQuestion;
         public TextView mStuckPostLocation;
@@ -115,7 +110,7 @@ public class CardViewListFBAdapter extends FirebaseRecyclerAdapter<StuckPostSimp
 
         public CardViewListADViewHolder(View v) {
             super(v);
-            mStuckPostQuestion = (TextView) v.findViewById(R.id.single_item_question);
+            mStuckPostQuestion = (TextView) v.findViewById(R.id.single_item_question_text_view);
             mStuckPostLocation = (TextView) v.findViewById(R.id.post_location);
             mStuckPostSneakPeakChoice = (TextView) v.findViewById(R.id.sneak_peak_choice_1);
             mStuckPostTotalVotes = (TextView) v.findViewById(R.id.stuck_question_total_votes);
@@ -124,11 +119,6 @@ public class CardViewListFBAdapter extends FirebaseRecyclerAdapter<StuckPostSimp
             v.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
-//                     get the common element for the transition in this activity
-//                        final View androidRobotView = findViewById(R.id.image_small);
-
-//                     define a click listener
 
                     Intent stuckVoteIntent = new Intent(CardViewListFBAdapter.mShowPostActivity, StuckVoteActivity.class);
 
@@ -146,11 +136,7 @@ public class CardViewListFBAdapter extends FirebaseRecyclerAdapter<StuckPostSimp
                     stuckVoteIntent.putExtra(StuckConstants.CHOICE_3_VOTES_VIEW_HOLDER, mChoice3Votes);
                     stuckVoteIntent.putExtra(StuckConstants.CHOICE_4_VOTES_VIEW_HOLDER, mChoice4Votes);
 
-                    Log.i(TAG, "firebase tos string " + mRef.toString());
-
-
                     CardViewListFBAdapter.mShowPostActivity.startActivity(stuckVoteIntent);
-
                 }
             });
 

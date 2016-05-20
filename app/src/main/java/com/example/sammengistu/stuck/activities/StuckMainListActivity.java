@@ -9,10 +9,12 @@ import com.example.sammengistu.stuck.NetworkStatus;
 import com.example.sammengistu.stuck.R;
 import com.example.sammengistu.stuck.StuckConstants;
 import com.example.sammengistu.stuck.adapters.CardViewListFBAdapter;
+import com.example.sammengistu.stuck.adapters.MyPostsAdapter;
 import com.example.sammengistu.stuck.model.StuckPostSimple;
 import com.example.sammengistu.stuck.stuck_offline_db.ContentProviderStuck;
 import com.example.sammengistu.stuck.stuck_offline_db.StuckDBConverter;
 import com.firebase.client.AuthData;
+import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
@@ -44,8 +46,10 @@ import android.support.v7.widget.Toolbar;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -69,6 +73,9 @@ public class StuckMainListActivity extends AppCompatActivity
     private Firebase mFirebaseRef;
     private List<StuckPostSimple> stuckPostsLoaded;
     private GoogleApiClient mGoogleApiClient;
+    private boolean mShowMyPosts;
+
+    private Firebase mActivePostsRef;
 
 
     @BindView(R.id.main_list_stuck_toolbar)
@@ -81,6 +88,8 @@ public class StuckMainListActivity extends AppCompatActivity
 //    TextView mFilterTextView;
     @BindView(R.id.recycler_view_question_post)
     RecyclerView mRecyclerViewQuestions;
+    @BindView(R.id.my_posts_main_list)
+    TextView mMyPosts;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,21 +98,20 @@ public class StuckMainListActivity extends AppCompatActivity
 
         ButterKnife.bind(this);
 
+        mShowMyPosts = false;
+
         mFirebaseRef = new Firebase(StuckConstants.FIREBASE_URL)
             .child(StuckConstants.FIREBASE_URL_USERS);
+
+        mActivePostsRef = new Firebase(StuckConstants.FIREBASE_URL)
+            .child(StuckConstants.FIREBASE_URL_ACTIVE_POSTS);
 
         mAuthListener = new Firebase.AuthStateListener() {
             @Override
             public void onAuthStateChanged(AuthData authData) {
                 /* The user has been logged out */
                 if (authData == null) {
-
-                    Log.i(TAG, "USer has been logged out");
                     takeUserToLoginScreenOnUnAuth(StuckMainListActivity.this);
-                } else {
-                    //not logged out
-                    Log.i(TAG, "USer not been logged out");
-                    Log.i(TAG, authData.getProviderData().containsKey("email") + " " + authData.getProviderData().get("email"));
                 }
             }
         };
@@ -142,17 +150,15 @@ public class StuckMainListActivity extends AppCompatActivity
             @Override
             public void onRefresh() {
 
-                initializeAdapter();
+                initializeAdapter(mActivePostsRef.orderByChild(StuckConstants.DATE_TIME_STAMP));
                 mAdapter.notifyDataSetChanged();
 
                 mSwipeRefreshLayout.setRefreshing(false);
             }
         });
 
-        initializeAdapter();
+        initializeAdapter(mActivePostsRef.orderByChild(StuckConstants.DATE_TIME_STAMP));
         setUpToolbar();
-        setUpFloatingActionButton();
-        Toast.makeText(this, mEmail, Toast.LENGTH_LONG).show();
     }
 
     public static void takeUserToLoginScreenOnUnAuth(Activity activity) {
@@ -164,23 +170,10 @@ public class StuckMainListActivity extends AppCompatActivity
     /**
      * Checks network status then loads active posts
      */
-    private void initializeAdapter() {
+    private void initializeAdapter(Query queryRef) {
         if (!NetworkStatus.isOnline(StuckMainListActivity.this)) {
             NetworkStatus.showOffLineDialog(StuckMainListActivity.this);
         } else {
-            Firebase ref = new Firebase(StuckConstants.FIREBASE_URL)
-                .child(StuckConstants.FIREBASE_URL_ACTIVE_POSTS);
-
-//            Firebase ref = new Firebase("https://dinosaur-facts.firebaseio.com/dinosaurs");
-            Query queryRef = ref.orderByChild("dateTimeStamp");
-
-//            queryRef.addChildEventListener(new ChildEventListener() {
-//                @Override
-//                public void onChildAdded(DataSnapshot snapshot, String previousChild) {
-//                    System.out.println(snapshot.getKey());
-//                }
-//                // ....
-//            });
 
             mAdapter = new CardViewListFBAdapter(StuckPostSimple.class,
                 R.layout.stuck_single_item_question,
@@ -188,6 +181,7 @@ public class StuckMainListActivity extends AppCompatActivity
                 StuckMainListActivity.this);
 
             mRecyclerViewQuestions.setAdapter(mAdapter);
+            mAdapter.notifyDataSetChanged();
         }
     }
 
@@ -234,9 +228,9 @@ public class StuckMainListActivity extends AppCompatActivity
                 FrameLayout.LayoutParams.WRAP_CONTENT
             );
 
-//            params.gravity = Gravity.END;
-//            params.setMargins(0, actionBarHeight / 2, 16, 0);
-//            mNewPostFAB.setLayoutParams(params);
+            params.gravity = Gravity.END;
+            params.setMargins(0, actionBarHeight / 2, 16, 0);
+            mNewPostFAB.setLayoutParams(params);
         }
     }
 
@@ -284,8 +278,10 @@ public class StuckMainListActivity extends AppCompatActivity
         super.onResume();
         //Check if db has user posts
         getLoaderManager().initLoader(StuckConstants.LOADER_ID, null, this);
-        initializeAdapter();
+        initializeAdapter(mActivePostsRef.orderByChild(StuckConstants.DATE_TIME_STAMP));
         getFirstPostToPutInDB();
+        mAdapter.notifyDataSetChanged();
+        Toast.makeText(this, mEmail, Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -417,10 +413,61 @@ public class StuckMainListActivity extends AppCompatActivity
 
     @OnClick(R.id.fab_add)
     public void setNewPostFAB(View view) {
-
         Intent intent = new Intent(this, StuckNewPostActivity.class);
         startActivity(intent);
+    }
 
+    @OnClick(R.id.my_posts_main_list)
+    public void myPosts(){
+
+        if (!mShowMyPosts){
+            mMyPosts.setText("All posts");
+            mShowMyPosts = true;
+
+            final List<StuckPostSimple> stuckPostList = new ArrayList<>();
+
+            Query queryRef = mActivePostsRef.orderByChild(StuckConstants.FIREBASE_EMAIL)
+                .equalTo(StuckSignUpActivity.encodeEmail(mEmail));
+
+            queryRef.addChildEventListener(new ChildEventListener() {
+                @Override
+                public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                    stuckPostList.add(dataSnapshot.getValue(StuckPostSimple.class));
+
+                    List<StuckPostSimple> temp = new ArrayList<>();
+                    //reverses the list to show most recent first
+                    for (int i = stuckPostList.size() - 1; i >= 0; i-- ){
+                        temp.add(stuckPostList.get(i));
+                    }
+                    mAdapter = new MyPostsAdapter(temp, StuckMainListActivity.this);
+                    mRecyclerViewQuestions.setAdapter(mAdapter);
+                }
+
+                @Override
+                public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+                }
+
+                @Override
+                public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+                }
+
+                @Override
+                public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+                }
+
+                @Override
+                public void onCancelled(FirebaseError firebaseError) {
+
+                }
+            });
+        } else {
+            mMyPosts.setText("My Posts");
+            mShowMyPosts = false;
+            initializeAdapter(mActivePostsRef.orderByChild(StuckConstants.DATE_TIME_STAMP));
+        }
     }
 
     @Override

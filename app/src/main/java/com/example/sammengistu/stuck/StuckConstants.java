@@ -20,7 +20,7 @@ public class StuckConstants {
     public static final String KEY_ENCODED_EMAIL = "email";
     public static final String PROVIDER = "provider";
     public static final String RESET_PASSWORD = "reset password";
-    public static final String TEMP_PASSWORD = "temp password";
+    public static final String DATE_TIME_STAMP = "dateTimeStamp";
 
     public static final String FIREBASE_URL_USERS_VOTES = "usersVotes";
 
@@ -36,6 +36,7 @@ public class StuckConstants {
     public static String FIREBASE_URL = BuildConfig.UNIQUE_FIREBASE_ROOT_URL;
     public static final String FIREBASE_PROPERTY_TIMESTAMP = "timeStamp";
     public static final String FIREBASE_REF = "firebase ref";
+    public static final String FIREBASE_EMAIL= "email";
 
     public static final String CHILD_CHOICE_ONE_VOTES = "choiceOneVotes";
     public static final String CHILD_CHOICE_TWO_VOTES = "choiceTwoVotes";

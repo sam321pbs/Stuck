@@ -19,15 +19,28 @@
                     layout="@layout/stuck_app_name_text_view"/>
 
             <!--<TextView android:layout_width="wrap_content"-->
-                      <!--android:layout_height="?actionBarSize"-->
-                      <!--android:id="@+id/filter_stuck_posts"-->
-                      <!--android:text="@string/filter"-->
-                      <!--android:gravity="center_vertical"-->
-                      <!--android:layout_gravity="center"-->
-                      <!--android:textSize="@dimen/toolbar_text_size"-->
-                      <!--android:paddingEnd="@dimen/filter_padding"-->
-                      <!--android:paddingStart="@dimen/filter_padding"-->
-                      <!--android:textColor="@color/colorWhite"/>-->
+            <!--android:layout_height="?actionBarSize"-->
+            <!--android:id="@+id/filter_stuck_posts"-->
+            <!--android:text="@string/filter"-->
+            <!--android:gravity="center_vertical"-->
+            <!--android:layout_gravity="center"-->
+            <!--android:textSize="@dimen/toolbar_text_size"-->
+            <!--android:paddingEnd="@dimen/filter_padding"-->
+            <!--android:paddingStart="@dimen/filter_padding"-->
+            <!--android:textColor="@color/colorWhite"/>-->
+
+
+            <TextView android:layout_width="wrap_content"
+                      android:layout_height="?actionBarSize"
+                      android:id="@+id/my_posts_main_list"
+                      android:text="@string/my_posts"
+                      android:gravity="center_vertical"
+                      android:layout_gravity="center|end"
+                      android:textSize="@dimen/toolbar_text_size"
+                      android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                      android:paddingEnd="@dimen/filter_padding"
+                      android:paddingStart="@dimen/filter_padding"
+                      android:textColor="@color/colorWhite"/>
 
         </android.support.v7.widget.Toolbar>
 
@@ -45,25 +58,24 @@
             android:id="@+id/swipe_refresh_layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="?actionBarSize"
-            android:layout_marginBottom="30dp">
+            android:layout_marginTop="?actionBarSize">
 
         <android.support.v7.widget.RecyclerView
                 android:id="@+id/recycler_view_question_post"
                 android:scrollbars="vertical"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                />
+                android:layout_height="match_parent"/>
+
     </android.support.v4.widget.SwipeRefreshLayout>
 
     <!--&lt;!&ndash; view for AdMob Banner Ad &ndash;&gt;-->
     <!--<com.google.android.gms.ads.AdView-->
-            <!--android:id="@+id/adView"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_gravity="bottom|center_horizontal"-->
-            <!--android:layout_marginBottom="10dp"-->
-            <!--ads:adSize="BANNER"-->
-            <!--ads:adUnitId="@string/banner_ad_unit_id"/>-->
+    <!--android:id="@+id/adView"-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_gravity="bottom|center_horizontal"-->
+    <!--android:layout_marginBottom="10dp"-->
+    <!--ads:adSize="BANNER"-->
+    <!--ads:adUnitId="@string/banner_ad_unit_id"/>-->
 
 </FrameLayout>
