@@ -67,7 +67,7 @@ import butterknife.OnClick;
 public class StuckMainListActivity extends AppCompatActivity
     implements LoaderManager.LoaderCallbacks<Cursor>,
     GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
-    AdapterView.OnItemSelectedListener{
+    AdapterView.OnItemSelectedListener {
 
     private static final String TAG = "StuckMainListActivity55";
     private String mEmail;
@@ -81,14 +81,13 @@ public class StuckMainListActivity extends AppCompatActivity
 
     private Firebase mActivePostsRef;
 
-
     @BindView(R.id.main_list_stuck_toolbar)
     Toolbar mMainListToolbar;
     @BindView(R.id.fab_add)
     FloatingActionButton mNewPostFAB;
     @BindView(R.id.swipe_refresh_layout)
     SwipeRefreshLayout mSwipeRefreshLayout;
-//    @BindView(R.id.filter_stuck_posts)
+    //    @BindView(R.id.filter_stuck_posts)
 //    TextView mFilterTextView;
     @BindView(R.id.recycler_view_question_post)
     RecyclerView mRecyclerViewQuestions;
@@ -154,9 +153,8 @@ public class StuckMainListActivity extends AppCompatActivity
             @Override
             public void onRefresh() {
 
-                initializeAdapter(mActivePostsRef.orderByChild(StuckConstants.DATE_TIME_STAMP));
-                mAdapter.notifyDataSetChanged();
-
+//                refreshList();
+                showMyPosts(null);
                 mSwipeRefreshLayout.setRefreshing(false);
             }
         });
@@ -208,6 +206,8 @@ public class StuckMainListActivity extends AppCompatActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_my_posts:
+                mShowMyPosts = !mShowMyPosts;
+
                 showMyPosts(item);
                 break;
             case R.id.action_log_out:
@@ -225,55 +225,67 @@ public class StuckMainListActivity extends AppCompatActivity
         return true;
     }
 
-    private void showMyPosts(MenuItem item){
-        if (!mShowMyPosts){
-            item.setTitle("All posts");
-            mShowMyPosts = true;
+    private void setMyPostAdapter() {
 
-            final List<StuckPostSimple> stuckPostList = new ArrayList<>();
+        final List<StuckPostSimple> stuckPostList = new ArrayList<>();
 
-            Query queryRef = mActivePostsRef.orderByChild(StuckConstants.FIREBASE_EMAIL)
-                .equalTo(StuckSignUpActivity.encodeEmail(mEmail));
+        Query queryRef = mActivePostsRef.orderByChild(StuckConstants.FIREBASE_EMAIL)
+            .equalTo(StuckSignUpActivity.encodeEmail(mEmail));
 
-            queryRef.addChildEventListener(new ChildEventListener() {
-                @Override
-                public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                    stuckPostList.add(dataSnapshot.getValue(StuckPostSimple.class));
+        queryRef.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                stuckPostList.add(dataSnapshot.getValue(StuckPostSimple.class));
 
-                    List<StuckPostSimple> temp = new ArrayList<>();
-                    //reverses the list to show most recent first
-                    for (int i = stuckPostList.size() - 1; i >= 0; i-- ){
-                        temp.add(stuckPostList.get(i));
-                    }
-                    mAdapter = new MyPostsAdapter(temp, StuckMainListActivity.this);
-                    mRecyclerViewQuestions.setAdapter(mAdapter);
+                List<StuckPostSimple> temp = new ArrayList<>();
+                //reverses the list to show most recent first
+                for (int i = stuckPostList.size() - 1; i >= 0; i--) {
+                    temp.add(stuckPostList.get(i));
                 }
+                mAdapter = new MyPostsAdapter(temp, StuckMainListActivity.this);
+                mRecyclerViewQuestions.setAdapter(mAdapter);
+            }
 
-                @Override
-                public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
 
-                }
+            }
 
-                @Override
-                public void onChildRemoved(DataSnapshot dataSnapshot) {
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
 
-                }
+            }
 
-                @Override
-                public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
 
-                }
+            }
 
-                @Override
-                public void onCancelled(FirebaseError firebaseError) {
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
 
-                }
-            });
+            }
+        });
+    }
+
+    private void showMyPosts(MenuItem item) {
+        Log.i(TAG, "Show my post = " + mShowMyPosts);
+        if (mShowMyPosts) {
+
+            if (item != null) {
+                item.setTitle("Show All Posts");
+            }
+
+            setMyPostAdapter();
+
         } else {
-            item.setTitle("My Posts");
-            mShowMyPosts = false;
+
+            if (item != null) {
+                item.setTitle("Show My Posts");
+            }
             initializeAdapter(mActivePostsRef.orderByChild(StuckConstants.DATE_TIME_STAMP));
         }
+        mAdapter.notifyDataSetChanged();
     }
 
     private void setUpToolbar() {
@@ -387,7 +399,7 @@ public class StuckMainListActivity extends AppCompatActivity
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (mAdapter != null) {
+        if (mAdapter != null && mAdapter instanceof FirebaseRecyclerAdapter) {
             ((FirebaseRecyclerAdapter) mAdapter).cleanup();
         }
         mFirebaseRef.removeAuthStateListener(mAuthListener);
@@ -420,7 +432,7 @@ public class StuckMainListActivity extends AppCompatActivity
             while (!data.isAfterLast()) {
 
                 if (data.getString(data.getColumnIndex(StuckConstants.COLUMN_MOST_RECENT_POST))
-                      .equals("false")) {
+                    .equals("false")) {
 
                     String stuckEmail = data.getString(data
                         .getColumnIndex(StuckConstants.COLUMN_EMAIL));
@@ -445,7 +457,7 @@ public class StuckMainListActivity extends AppCompatActivity
 
                     StuckPostSimple stuckPostSimple = new StuckPostSimple(
                         StuckSignUpActivity.encodeEmail(stuckEmail), stuckQuestion,
-                       stuckLocation,
+                        stuckLocation,
                         stuckChoice1, stuckChoice2, stuckChoice3, stuckChoice4,
                         StuckConstants.ZERO_VOTES, StuckConstants.ZERO_VOTES,
                         StuckConstants.ZERO_VOTES, StuckConstants.ZERO_VOTES,
@@ -478,7 +490,7 @@ public class StuckMainListActivity extends AppCompatActivity
     /**
      * If their are posts in the local database you can add them to firebase then delete them
      */
-    private void addNewPostsToFirebase (){
+    private void addNewPostsToFirebase() {
         if (stuckPostsLoaded.size() > 0 && NetworkStatus.isOnline(this)) {
             for (int i = 0; i < stuckPostsLoaded.size(); i++) {
                 StuckPostSimple stuckPostSimple = stuckPostsLoaded.get(i);
@@ -518,7 +530,7 @@ public class StuckMainListActivity extends AppCompatActivity
     }
 
     @OnClick(R.id.my_posts_main_list)
-    public void myPosts(){
+    public void myPosts() {
 
 
     }
