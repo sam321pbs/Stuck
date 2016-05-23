@@ -71,7 +71,7 @@ public class StuckMainListActivity extends AppCompatActivity
     AdapterView.OnItemSelectedListener {
 
     private static final String TAG = "StuckMainListActivity55";
-    private static final String ARGS_SCROLL_Y = "scroll position";
+
     private String mEmail;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
@@ -407,7 +407,6 @@ public class StuckMainListActivity extends AppCompatActivity
         if (pref.getBoolean(StuckConstants.USER_MADE_OFFLINE_POST, true)) {
             //Check if db has user posts
             getLoaderManager().initLoader(StuckConstants.LOADER_ID, null, this);
-            initializeAdapter(mActivePostsRef.orderByChild(StuckConstants.DATE_TIME_STAMP));
             getFirstPostToPutInDB();
             mAdapter.notifyDataSetChanged();
         }

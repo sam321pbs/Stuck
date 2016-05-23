@@ -9,7 +9,7 @@
     <uses-permission android:name="android.permission.USE_CREDENTIALS"/>
 
     <!--
-The ACCESS_COARSE/FINE_LOCATION permissions are not required to use
+    The ACCESS_COARSE/FINE_LOCATION permissions are not required to use
       Google Maps Android API v2, but are recommended.
     -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
@@ -49,6 +49,7 @@ The ACCESS_COARSE/FINE_LOCATION permissions are not required to use
                     android:name="android.support.PARENT_ACTIVITY"
                     android:value=".activities.StuckMainListActivity"/>
         </activity>
+
         <activity
                 android:name=".activities.StuckNewPostActivity"
                 android:parentActivityName=".activities.StuckMainListActivity"

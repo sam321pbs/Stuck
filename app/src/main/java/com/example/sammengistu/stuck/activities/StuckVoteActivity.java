@@ -11,12 +11,14 @@ import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -248,16 +250,23 @@ public class StuckVoteActivity extends AppCompatActivity {
 
     @OnClick(R.id.delete_post_image_view)
     public void setDeleteImageView(View view) {
-        mRefPost.removeEventListener(mValueEventListener);
-        mRefPost.removeValue(new Firebase.CompletionListener() {
-            @Override
-            public void onComplete(FirebaseError firebaseError, Firebase firebase) {
-                Intent intent = new Intent(StuckVoteActivity.this, StuckMainListActivity.class);
-                startActivity(intent);
-            }
-        });
+        new AlertDialog.Builder(StuckVoteActivity.this)
+            .setTitle("Are you sure you want to delete this post?")
+            .setNegativeButton("Cancel", null)
+            .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    mRefPost.removeEventListener(mValueEventListener);
+                    mRefPost.removeValue(new Firebase.CompletionListener() {
+                        @Override
+                        public void onComplete(FirebaseError firebaseError, Firebase firebase) {
+                            Intent intent = new Intent(StuckVoteActivity.this, StuckMainListActivity.class);
+                            startActivity(intent);
+                        }
+                    });
+                }
+            }).show();
     }
-
 
     @Override
     protected void onDestroy() {

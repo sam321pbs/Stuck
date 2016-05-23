@@ -166,7 +166,6 @@ public class StuckNewPostActivity extends AppCompatActivity implements
         return true;
     }
 
-
     private void alertUserItemMissing() {
         AlertDialog.Builder fillEveryThingDialog = new AlertDialog.Builder(StuckNewPostActivity.this);
         fillEveryThingDialog.setTitle(getString(R.string.one_or_more_cards_are_empty));
