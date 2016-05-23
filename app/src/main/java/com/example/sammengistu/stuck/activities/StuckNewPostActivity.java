@@ -257,9 +257,25 @@ public class StuckNewPostActivity extends AppCompatActivity implements
         protected void onPostExecute(Void aVoid) {
             mProgressDialog.dismiss();
 
+            SharedPreferences pref = getApplicationContext()
+                .getSharedPreferences(StuckConstants.SHARED_PREFRENCE_USER, 0);
+
+            SharedPreferences.Editor editor = pref.edit();
+
             if (mPostToFirebase) {
                 mRefActivePosts.push().setValue(mStuckPostSimple);
+                editor.putBoolean(StuckConstants.USER_MADE_OFFLINE_POST,
+                    false);
+
+                editor.apply();
             } else {
+
+
+                editor.putBoolean(StuckConstants.USER_MADE_OFFLINE_POST,
+                    true);
+
+                editor.apply();
+
                 Toast.makeText(StuckNewPostActivity.this,
                     "Offline: will make your post later.", Toast.LENGTH_LONG).show();
             }

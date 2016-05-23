@@ -6,4 +6,6 @@
     <color name="colorWhite">#ffffff</color>
     <color name="black">#000000</color>
     <color name="colorVoted">#64f46b</color>
+    <color name="buttonStartCol">#d9d2d2</color>
+    <color name="buttonEndCol">#8f9ac4</color>
 </resources>

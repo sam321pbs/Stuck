@@ -4,7 +4,7 @@ import com.example.sammengistu.stuck.R;
 import com.example.sammengistu.stuck.StuckConstants;
 import com.example.sammengistu.stuck.activities.StuckVoteActivity;
 import com.example.sammengistu.stuck.dialogs.PopUpMapDialog;
-import com.firebase.client.Firebase;
+import com.example.sammengistu.stuck.model.StuckPostSimple;
 
 import android.app.Activity;
 import android.app.FragmentManager;
@@ -24,7 +24,6 @@ public class MyPostListADViewHolder extends RecyclerView.ViewHolder {
     public TextView mStuckPostLocation;
     public TextView mStuckPostSneakPeakChoice;
     public TextView mStuckPostTotalVotes;
-    public Firebase mRef;
 
     public String mPostEmail;
     public String mQuestion;
@@ -33,6 +32,7 @@ public class MyPostListADViewHolder extends RecyclerView.ViewHolder {
     public String mChoice2;
     public String mChoice3;
     public String mChoice4;
+    public String mRef;
 
     public int mChoice1Votes;
     public int mChoice2Votes;
@@ -59,7 +59,7 @@ public class MyPostListADViewHolder extends RecyclerView.ViewHolder {
                 stuckVoteIntent.putExtra(StuckConstants.CHOICE_2_VIEW_HOLDER, mChoice2);
                 stuckVoteIntent.putExtra(StuckConstants.CHOICE_3_VIEW_HOLDER, mChoice3);
                 stuckVoteIntent.putExtra(StuckConstants.CHOICE_4_VIEW_HOLDER, mChoice4);
-                stuckVoteIntent.putExtra(StuckConstants.FIREBASE_REF, mRef.toString());
+                stuckVoteIntent.putExtra(StuckConstants.FIREBASE_REF, mRef);
 
                 stuckVoteIntent.putExtra(StuckConstants.CHOICE_1_VOTES_VIEW_HOLDER, mChoice1Votes);
                 stuckVoteIntent.putExtra(StuckConstants.CHOICE_2_VOTES_VIEW_HOLDER, mChoice2Votes);
@@ -82,6 +82,24 @@ public class MyPostListADViewHolder extends RecyclerView.ViewHolder {
         });
     }
 
+    public static class PostWithFBRef {
+
+        private String mFirebaseRef;
+        private StuckPostSimple mStuckPostSimple;
+
+        public PostWithFBRef(String firebaseRef, StuckPostSimple stuckPostSimple) {
+            mFirebaseRef = firebaseRef;
+            mStuckPostSimple = stuckPostSimple;
+        }
+
+        public String getFirebaseRef() {
+            return mFirebaseRef;
+        }
+
+        public StuckPostSimple getStuckPostSimple() {
+            return mStuckPostSimple;
+        }
+    }
 
 }
 

@@ -31,6 +31,7 @@ public class StuckConstants {
     public static final String COLUMN_MOST_RECENT_POST = "most_recent";
     public static final String FALSE = "false";
     public static final String TRUE = "true";
+    public static final String USER_MADE_OFFLINE_POST = "User made offline post";
 
 
     public static String FIREBASE_URL = BuildConfig.UNIQUE_FIREBASE_ROOT_URL;

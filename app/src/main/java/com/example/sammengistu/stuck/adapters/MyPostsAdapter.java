@@ -14,11 +14,11 @@ import java.util.List;
 
 public class MyPostsAdapter extends RecyclerView.Adapter<MyPostListADViewHolder>{
 
-    private List<StuckPostSimple> mStuckPostSimples;
+    private List<MyPostListADViewHolder.PostWithFBRef> mStuckPostSimples;
     private Activity mActivity;
 
 
-    public MyPostsAdapter (List<StuckPostSimple> stuckPostSimples, Activity activity){
+    public MyPostsAdapter (List<MyPostListADViewHolder.PostWithFBRef> stuckPostSimples, Activity activity){
         mStuckPostSimples = stuckPostSimples;
         mActivity = activity;
     }
@@ -35,7 +35,7 @@ public class MyPostsAdapter extends RecyclerView.Adapter<MyPostListADViewHolder>
     @Override
     public void onBindViewHolder(MyPostListADViewHolder holder, int position) {
 
-        StuckPostSimple stuckPostSimple = mStuckPostSimples.get(position);
+        StuckPostSimple stuckPostSimple = mStuckPostSimples.get(position).getStuckPostSimple();
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
         holder.mStuckPostQuestion.setText(stuckPostSimple.getQuestion());
@@ -57,7 +57,7 @@ public class MyPostsAdapter extends RecyclerView.Adapter<MyPostListADViewHolder>
         String totalVote = totalVotes + "";
         holder.mStuckPostTotalVotes.setText(totalVote);
 
-//        holder.mRef = getRef(i);
+        holder.mRef = mStuckPostSimples.get(position).getFirebaseRef();
 
         //Set up stuck info for stuck vote activity
         holder.mQuestion = stuckPostSimple.getQuestion();
@@ -83,4 +83,5 @@ public class MyPostsAdapter extends RecyclerView.Adapter<MyPostListADViewHolder>
     public int getItemCount() {
         return mStuckPostSimples.size();
     }
+
 }

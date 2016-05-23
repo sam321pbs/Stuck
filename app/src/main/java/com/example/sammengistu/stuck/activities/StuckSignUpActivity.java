@@ -94,7 +94,7 @@ public class StuckSignUpActivity extends AppCompatActivity {
             .getSharedPreferences(StuckConstants.SHARED_PREFRENCE_USER, 0);
         SharedPreferences.Editor editor = pref.edit();
         //on the login store the login
-        editor.putString(StuckConstants.KEY_ENCODED_EMAIL, email);
+        editor.putString(StuckConstants.KEY_ENCODED_EMAIL, encodeEmail(email));
         editor.putString(StuckConstants.PROVIDER,
             StuckConstants.SHARED_PREFRENCE_PROVIDER_TYPE_PASSWORD);
         editor.apply();

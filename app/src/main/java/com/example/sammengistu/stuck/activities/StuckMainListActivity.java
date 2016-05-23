@@ -13,6 +13,7 @@ import com.example.sammengistu.stuck.adapters.MyPostsAdapter;
 import com.example.sammengistu.stuck.model.StuckPostSimple;
 import com.example.sammengistu.stuck.stuck_offline_db.ContentProviderStuck;
 import com.example.sammengistu.stuck.stuck_offline_db.StuckDBConverter;
+import com.example.sammengistu.stuck.viewHolders.MyPostListADViewHolder;
 import com.firebase.client.AuthData;
 import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
@@ -70,6 +71,7 @@ public class StuckMainListActivity extends AppCompatActivity
     AdapterView.OnItemSelectedListener {
 
     private static final String TAG = "StuckMainListActivity55";
+    private static final String ARGS_SCROLL_Y = "scroll position";
     private String mEmail;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
@@ -94,6 +96,7 @@ public class StuckMainListActivity extends AppCompatActivity
     @BindView(R.id.my_posts_main_list)
     TextView mMyPosts;
 
+    @SuppressWarnings("deprecation")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -152,8 +155,6 @@ public class StuckMainListActivity extends AppCompatActivity
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-
-//                refreshList();
                 showMyPosts(null);
                 mSwipeRefreshLayout.setRefreshing(false);
             }
@@ -161,8 +162,12 @@ public class StuckMainListActivity extends AppCompatActivity
 
         initializeAdapter(mActivePostsRef.orderByChild(StuckConstants.DATE_TIME_STAMP));
         setUpToolbar();
+        Log.i(TAG, "onCreate");
+    }
 
-
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
     }
 
     public static void takeUserToLoginScreenOnUnAuth(Activity activity) {
@@ -177,6 +182,8 @@ public class StuckMainListActivity extends AppCompatActivity
     private void initializeAdapter(Query queryRef) {
         if (!NetworkStatus.isOnline(StuckMainListActivity.this)) {
             NetworkStatus.showOffLineDialog(StuckMainListActivity.this);
+            List<MyPostListADViewHolder.PostWithFBRef> stuckPostSimples = new ArrayList<>();
+            mAdapter = new MyPostsAdapter(stuckPostSimples, StuckMainListActivity.this);
         } else {
 
             mAdapter = new CardViewListFBAdapter(StuckPostSimple.class,
@@ -227,7 +234,7 @@ public class StuckMainListActivity extends AppCompatActivity
 
     private void setMyPostAdapter() {
 
-        final List<StuckPostSimple> stuckPostList = new ArrayList<>();
+        final List<MyPostListADViewHolder.PostWithFBRef> stuckPostList = new ArrayList<>();
 
         Query queryRef = mActivePostsRef.orderByChild(StuckConstants.FIREBASE_EMAIL)
             .equalTo(StuckSignUpActivity.encodeEmail(mEmail));
@@ -235,9 +242,15 @@ public class StuckMainListActivity extends AppCompatActivity
         queryRef.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                stuckPostList.add(dataSnapshot.getValue(StuckPostSimple.class));
+                Log.i(TAG, "FB ref = " + dataSnapshot.getRef().toString());
 
-                List<StuckPostSimple> temp = new ArrayList<>();
+                MyPostListADViewHolder.PostWithFBRef postWithFBRef =
+                    new MyPostListADViewHolder.PostWithFBRef(
+                        dataSnapshot.getRef().toString(), dataSnapshot.getValue(StuckPostSimple.class));
+
+                stuckPostList.add(postWithFBRef);
+
+                List<MyPostListADViewHolder.PostWithFBRef> temp = new ArrayList<>();
                 //reverses the list to show most recent first
                 for (int i = stuckPostList.size() - 1; i >= 0; i--) {
                     temp.add(stuckPostList.get(i));
@@ -388,12 +401,17 @@ public class StuckMainListActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
-        //Check if db has user posts
-        getLoaderManager().initLoader(StuckConstants.LOADER_ID, null, this);
-        initializeAdapter(mActivePostsRef.orderByChild(StuckConstants.DATE_TIME_STAMP));
-        getFirstPostToPutInDB();
-        mAdapter.notifyDataSetChanged();
-        Toast.makeText(this, mEmail, Toast.LENGTH_LONG).show();
+        SharedPreferences pref = getApplicationContext()
+            .getSharedPreferences(StuckConstants.SHARED_PREFRENCE_USER, 0); // 0 - for private mode
+
+        if (pref.getBoolean(StuckConstants.USER_MADE_OFFLINE_POST, true)) {
+            //Check if db has user posts
+            getLoaderManager().initLoader(StuckConstants.LOADER_ID, null, this);
+            initializeAdapter(mActivePostsRef.orderByChild(StuckConstants.DATE_TIME_STAMP));
+            getFirstPostToPutInDB();
+            mAdapter.notifyDataSetChanged();
+        }
+//        Toast.makeText(this, mEmail, Toast.LENGTH_LONG).show();
     }
 
     @Override
