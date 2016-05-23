@@ -22,6 +22,8 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -128,6 +130,7 @@ public class StuckNewPostActivity extends AppCompatActivity implements
         mMyChoicesRecyclerView.setAdapter(mAdapter);
     }
 
+    @SuppressWarnings("deprecation")
     private void setUpToolbar() {
 
         setSupportActionBar(mNewPostToolbar);
@@ -136,10 +139,14 @@ public class StuckNewPostActivity extends AppCompatActivity implements
         ActionBar ab = getSupportActionBar();
 
         if (ab != null) {
+            final Drawable upArrow = getResources().getDrawable(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
+            upArrow.setColorFilter(getResources().getColor(R.color.colorWhite), PorterDuff.Mode.SRC_ATOP);
+
             // Enable the Up button
             ab.setDisplayHomeAsUpEnabled(true);
 
             getSupportActionBar().setDisplayShowTitleEnabled(false);
+            getSupportActionBar().setHomeAsUpIndicator(upArrow);
         }
     }
 

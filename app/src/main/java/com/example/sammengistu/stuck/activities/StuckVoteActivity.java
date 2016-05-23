@@ -13,6 +13,8 @@ import com.firebase.client.ValueEventListener;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -210,6 +212,7 @@ public class StuckVoteActivity extends AppCompatActivity {
      * Sets up the toolbar for the activity and if the current user is the creater of the post they
      * have the choice to delete it
      */
+    @SuppressWarnings("deprecation")
     private void setUpToolbar() {
 
         setSupportActionBar(mVoteToolbar);
@@ -218,9 +221,13 @@ public class StuckVoteActivity extends AppCompatActivity {
         ActionBar ab = getSupportActionBar();
 
         if (ab != null) {
+            final Drawable upArrow = getResources().getDrawable(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
+            upArrow.setColorFilter(getResources().getColor(R.color.colorWhite), PorterDuff.Mode.SRC_ATOP);
+
             // Enable the Up button
             ab.setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowTitleEnabled(false);
+            getSupportActionBar().setHomeAsUpIndicator(upArrow);
         }
 
         Log.i(TAG, "Post email = " + mStuckPostSimple.getEmail().replaceAll("\\s" , "") + " user email = "
