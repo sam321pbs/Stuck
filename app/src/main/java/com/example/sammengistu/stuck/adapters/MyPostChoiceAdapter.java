@@ -6,6 +6,7 @@ import com.example.sammengistu.stuck.viewHolders.MyPostChoiceADViewHolder;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.PorterDuff;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
@@ -51,6 +52,7 @@ public class MyPostChoiceAdapter extends RecyclerView.Adapter<MyPostChoiceADView
     }
 
     // Replace the contents of a view (invoked by the layout manager)
+    @SuppressWarnings("deprecation")
     @Override
     public void onBindViewHolder(final MyPostChoiceADViewHolder holder, int position) {
         // - get element from your dataset at this position
@@ -92,6 +94,9 @@ public class MyPostChoiceAdapter extends RecyclerView.Adapter<MyPostChoiceADView
         };
 
         holder.mChoiceEditText.setOnLongClickListener(deleteChoiceListener);
+        holder.mChoiceEditText.getBackground().mutate().setColorFilter(mAppContext.getResources()
+            .getColor(R.color.shade), PorterDuff.Mode.SRC_ATOP);
+
         holder.mChoiceEditText.setText(mChoiceDataSet.get(pos).getChoice());
         holder.mChoiceEditText.addTextChangedListener(new TextWatcher() {
             @Override

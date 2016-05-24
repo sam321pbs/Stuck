@@ -25,6 +25,7 @@ import com.firebase.ui.FirebaseRecyclerAdapter;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.ActivityOptions;
 import android.app.LoaderManager;
 import android.content.CursorLoader;
 import android.content.Intent;
@@ -34,6 +35,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.location.Location;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -44,6 +46,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.transition.Explode;
+import android.transition.Fade;
+import android.transition.Slide;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
@@ -51,6 +56,7 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.FrameLayout;
 import android.widget.TextView;
@@ -96,10 +102,31 @@ public class StuckMainListActivity extends AppCompatActivity
     @BindView(R.id.my_posts_main_list)
     TextView mMyPosts;
 
+    private void setupWindowAnimations() {
+        Fade fade = new Fade();
+        fade.setDuration(1000);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            // inside your activity (if you did not enable transitions in your theme)
+            getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
+
+            getWindow().setEnterTransition(fade);
+
+            Slide slide = new Slide();
+            slide.setDuration(1000);
+            getWindow().setReturnTransition(slide);
+
+            // set an exit transition
+            getWindow().setExitTransition(new Explode());
+        }
+    }
+
     @SuppressWarnings("deprecation")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        setupWindowAnimations();
+
         setContentView(R.layout.activity_stuck_main_list);
 
         ButterKnife.bind(this);
@@ -163,6 +190,7 @@ public class StuckMainListActivity extends AppCompatActivity
         initializeAdapter(mActivePostsRef.orderByChild(StuckConstants.DATE_TIME_STAMP));
         setUpToolbar();
         Log.i(TAG, "onCreate");
+
     }
 
     @Override
@@ -279,6 +307,12 @@ public class StuckMainListActivity extends AppCompatActivity
 
             }
         });
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
     }
 
     private void showMyPosts(MenuItem item) {
@@ -410,7 +444,6 @@ public class StuckMainListActivity extends AppCompatActivity
             getFirstPostToPutInDB();
             mAdapter.notifyDataSetChanged();
         }
-//        Toast.makeText(this, mEmail, Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -426,7 +459,6 @@ public class StuckMainListActivity extends AppCompatActivity
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         Uri contentUri = Uri.withAppendedPath(ContentProviderStuck.CONTENT_URI,
             StuckConstants.TABLE_OFFLINE_POST);
-
 
         CursorLoader loader = new CursorLoader(
             this,
@@ -543,7 +575,12 @@ public class StuckMainListActivity extends AppCompatActivity
     @OnClick(R.id.fab_add)
     public void setNewPostFAB(View view) {
         Intent intent = new Intent(this, StuckNewPostActivity.class);
-        startActivity(intent);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            startActivity(intent,
+                ActivityOptions.makeSceneTransitionAnimation(this).toBundle());
+        } else {
+            startActivity(intent);
+        }
     }
 
     @OnClick(R.id.my_posts_main_list)

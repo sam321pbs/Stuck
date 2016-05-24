@@ -16,6 +16,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
@@ -23,8 +24,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.transition.Explode;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -108,6 +111,7 @@ public class StuckVoteActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setupWindowAnimations();
         setContentView(R.layout.activity_stuck_vote);
         ButterKnife.bind(this);
 
@@ -245,6 +249,22 @@ public class StuckVoteActivity extends AppCompatActivity {
 
             mDeleteImageView.setEnabled(true);
             mDeleteImageView.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    private void setupWindowAnimations() {
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            // inside your activity (if you did not enable transitions in your theme)
+            getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
+
+            Explode explode = new Explode();
+            explode.setDuration(400);
+
+            getWindow().setEnterTransition(explode);
+
+            // set an exit transition
+            getWindow().setExitTransition(new Explode());
         }
     }
 

@@ -36,6 +36,7 @@
         <EditText android:id="@+id/my_post_edit_text"
                   android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
+                  android:theme="@style/MyEditTextTheme"
                   android:hint="@string/type_your_question_post_here"
                   android:layout_gravity="center"
                   android:layout_margin="@dimen/margin_edit_text_my_post"/>

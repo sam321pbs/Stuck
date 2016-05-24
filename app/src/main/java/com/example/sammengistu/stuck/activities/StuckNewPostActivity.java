@@ -18,6 +18,7 @@ import com.firebase.client.Firebase;
 import com.firebase.client.ServerValue;
 
 import android.Manifest;
+import android.app.ActivityOptions;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -27,6 +28,7 @@ import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -38,8 +40,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.transition.Explode;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -80,6 +84,7 @@ public class StuckNewPostActivity extends AppCompatActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setupWindowAnimations();
         setContentView(R.layout.activity_new_stuck_post);
         ButterKnife.bind(this);
 
@@ -221,7 +226,13 @@ public class StuckNewPostActivity extends AppCompatActivity implements
 
 
         Intent intent = new Intent(StuckNewPostActivity.this, StuckMainListActivity.class);
-        startActivity(intent);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            startActivity(intent,
+                ActivityOptions.makeSceneTransitionAnimation(this).toBundle());
+        } else {
+            startActivity(intent);
+        }
     }
 
     private class SaveSimplePostToDBTask extends AsyncTask<Void, Void, Void> {
@@ -285,6 +296,23 @@ public class StuckNewPostActivity extends AppCompatActivity implements
                 Toast.makeText(StuckNewPostActivity.this,
                     "Offline: will make your post later.", Toast.LENGTH_LONG).show();
             }
+        }
+    }
+
+
+    private void setupWindowAnimations() {
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            // inside your activity (if you did not enable transitions in your theme)
+            getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
+
+            Explode explode = new Explode();
+            explode.setDuration(400);
+
+            getWindow().setEnterTransition(explode);
+
+            // set an exit transition
+            getWindow().setExitTransition(new Explode());
         }
     }
 

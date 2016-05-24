@@ -10,6 +10,12 @@
 
     </style>
 
+    <style name="MyEditTextTheme">
+        <!-- Used for the bottom line when not selected / focused -->
+        <item name="colorControlNormal">#9e9e9e</item>
+        <!-- colorControlActivated & colorControlHighlight use the colorAccent color by default -->
+    </style>
+
     <style name="card_view_basic_style">
 
         <item name="android:layout_marginEnd">@dimen/question_margins</item>

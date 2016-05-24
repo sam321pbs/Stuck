@@ -8,4 +8,5 @@
     <color name="colorVoted">#64f46b</color>
     <color name="buttonStartCol">#d9d2d2</color>
     <color name="buttonEndCol">#8f9ac4</color>
+    <color name="shade">#797070</color>
 </resources>

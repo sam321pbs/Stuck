@@ -16,6 +16,7 @@
                 android:id="@+id/my_choice_edit_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:theme="@style/MyEditTextTheme"
                 android:layout_margin="@dimen/margin_edit_text_my_post"
                 android:hint="@string/type_your_choice_here"/>
 

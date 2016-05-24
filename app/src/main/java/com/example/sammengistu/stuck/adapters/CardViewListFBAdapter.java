@@ -10,8 +10,10 @@ import com.firebase.client.Query;
 import com.firebase.ui.FirebaseRecyclerAdapter;
 
 import android.app.Activity;
+import android.app.ActivityOptions;
 import android.app.FragmentManager;
 import android.content.Intent;
+import android.os.Build;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.TextView;
@@ -136,7 +138,19 @@ public class CardViewListFBAdapter extends FirebaseRecyclerAdapter<StuckPostSimp
                     stuckVoteIntent.putExtra(StuckConstants.CHOICE_3_VOTES_VIEW_HOLDER, mChoice3Votes);
                     stuckVoteIntent.putExtra(StuckConstants.CHOICE_4_VOTES_VIEW_HOLDER, mChoice4Votes);
 
-                    CardViewListFBAdapter.mShowPostActivity.startActivity(stuckVoteIntent);
+
+                    //TODO: cHeck that its 21 and greater
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        // only for gingerbread and newer versions
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                            CardViewListFBAdapter.mShowPostActivity.startActivity(stuckVoteIntent,
+                                ActivityOptions.makeSceneTransitionAnimation(
+                                    CardViewListFBAdapter.mShowPostActivity).toBundle());
+                        } else {
+                            CardViewListFBAdapter.mShowPostActivity.startActivity(stuckVoteIntent);
+                        }
+                    }
+
                 }
             });
 
