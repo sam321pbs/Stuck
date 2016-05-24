@@ -150,6 +150,61 @@ public class StuckSignUpActivity extends AppCompatActivity {
         });
     }
 
+    private void createUserInFBHelper(String emailUser){
+        final String encodedEmail = encodeEmail(emailUser);
+        final Firebase userLocation = new Firebase(StuckConstants.FIREBASE_URL)
+            .child(StuckConstants.FIREBASE_URL_USERS)
+            .child(encodedEmail);
+
+        final ProgressDialog dialog = new ProgressDialog(this);
+        dialog.setMessage("Creating account");
+        dialog.show();
+
+        /**
+         * See if there is already a user (for example, if they already logged in with an associated
+         * Google account.
+         */
+        userLocation.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                Log.i(TAG, dataSnapshot + "");
+                /* If there is no user, make one */
+                if (dataSnapshot.getValue() == null) {
+                                        /* Set raw version of date to the ServerValue.TIMESTAMP value and save into dateCreatedMap */
+                    HashMap<String, Object> timestampJoined = new HashMap<>();
+                    timestampJoined.put(StuckConstants.FIREBASE_PROPERTY_TIMESTAMP, ServerValue.TIMESTAMP);
+
+                    createUser(dialog);
+
+
+                    User newUser = new User(encodedEmail, timestampJoined);
+                    userLocation.setValue(encodedEmail);
+
+                    Firebase userLocationToAddTo = new Firebase(StuckConstants.FIREBASE_URL)
+                        .child(StuckConstants.FIREBASE_URL_USERS).child(encodedEmail);
+
+                    userLocationToAddTo.setValue(newUser, new Firebase.CompletionListener() {
+                        @Override
+                        public void onComplete(FirebaseError firebaseError, Firebase firebase) {
+                            if (firebaseError != null){
+                                Log.i(TAG, firebaseError.getMessage());
+                            }
+                        }
+                    });
+                } else {
+                    Toast.makeText(StuckSignUpActivity.this, "User already exists", Toast.LENGTH_LONG).show();
+                    dialog.dismiss();
+                }
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+                Log.d(TAG, "Error logging in" + firebaseError.getMessage());
+            }
+        });
+    }
+
     /**
      * Firebase doesnt allow periods so the period is replaced with a comma
      * @param userEmail - normal email
@@ -231,37 +286,11 @@ public class StuckSignUpActivity extends AppCompatActivity {
         if (NetworkStatus.isOnline(this)) {
             if (allFieldsAreEntered() && passwordsMatch(mPasswordField,
                 mRE_EnterField) && vaildEmail(mEmailField)) {
+
                 if (mPasswordField.getText().toString().length() >= 5) {
-                    final ProgressDialog dialog = new ProgressDialog(this);
-                    dialog.setMessage(getString(R.string.creating_account_dialog));
-                    dialog.show();
 
-                    mFirebaseRef.createUser(mEmailField.getText().toString(),
-                        mPasswordField.getText().toString(),
-                        new Firebase.ValueResultHandler<Map<String, Object>>() {
-                            @Override
-                            public void onSuccess(Map<String, Object> stringObjectMap) {
-                                Log.i(TAG, "Successfully created user account with uid: " + stringObjectMap.get("uid"));
-                                dialog.dismiss();
+                   createUserInFBHelper(encodeEmail(mEmailField.getText().toString()));
 
-                                mEncodedEmail = encodeEmail(mEmailField.getText().toString());
-                                createUserInFirebaseHelper(mEncodedEmail);
-
-                                Log.i(TAG, "after created user in db");
-                                putEmailInSharedPref(mEncodedEmail);
-
-                                Intent intent = new Intent(StuckSignUpActivity.this,
-                                    StuckLoginActivity.class);
-                                startActivity(intent);
-                            }
-
-                            @Override
-                            public void onError(FirebaseError firebaseError) {
-                                dialog.dismiss();
-                                Toast.makeText(StuckSignUpActivity.this, R.string.error_toast, Toast.LENGTH_LONG).show();
-                                Log.i(TAG, firebaseError.getMessage());
-                            }
-                        });
                 } else {
                     Toast.makeText(this, R.string.make_password_longer, Toast.LENGTH_LONG).show();
                 }
@@ -269,5 +298,35 @@ public class StuckSignUpActivity extends AppCompatActivity {
         } else {
             NetworkStatus.showOffLineDialog(this);
         }
+    }
+
+    private void createUser(final ProgressDialog dialog){
+        mFirebaseRef.createUser(mEmailField.getText().toString(),
+            mPasswordField.getText().toString(),
+            new Firebase.ValueResultHandler<Map<String, Object>>() {
+                @Override
+                public void onSuccess(Map<String, Object> stringObjectMap) {
+                    Log.i(TAG, "Successfully created user account with uid: " + stringObjectMap.get("uid"));
+                    dialog.dismiss();
+
+                    mEncodedEmail = encodeEmail(mEmailField.getText().toString());
+                    createUserInFirebaseHelper(mEncodedEmail);
+
+                    Log.i(TAG, "after created user in db");
+                    putEmailInSharedPref(mEncodedEmail);
+
+                    Intent intent = new Intent(StuckSignUpActivity.this,
+                        StuckLoginActivity.class);
+                    startActivity(intent);
+                }
+
+                @Override
+                public void onError(FirebaseError firebaseError) {
+                    dialog.dismiss();
+                    Toast.makeText(StuckSignUpActivity.this,
+                        R.string.error_toast, Toast.LENGTH_LONG).show();
+                    Log.i(TAG, firebaseError.getMessage());
+                }
+            });
     }
 }
