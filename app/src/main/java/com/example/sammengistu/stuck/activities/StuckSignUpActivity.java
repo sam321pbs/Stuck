@@ -177,7 +177,6 @@ public class StuckSignUpActivity extends AppCompatActivity {
 
                     createUser(dialog);
 
-
                     User newUser = new User(encodedEmail, timestampJoined);
                     userLocation.setValue(encodedEmail);
 

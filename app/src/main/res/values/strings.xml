@@ -36,7 +36,7 @@
     <string name="delete_choice">Delete choice</string>
     <string name="choice">Choice</string>
     <string name="_0">0</string>
-    <string name="login_error_user_does_not_exist">User does not exist</string>
+    <string name="login_error_user_does_not_exist">User does not exist or try Google sign in</string>
     <string name="login_error_invalid_password">Invalid password</string>
     <string name="login_error_error_logging_in">Error Logging in, try again</string>
     <string name="enter_your_email">Enter your email</string>
