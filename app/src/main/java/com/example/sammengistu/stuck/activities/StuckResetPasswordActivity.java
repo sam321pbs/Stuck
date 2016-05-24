@@ -41,7 +41,7 @@ public class StuckResetPasswordActivity extends AppCompatActivity {
         SharedPreferences pref = getApplicationContext()
             .getSharedPreferences(StuckConstants.SHARED_PREFRENCE_USER, 0); // 0 - for private mode
 
-        mEmail = pref.getString(StuckConstants.KEY_ENCODED_EMAIL, "");
+        mEmail = pref.getString(StuckConstants.KEY_ENCODED_EMAIL, "").replace(",",".");
 
         mUserRef = new Firebase(StuckConstants.FIREBASE_URL)
             .child(StuckConstants.FIREBASE_URL_USERS)
@@ -76,7 +76,7 @@ public class StuckResetPasswordActivity extends AppCompatActivity {
 
                             @Override
                             public void onError(FirebaseError firebaseError) {
-
+                                Log.i(TAG, firebaseError.getDetails());
                             }
                         });
                 } else {

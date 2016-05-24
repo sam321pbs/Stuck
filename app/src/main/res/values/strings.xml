@@ -40,7 +40,7 @@
     <string name="login_error_invalid_password">Invalid password</string>
     <string name="login_error_error_logging_in">Error Logging in, try again</string>
     <string name="enter_your_email">Enter your email</string>
-    <string name="sent_temp_password">Sent temp password</string>
+    <string name="sent_temp_password">Send temp password</string>
     <string name="one_or_more_cards_are_empty">Oops, one or more cards are empty</string>
     <string name="please_fill_all_boxes">Please fill all boxes</string>
     <string name="make_post_when_when_back_online">Offline: will make your post when back online

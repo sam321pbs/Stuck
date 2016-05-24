@@ -112,8 +112,6 @@ public class VoteChoicesAdapter extends RecyclerView.Adapter<VoteChoicesADViewHo
         holder.mChoice.setText(currentChoice.getChoice());
         holder.mNumberOfVotes.setText(currentChoice.getVotes() + "");
 
-//        changeViewColor(currentChoice, currentViewHolder);
-
         Log.i(TAG, mStuckPostSimple.getEmail().replaceAll("\\s" , "") +
             " = " + mUserEmail.replaceAll("\\s" , ""));
 

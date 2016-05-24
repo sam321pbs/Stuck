@@ -299,7 +299,6 @@ public class StuckNewPostActivity extends AppCompatActivity implements
         }
     }
 
-
     private void setupWindowAnimations() {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
