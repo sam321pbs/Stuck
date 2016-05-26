@@ -9,14 +9,12 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ServerValue;
 
 import com.example.sammengistu.stuck.GeneralArea;
-import com.example.sammengistu.stuck.NetworkStatus;
 import com.example.sammengistu.stuck.R;
 import com.example.sammengistu.stuck.StuckConstants;
 import com.example.sammengistu.stuck.adapters.MyPostChoiceAdapter;
+import com.example.sammengistu.stuck.asynctask.SaveToDBTask;
 import com.example.sammengistu.stuck.model.Choice;
 import com.example.sammengistu.stuck.model.StuckPostSimple;
-import com.example.sammengistu.stuck.stuck_offline_db.ContentProviderStuck;
-import com.example.sammengistu.stuck.stuck_offline_db.StuckDBConverter;
 
 import android.Manifest;
 import android.app.ActivityOptions;
@@ -27,8 +25,6 @@ import android.content.pm.PackageManager;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
-import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -47,7 +43,6 @@ import android.view.View;
 import android.view.Window;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -62,14 +57,12 @@ public class StuckNewPostActivity extends AppCompatActivity implements
     GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     private static String TAG = "StuckNewPostActivity";
+
     private RecyclerView.Adapter mAdapter;
-    private RecyclerView.LayoutManager mLayoutManager;
     private List<Choice> mChoicesList;
     private DatabaseReference mRefActivePosts;
     private String mEmail;
-    private DatabaseReference mFirebaseRef;
     private GoogleApiClient mGoogleApiClient;
-
     private FirebaseAuth.AuthStateListener mAuthListener;
     private FirebaseAuth mAuth;
 
@@ -83,20 +76,6 @@ public class StuckNewPostActivity extends AppCompatActivity implements
     TextView mNewPostDone;
     @BindView(R.id.new_stuck_post_toolbar)
     Toolbar mNewPostToolbar;
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        if (mAuthListener != null) {
-            mAuth.removeAuthStateListener(mAuthListener);
-        }
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        mAuth.addAuthStateListener(mAuthListener);
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,8 +92,8 @@ public class StuckNewPostActivity extends AppCompatActivity implements
             .getSharedPreferences(StuckConstants.SHARED_PREFRENCE_USER, 0); // 0 - for private mode
         mEmail = pref.getString(StuckConstants.KEY_ENCODED_EMAIL, "");
 
-        mFirebaseRef = FirebaseDatabase.getInstance().getReference();
-        mRefActivePosts = mFirebaseRef.child(StuckConstants.FIREBASE_URL_ACTIVE_POSTS);
+        DatabaseReference firebaseRef = FirebaseDatabase.getInstance().getReference();
+        mRefActivePosts = firebaseRef.child(StuckConstants.FIREBASE_URL_ACTIVE_POSTS);
 
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
@@ -139,11 +118,12 @@ public class StuckNewPostActivity extends AppCompatActivity implements
         mGoogleApiClient.connect();
 
         mMyChoicesRecyclerView.setHasFixedSize(true);
-        mLayoutManager = new LinearLayoutManager(this);
-        mMyChoicesRecyclerView.setLayoutManager(mLayoutManager);
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
+        mMyChoicesRecyclerView.setLayoutManager(layoutManager);
 
         mChoicesList = new ArrayList<>();
 
+        //User needs at least two choices
         mChoicesList.add(new Choice("", 0));
         mChoicesList.add(new Choice("", 0));
 
@@ -202,10 +182,8 @@ public class StuckNewPostActivity extends AppCompatActivity implements
             , Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
             ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) !=
                 PackageManager.PERMISSION_GRANTED) {
-
             return null;
         }
-
         return LocationServices.FusedLocationApi.getLastLocation(
             mGoogleApiClient);
     }
@@ -217,6 +195,11 @@ public class StuckNewPostActivity extends AppCompatActivity implements
      * the post was created
      */
     private void createPost() {
+
+        mNewPostDone.setEnabled(false);
+        ProgressDialog dialog = new ProgressDialog(this);
+        dialog.setMessage("Creating post");
+        dialog.show();
 
         /**
          * Set raw version of date to the ServerValue.TIMESTAMP value and save into
@@ -240,7 +223,7 @@ public class StuckNewPostActivity extends AppCompatActivity implements
             timestampCreated,
             (-1 * new Date().getTime()));
 
-        new SaveSimplePostToDBTask(stuckPost).execute();
+        new SaveToDBTask(stuckPost, this, dialog).execute();
 
 
         Intent intent = new Intent(StuckNewPostActivity.this, StuckMainListActivity.class);
@@ -250,70 +233,6 @@ public class StuckNewPostActivity extends AppCompatActivity implements
                 ActivityOptions.makeSceneTransitionAnimation(this).toBundle());
         } else {
             startActivity(intent);
-        }
-    }
-
-    private class SaveSimplePostToDBTask extends AsyncTask<Void, Void, Void> {
-
-        private ProgressDialog mProgressDialog;
-        private StuckPostSimple mStuckPostSimple;
-        private boolean mPostToFirebase;
-
-        public SaveSimplePostToDBTask(StuckPostSimple stuckPostSimple) {
-            mStuckPostSimple = stuckPostSimple;
-            mProgressDialog = new ProgressDialog(StuckNewPostActivity.this);
-            mPostToFirebase = true;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            mProgressDialog.setMessage("Uploading post...");
-            mProgressDialog.show();
-        }
-
-        @Override
-        protected Void doInBackground(Void... params) {
-
-            if (!NetworkStatus.isOnline(StuckNewPostActivity.this)) {
-
-                mPostToFirebase = false;
-
-                Uri contentUri = Uri.withAppendedPath(ContentProviderStuck.CONTENT_URI,
-                    StuckConstants.TABLE_OFFLINE_POST);
-
-                getContentResolver().insert(contentUri,
-                    StuckDBConverter.insertStuckPostToDB(mStuckPostSimple, StuckConstants.FALSE));
-            }
-            return null;
-        }
-
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            mProgressDialog.dismiss();
-
-            SharedPreferences pref = getApplicationContext()
-                .getSharedPreferences(StuckConstants.SHARED_PREFRENCE_USER, 0);
-
-            SharedPreferences.Editor editor = pref.edit();
-
-            if (mPostToFirebase) {
-                mRefActivePosts.push().setValue(mStuckPostSimple);
-                editor.putBoolean(StuckConstants.USER_MADE_OFFLINE_POST,
-                    false);
-
-                editor.apply();
-            } else {
-
-
-                editor.putBoolean(StuckConstants.USER_MADE_OFFLINE_POST,
-                    true);
-
-                editor.apply();
-
-                Toast.makeText(StuckNewPostActivity.this,
-                    "Offline: will make your post later.", Toast.LENGTH_LONG).show();
-            }
         }
     }
 
@@ -331,6 +250,20 @@ public class StuckNewPostActivity extends AppCompatActivity implements
             // set an exit transition
             getWindow().setExitTransition(new Explode());
         }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (mAuthListener != null) {
+            mAuth.removeAuthStateListener(mAuthListener);
+        }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        mAuth.addAuthStateListener(mAuthListener);
     }
 
     @OnClick(R.id.add_choice_button)

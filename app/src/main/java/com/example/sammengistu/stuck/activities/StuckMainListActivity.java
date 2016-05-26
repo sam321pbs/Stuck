@@ -53,7 +53,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.transition.Explode;
-import android.transition.Fade;
 import android.transition.Slide;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -91,7 +90,7 @@ public class StuckMainListActivity extends AppCompatActivity
     private List<StuckPostSimple> stuckPostsLoaded;
     private GoogleApiClient mGoogleApiClient;
     private boolean mShowMyPosts;
-    List<MyPostListADViewHolder.PostWithFBRef> stuckPostList = new ArrayList<>();
+    private List<MyPostListADViewHolder.PostWithFBRef> stuckPostList;
 
     private DatabaseReference mActivePostsRef;
 
@@ -114,14 +113,12 @@ public class StuckMainListActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setupWindowAnimations();
-
         setContentView(R.layout.activity_stuck_main_list);
-
         ButterKnife.bind(this);
 
         mAuth = FirebaseAuth.getInstance();
+        stuckPostList = new ArrayList<>();
 
         mShowMyPosts = false;
 
@@ -163,12 +160,6 @@ public class StuckMainListActivity extends AppCompatActivity
 
         mGoogleApiClient.connect();
 
-        // Load an ad into the AdMob banner view.
-//        AdView adView = (AdView) findViewById(R.id.adView);
-//        AdRequest adRequest = new AdRequest.Builder()
-//            .setRequestAgent("android_studio:ad_template").build();
-//        adView.loadAd(adRequest);
-
         // use a linear layout manager
         mLayoutManager = new LinearLayoutManager(this);
 
@@ -193,11 +184,6 @@ public class StuckMainListActivity extends AppCompatActivity
 
     }
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-    }
-
     public static void takeUserToLoginScreenOnUnAuth(Activity activity) {
         Intent intent = new Intent(activity, StuckLoginActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -209,7 +195,7 @@ public class StuckMainListActivity extends AppCompatActivity
      */
     private void initializeAdapter() {
 
-        Query queryRef = mActivePostsRef.orderByChild(StuckConstants.DATE_TIME_STAMP);
+        Query byTimeStampQueryRef = mActivePostsRef.orderByChild(StuckConstants.DATE_TIME_STAMP);
         stuckPostList = new ArrayList<>();
 
         final List<StuckPostSimple> stuckPostSimples = new ArrayList<>();
@@ -219,7 +205,7 @@ public class StuckMainListActivity extends AppCompatActivity
 
         } else {
 
-            queryRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            byTimeStampQueryRef.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
 
@@ -271,9 +257,9 @@ public class StuckMainListActivity extends AppCompatActivity
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+
             case R.id.action_my_posts:
                 mShowMyPosts = !mShowMyPosts;
-
                 showMyPosts(item);
                 break;
             case R.id.action_log_out:
@@ -284,9 +270,9 @@ public class StuckMainListActivity extends AppCompatActivity
             case R.id.action_delete_account:
 
                 new AlertDialog.Builder(this)
-                    .setTitle("We hate to see you go :(")
-                    .setMessage("Are you sure you want to delete your account?")
-                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    .setTitle(getString(R.string.delete_account_dialog_title))
+                    .setMessage(getString(R.string.delete_account_dialog_message))
+                    .setPositiveButton(getString(R.string.yes), new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
@@ -307,7 +293,7 @@ public class StuckMainListActivity extends AppCompatActivity
                             }
                         }
                     })
-                    .setNegativeButton("No, thanks", null)
+                    .setNegativeButton(getString(R.string.no_thanks), null)
                     .show();
                 break;
 
@@ -318,6 +304,14 @@ public class StuckMainListActivity extends AppCompatActivity
         return true;
     }
 
+    /**
+     * Deletes the users account from Auth
+     * Deletes users saved votes
+     * Deletes users account off the database
+     * @param user - used to delete user
+     * @param queryRef - to delete all posts
+     * @param userEncodedEmail - to delete votes and account info from db
+     */
     private void deleteAccount(FirebaseUser user, final Query queryRef, String userEncodedEmail) {
 
         //Delete user votes
@@ -342,7 +336,7 @@ public class StuckMainListActivity extends AppCompatActivity
                         deleteAllUsersStuckPosts(queryRef);
 
                         Toast.makeText(StuckMainListActivity.this,
-                            "Your account was deleted",
+                            R.string.account_was_deleted,
                             Toast.LENGTH_LONG).show();
                         Intent intent = new Intent(StuckMainListActivity.this,
                             StuckLoginActivity.class);
@@ -358,6 +352,10 @@ public class StuckMainListActivity extends AppCompatActivity
             });
     }
 
+    /**
+     * Deletes users posts by first querying all their posts and using the ref to remove values
+     * @param queryRef - to delete all posts
+     */
     private void deleteAllUsersStuckPosts(Query queryRef) {
 
         final List<DatabaseReference> userPosts = new ArrayList<>();
@@ -380,7 +378,6 @@ public class StuckMainListActivity extends AppCompatActivity
                     userPostRef.removeValue();
                 }
             }
-
             @Override
             public void onCancelled(DatabaseError databaseError) {
 
@@ -388,6 +385,10 @@ public class StuckMainListActivity extends AppCompatActivity
         });
     }
 
+    /**
+     * querys all posts that are equal to the users email
+     * then flips the returned results so the posts are in timestamp order
+     */
     private void setMyPostAdapter() {
 
         stuckPostList = new ArrayList<>();
@@ -426,33 +427,27 @@ public class StuckMainListActivity extends AppCompatActivity
 
                 @Override
                 public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                    Log.i(TAG, "chan");
                 }
 
                 @Override
                 public void onChildRemoved(DataSnapshot dataSnapshot) {
-                    Log.i(TAG, "removed");
                 }
 
                 @Override
                 public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-                    Log.i(TAG, "mov");
                 }
 
                 @Override
                 public void onCancelled(DatabaseError databaseError) {
-                    Log.i(TAG, "canceled");
                 }
             }
         );
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-
-    }
-
+    /**
+     * If user selects show my posts calls the appropriate method to update the adapter
+     * @param item - if menu item is null it will show all posts and if not shows users posts
+     */
     private void showMyPosts(MenuItem item) {
         Log.i(TAG, "Show my post = " + mShowMyPosts);
         if (mShowMyPosts) {
@@ -474,13 +469,6 @@ public class StuckMainListActivity extends AppCompatActivity
 
     private void setUpToolbar() {
         mMainListToolbar.inflateMenu(R.menu.menu_main);
-        mMainListToolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                Toast.makeText(StuckMainListActivity.this, "Yo", Toast.LENGTH_LONG).show();
-                return false;
-            }
-        });
 
         setSupportActionBar(mMainListToolbar);
 
@@ -570,24 +558,66 @@ public class StuckMainListActivity extends AppCompatActivity
         );
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        SharedPreferences pref = getApplicationContext()
-            .getSharedPreferences(StuckConstants.SHARED_PREFRENCE_USER, 0); // 0 - for private mode
+    private Location getLastKnownLocation() {
 
-        if (pref.getBoolean(StuckConstants.USER_MADE_OFFLINE_POST, true)) {
-            //Check if db has user posts
-            getLoaderManager().initLoader(StuckConstants.LOADER_ID, null, this);
-            getFirstPostToPutInDB();
-            mAdapter.notifyDataSetChanged();
+        if (ActivityCompat.checkSelfPermission(this
+            , Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+            ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) !=
+                PackageManager.PERMISSION_GRANTED) {
+
+            return null;
+        }
+
+        return LocationServices.FusedLocationApi.getLastLocation(
+            mGoogleApiClient);
+    }
+
+    /**
+     * If their are posts in the local database you can add them to firebase then delete them
+     * from the local database
+     */
+    private void addNewPostsToFirebase() {
+        if (stuckPostsLoaded.size() > 0 && NetworkStatus.isOnline(this)) {
+            for (int i = 0; i < stuckPostsLoaded.size(); i++) {
+                StuckPostSimple stuckPostSimple = stuckPostsLoaded.get(i);
+                stuckPostSimple.setLocation(GeneralArea.getAddressOfCurrentLocation(getLastKnownLocation(), this));
+                //Push the post straight to firebase
+                FirebaseDatabase.getInstance().getReference().child(
+                    StuckConstants.FIREBASE_URL_ACTIVE_POSTS).push().setValue(stuckPostSimple);
+
+                Uri contentUri = Uri.withAppendedPath(ContentProviderStuck.CONTENT_URI,
+                    StuckConstants.TABLE_OFFLINE_POST);
+
+                Log.i(TAG, "Deleted db = " + this.getContentResolver().delete(contentUri,
+                    StuckConstants.COLUMN_QUESTION + " = ?", new String[]{stuckPostSimple.getQuestion()}));
+
+            }
+
+            getLoaderManager().restartLoader(StuckConstants.LOADER_ID, null, this);
         }
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        mAuth.removeAuthStateListener(mAuthListener);
+    /**
+     * Sets up window animation if build version is greater than 21
+     * Uses explode to enter or exit
+     */
+    private void setupWindowAnimations() {
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            Explode explode = new Explode();
+            explode.setDuration(1000);
+            // inside your activity (if you did not enable transitions in your theme)
+            getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
+
+            getWindow().setEnterTransition(explode);
+
+            Slide slide = new Slide();
+            slide.setDuration(1000);
+            getWindow().setReturnTransition(slide);
+
+            // set an exit transition
+            getWindow().setExitTransition(new Explode());
+        }
     }
 
     @Override
@@ -604,6 +634,7 @@ public class StuckMainListActivity extends AppCompatActivity
             null);
     }
 
+
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
 
@@ -614,8 +645,9 @@ public class StuckMainListActivity extends AppCompatActivity
 
             while (!data.isAfterLast()) {
 
+                //Loads posts that were saved offline
                 if (data.getString(data.getColumnIndex(StuckConstants.COLUMN_MOST_RECENT_POST))
-                    .equals("false")) {
+                    .equals(StuckConstants.FALSE)) {
 
                     String stuckEmail = data.getString(data
                         .getColumnIndex(StuckConstants.COLUMN_EMAIL));
@@ -656,55 +688,10 @@ public class StuckMainListActivity extends AppCompatActivity
         addNewPostsToFirebase();
     }
 
-    private Location getLastKnownLocation() {
-
-        if (ActivityCompat.checkSelfPermission(this
-            , Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-            ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) !=
-                PackageManager.PERMISSION_GRANTED) {
-
-            return null;
-        }
-
-        return LocationServices.FusedLocationApi.getLastLocation(
-            mGoogleApiClient);
-    }
-
-    /**
-     * If their are posts in the local database you can add them to firebase then delete them
-     */
-    private void addNewPostsToFirebase() {
-        if (stuckPostsLoaded.size() > 0 && NetworkStatus.isOnline(this)) {
-            for (int i = 0; i < stuckPostsLoaded.size(); i++) {
-                StuckPostSimple stuckPostSimple = stuckPostsLoaded.get(i);
-                stuckPostSimple.setLocation(GeneralArea.getAddressOfCurrentLocation(getLastKnownLocation(), this));
-                //Push the post straight to firebase
-                FirebaseDatabase.getInstance().getReference().child(
-                    StuckConstants.FIREBASE_URL_ACTIVE_POSTS).push().setValue(stuckPostSimple);
-
-                Uri contentUri = Uri.withAppendedPath(ContentProviderStuck.CONTENT_URI,
-                    StuckConstants.TABLE_OFFLINE_POST);
-
-                Log.i(TAG, "Deleted db = " + this.getContentResolver().delete(contentUri,
-                    StuckConstants.COLUMN_QUESTION + " = ?", new String[]{stuckPostSimple.getQuestion()}));
-
-            }
-
-            getLoaderManager().restartLoader(StuckConstants.LOADER_ID, null, this);
-        }
-    }
-
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
 
     }
-
-//    @OnClick(R.id.filter_stuck_posts)
-//    public void showFilter(View view) {
-//
-//        FilterDialog filterDialog = new FilterDialog();
-//        filterDialog.show(getSupportFragmentManager(), "Filter");
-//    }
 
     @OnClick(R.id.fab_add)
     public void setNewPostFAB(View view) {
@@ -715,6 +702,26 @@ public class StuckMainListActivity extends AppCompatActivity
         } else {
             startActivity(intent);
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        SharedPreferences pref = getApplicationContext()
+            .getSharedPreferences(StuckConstants.SHARED_PREFRENCE_USER, 0); // 0 - for private mode
+
+        if (pref.getBoolean(StuckConstants.USER_MADE_OFFLINE_POST, true)) {
+            //Check if db has user posts
+            getLoaderManager().initLoader(StuckConstants.LOADER_ID, null, this);
+            getFirstPostToPutInDB();
+            mAdapter.notifyDataSetChanged();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mAuth.removeAuthStateListener(mAuthListener);
     }
 
     @Override
@@ -760,24 +767,5 @@ public class StuckMainListActivity extends AppCompatActivity
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
 
-    }
-
-
-    private void setupWindowAnimations() {
-        Fade fade = new Fade();
-        fade.setDuration(1000);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            // inside your activity (if you did not enable transitions in your theme)
-            getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
-
-            getWindow().setEnterTransition(fade);
-
-            Slide slide = new Slide();
-            slide.setDuration(1000);
-            getWindow().setReturnTransition(slide);
-
-            // set an exit transition
-            getWindow().setExitTransition(new Explode());
-        }
     }
 }

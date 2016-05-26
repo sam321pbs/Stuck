@@ -6,7 +6,7 @@ android {
 
         config1 {
             keyAlias 'stuck-sam'
-            keyPassword '*****'
+            keyPassword '******'
             storeFile file('/tmp/stuck_app.jks')
             storePassword '*****'
         }

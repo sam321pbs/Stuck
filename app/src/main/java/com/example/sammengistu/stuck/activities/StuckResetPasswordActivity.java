@@ -28,7 +28,6 @@ public class StuckResetPasswordActivity extends AppCompatActivity {
     private static final String TAG = "ResetPasswordActivity55";
     private EditText mPasswordED;
     private EditText mReenterED;
-    private String mEmail;
     private DatabaseReference mUserRef;
 
     @Override
@@ -45,11 +44,11 @@ public class StuckResetPasswordActivity extends AppCompatActivity {
         SharedPreferences pref = getApplicationContext()
             .getSharedPreferences(StuckConstants.SHARED_PREFRENCE_USER, 0); // 0 - for private mode
 
-        mEmail = pref.getString(StuckConstants.KEY_ENCODED_EMAIL, "").replace(",", ".");
+        String email = pref.getString(StuckConstants.KEY_ENCODED_EMAIL, "").replace(",", ".");
 
         mUserRef = FirebaseDatabase.getInstance().getReference()
             .child(StuckConstants.FIREBASE_URL_USERS)
-            .child(StuckSignUpActivity.encodeEmail(mEmail));
+            .child(StuckSignUpActivity.encodeEmail(email));
 
         assert resetButton != null;
         resetButton.setOnClickListener(mResetPasswordOnClickLis);
@@ -63,23 +62,25 @@ public class StuckResetPasswordActivity extends AppCompatActivity {
                 final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                 String newPassword = mReenterED.getText().toString();
 
-                user.updatePassword(newPassword)
-                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            if (task.isSuccessful()) {
-                                Toast.makeText(StuckResetPasswordActivity.this,
-                                    "Password has been reset", Toast.LENGTH_LONG).show();
+                if (user != null) {
+                    user.updatePassword(newPassword)
+                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if (task.isSuccessful()) {
+                                    Toast.makeText(StuckResetPasswordActivity.this,
+                                        "Password has been reset", Toast.LENGTH_LONG).show();
 
-                                changeUserUsedTempToFalse();
+                                    changeUserUsedTempToFalse();
 
-                                FirebaseAuth.getInstance().signOut();
-                                Intent intent = new Intent(StuckResetPasswordActivity.this,
-                                    StuckLoginActivity.class);
-                                startActivity(intent);
+                                    FirebaseAuth.getInstance().signOut();
+                                    Intent intent = new Intent(StuckResetPasswordActivity.this,
+                                        StuckLoginActivity.class);
+                                    startActivity(intent);
+                                }
                             }
-                        }
-                    });
+                        });
+                }
             } else {
                 Toast.makeText(StuckResetPasswordActivity.this,
                     "Passwords don't match", Toast.LENGTH_LONG).show();
@@ -97,18 +98,12 @@ public class StuckResetPasswordActivity extends AppCompatActivity {
         Map<String, Object> changePasswordOnLogin = new HashMap<>();
         changePasswordOnLogin.put(StuckConstants.USER_LOGGED_IN_WITH_TEMP_PASSWORD, false);
         mUserRef.updateChildren(changePasswordOnLogin);
-//            new Firebase.CompletionListener() {
-//            @Override
-//            public void onComplete(FirebaseError firebaseError, Firebase firebase) {
-//                Log.i(TAG, firebase.getRef().toString());
-//            }
-//        }
-//        );
+
     }
 
     @Override
     protected void onDestroy(){
         super.onDestroy();
-//        mFirebaseRef.unauth();
+        FirebaseAuth.getInstance().signOut();
     }
 }

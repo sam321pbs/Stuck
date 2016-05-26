@@ -48,15 +48,13 @@ import butterknife.OnClick;
 public class StuckVoteActivity extends AppCompatActivity {
 
     private static String TAG = "StuckVoteActivity55";
-    private RecyclerView mRecyclerViewChoices;
+
     private RecyclerView.Adapter mAdapterChoices;
     private RecyclerView.LayoutManager mLayoutManagerChoices;
     private StuckPostSimple mStuckPostSimple;
     private DatabaseReference mRefPost;
-    private DatabaseReference mFirebaseRef;
     private List<VoteChoice> mStuckPostChoices;
     private SharedPreferences mSharedPreferences;
-
     private FirebaseAuth.AuthStateListener mAuthListener;
     private FirebaseAuth mAuth;
 
@@ -109,15 +107,15 @@ public class StuckVoteActivity extends AppCompatActivity {
                     mStuckPostSimple.getChoiceThreeVotes() +
                     mStuckPostSimple.getChoiceFourVotes();
 
-                mStuckPostTotalVotes.setText(totalVotes + "");
+                String totalVotesForTextView= totalVotes + "";
+                mStuckPostTotalVotes.setText(totalVotesForTextView);
                 mAdapterChoices.notifyDataSetChanged();
             } catch (Exception e){
                 Toast.makeText(StuckVoteActivity.this,
-                    "That post was deleted", Toast.LENGTH_LONG).show();
+                    R.string.that_post_was_deleted, Toast.LENGTH_LONG).show();
                 Intent intent = new Intent(StuckVoteActivity.this, StuckMainListActivity.class);
                 startActivity(intent);
             }
-
         }
 
         @Override
@@ -125,20 +123,6 @@ public class StuckVoteActivity extends AppCompatActivity {
 
         }
     };
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        if (mAuthListener != null) {
-            mAuth.removeAuthStateListener(mAuthListener);
-        }
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        mAuth.addAuthStateListener(mAuthListener);
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -170,8 +154,6 @@ public class StuckVoteActivity extends AppCompatActivity {
             (-1 * new Date().getTime())
         );
 
-        mFirebaseRef = FirebaseDatabase.getInstance().getReference();
-
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
@@ -199,7 +181,8 @@ public class StuckVoteActivity extends AppCompatActivity {
             mStuckPostSimple.getChoiceThreeVotes() +
             mStuckPostSimple.getChoiceFourVotes();
 
-        mStuckPostTotalVotes.setText(totalVotes + "");
+        String totalVotesForTextView = totalVotes + "";
+        mStuckPostTotalVotes.setText(totalVotesForTextView);
         mTotalVotesTitle.setText(R.string.post_from);
         mChoiceOneTitle.setText(R.string.total_votes);
         mPostFromTitle.setVisibility(View.INVISIBLE);
@@ -210,13 +193,13 @@ public class StuckVoteActivity extends AppCompatActivity {
      * Creates VoteChoices for all choices for the post and then creates the adapter
      */
     private void setUpRecyclerViewChoices() {
-        mRecyclerViewChoices = (RecyclerView) findViewById(R.id.recycler_view_choices_vote);
+        RecyclerView recyclerViewChoices = (RecyclerView) findViewById(R.id.recycler_view_choices_vote);
 
-        if (mRecyclerViewChoices != null) {
-            mRecyclerViewChoices.setLayoutManager(mLayoutManagerChoices);
+        if (recyclerViewChoices != null) {
+            recyclerViewChoices.setLayoutManager(mLayoutManagerChoices);
             // use this setting to improve performance if you know that changes
             // in content do not change the layout size of the RecyclerView
-            mRecyclerViewChoices.setHasFixedSize(true);
+            recyclerViewChoices.setHasFixedSize(true);
         }
 
         mStuckPostChoices = new ArrayList<>();
@@ -242,7 +225,9 @@ public class StuckVoteActivity extends AppCompatActivity {
             getIntent().getStringExtra(StuckConstants.FIREBASE_REF), mStuckPostSimple,
             firebasePostRef.getKey());
 
-        mRecyclerViewChoices.setAdapter(mAdapterChoices);
+        if (recyclerViewChoices != null) {
+            recyclerViewChoices.setAdapter(mAdapterChoices);
+        }
 
         mRefPost.addValueEventListener(mValueEventListener);
     }
@@ -269,16 +254,15 @@ public class StuckVoteActivity extends AppCompatActivity {
             getSupportActionBar().setHomeAsUpIndicator(upArrow);
         }
 
-        Log.i(TAG, "Post email = " + mStuckPostSimple.getEmail().replaceAll("\\s" , "") + " user email = "
-            + mSharedPreferences.getString(StuckConstants.KEY_ENCODED_EMAIL, "").replaceAll("\\s" , ""));
+        String space = getString(R.string.space);
 
-        if (mStuckPostSimple.getEmail().replaceAll("\\s" , "").equals(
+        if (mStuckPostSimple.getEmail().replaceAll(space , "").equals(
             mSharedPreferences.getString(
-                StuckConstants.KEY_ENCODED_EMAIL, "").replaceAll("\\s" , ""))){
+                StuckConstants.KEY_ENCODED_EMAIL, "").replaceAll(space , ""))){
 
             mDeleteImageView.setEnabled(true);
             mDeleteImageView.setVisibility(View.VISIBLE);
-            mHelpVoteMessage.setText("Your post, tap the trash can to delete it");
+            mHelpVoteMessage.setText(R.string.tap_trash_can_to_delete_post);
         } else {
 
             mDeleteImageView.setEnabled(false);
@@ -305,9 +289,9 @@ public class StuckVoteActivity extends AppCompatActivity {
     @OnClick(R.id.delete_post_image_view)
     public void setDeleteImageView(View view) {
         new AlertDialog.Builder(StuckVoteActivity.this)
-            .setTitle("Are you sure you want to delete this post?")
-            .setNegativeButton("Cancel", null)
-            .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+            .setTitle(getString(R.string.delete_post_dialog_message))
+            .setNegativeButton(getString(R.string.cancel), null)
+            .setPositiveButton(getString(R.string.delete), new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     mRefPost.removeEventListener(mValueEventListener);
@@ -329,6 +313,20 @@ public class StuckVoteActivity extends AppCompatActivity {
                 });
                 }
             }).show();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (mAuthListener != null) {
+            mAuth.removeAuthStateListener(mAuthListener);
+        }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        mAuth.addAuthStateListener(mAuthListener);
     }
 
     @Override

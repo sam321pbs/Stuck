@@ -54,7 +54,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
         dialog.setTitle(getString(R.string.send_temp_email));
 
         if (NetworkStatus.isOnline(this)) {
-            if (StuckSignUpActivity.vaildEmail(mEmailEditText)) {
+            if (StuckSignUpActivity.validEmail(mEmailEditText)) {
 
                 resetPassword();
             }
