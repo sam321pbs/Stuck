@@ -7,13 +7,13 @@
           android:orderInCategory="100"
           app:showAsAction="never"/>
 
-    <item android:id="@+id/action_share"
-          android:title="@string/share"
+    <item android:id="@+id/action_log_out"
+          android:title="@string/log_out"
           android:orderInCategory="100"
           app:showAsAction="never"/>
 
-    <item android:id="@+id/action_log_out"
-          android:title="@string/log_out"
+    <item android:id="@+id/action_delete_account"
+          android:title="@string/delete_account"
           android:orderInCategory="100"
           app:showAsAction="never"/>
 </menu>

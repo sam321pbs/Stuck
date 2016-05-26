@@ -57,4 +57,16 @@
     <string name="share">Share</string>
     <string name="log_out">Log Out</string>
 
+    <string name="stuck_credential_google_signin">vuop1oi5og6dg7t1um7mk8mo97cf0isc.apps.googleusercontent.com</string>
+    <string name="delete_account">Delete Account</string>
+    <string name="send_temp_email">Sending Temp Password</string>
+    <string name="forgot_password_error">Following errors could of occurred: \n\t 1) Incorrect email
+        \n\t 2) Don\'t have an account \n\t 3) There is an error with the server, try again later
+    </string>
+    <string name="forgot_password_error_title">Error sending temp password</string>
+    <string name="login_failed">Login failed</string>
+    <string name="invailid_email_or_all_fields_were_not_entered_toast">Invalid email or all fields
+        were not entered
+    </string>
+
 </resources>

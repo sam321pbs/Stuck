@@ -7,8 +7,10 @@ import com.example.sammengistu.stuck.dialogs.PopUpMapDialog;
 import com.example.sammengistu.stuck.model.StuckPostSimple;
 
 import android.app.Activity;
+import android.app.ActivityOptions;
 import android.app.FragmentManager;
 import android.content.Intent;
+import android.os.Build;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.TextView;
@@ -66,7 +68,17 @@ public class MyPostListADViewHolder extends RecyclerView.ViewHolder {
                 stuckVoteIntent.putExtra(StuckConstants.CHOICE_3_VOTES_VIEW_HOLDER, mChoice3Votes);
                 stuckVoteIntent.putExtra(StuckConstants.CHOICE_4_VOTES_VIEW_HOLDER, mChoice4Votes);
 
-                activity.startActivity(stuckVoteIntent);
+                //TODO: cHeck that its 21 and greater
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    // only for gingerbread and newer versions
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        activity.startActivity(stuckVoteIntent,
+                            ActivityOptions.makeSceneTransitionAnimation(
+                                activity).toBundle());
+                    } else {
+                        activity.startActivity(stuckVoteIntent);
+                    }
+                }
             }
         });
 

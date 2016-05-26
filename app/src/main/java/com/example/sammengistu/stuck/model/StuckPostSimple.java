@@ -1,14 +1,14 @@
 package com.example.sammengistu.stuck.model;
 
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.Exclude;
+import com.google.firebase.database.ServerValue;
+
 import com.example.sammengistu.stuck.StuckConstants;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.firebase.client.ServerValue;
 
 import java.util.HashMap;
 
-/**
- * Created by SamMengistu on 5/2/16.
- */
+
 public class StuckPostSimple {
 
     private String email;
@@ -25,6 +25,7 @@ public class StuckPostSimple {
     private HashMap<String, Object> timestampCreated;
     private HashMap<String, Object> timestampLastChanged;
     private long dateTimeStamp;
+    private DatabaseReference mDatabaseReference;
 
     public StuckPostSimple() {
     }
@@ -53,6 +54,14 @@ public class StuckPostSimple {
 
         this.dateTimeStamp = dateTimeStamp;
 
+    }
+
+    public DatabaseReference getDatabaseReference() {
+        return mDatabaseReference;
+    }
+
+    public void setDatabaseReference(DatabaseReference databaseReference) {
+        mDatabaseReference = databaseReference;
     }
 
     public void setLocation(String location) {
@@ -131,13 +140,13 @@ public class StuckPostSimple {
         return timestampCreated;
     }
 
-    @JsonIgnore
+    @Exclude
     public long getTimestampLastChangedLong() {
 
         return (long) timestampLastChanged.get(StuckConstants.FIREBASE_PROPERTY_TIMESTAMP);
     }
 
-    @JsonIgnore
+    @Exclude
     public long getTimestampCreatedLong() {
         return (long) timestampLastChanged.get(StuckConstants.FIREBASE_PROPERTY_TIMESTAMP);
     }

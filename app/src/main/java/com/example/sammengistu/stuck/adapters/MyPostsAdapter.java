@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MyPostsAdapter extends RecyclerView.Adapter<MyPostListADViewHolder>{
@@ -19,6 +20,7 @@ public class MyPostsAdapter extends RecyclerView.Adapter<MyPostListADViewHolder>
 
 
     public MyPostsAdapter (List<MyPostListADViewHolder.PostWithFBRef> stuckPostSimples, Activity activity){
+        mStuckPostSimples = new ArrayList<>();
         mStuckPostSimples = stuckPostSimples;
         mActivity = activity;
     }

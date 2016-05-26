@@ -1,33 +1,27 @@
 {
   "project_info": {
-    "project_number": "861485926984",
-    "project_id": "stuck-c7dd3"
+    "project_number": "153737717453",
+    "firebase_url": "https://stuck-app-sm.firebaseio.com",
+    "project_id": "stuck-app-sm",
+    "storage_bucket": "stuck-app-sm.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:861485926984:android:d76ed905c287370a",
+        "mobilesdk_app_id": "1:153737717453:android:d76ed905c287370a",
         "android_client_info": {
           "package_name": "com.example.sammengistu.stuck"
         }
       },
       "oauth_client": [
         {
-          "client_id": "861485926984-hmmknk7heqj1o4d6hl0eh7op1qt2u1fn.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.example.sammengistu.stuck",
-            "certificate_hash": "0CA134CA057CAA4D06E4E6BA98046193F77213B1"
-          }
-        },
-        {
-          "client_id": "861485926984-opvbr60731srvbteiurmlmdotsvqmnu3.apps.googleusercontent.com",
+          "client_id": "153737717453-0jtudk4u1sjj6l8h1sghbrv6g18thqbf.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyANodPeh-uB40iFcpIOkgh1qf_CjldvrKI"
+          "current_key": "AIzaSyDTb_Q2qqiDDhc-bWVGhsn8Oydayb379MQ"
         }
       ],
       "services": {
@@ -39,7 +33,7 @@
           "other_platform_oauth_client": []
         },
         "ads_service": {
-          "status": 1
+          "status": 2
         }
       }
     }

@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -30,8 +31,7 @@
 
     <android.support.v7.widget.CardView
             style="@style/card_view_basic_style"
-            android:id="@+id/my_question_card_view"
-            android:layout_below="@+id/app_bar_layout_new_post">
+            android:id="@+id/my_question_card_view">
 
         <EditText android:id="@+id/my_post_edit_text"
                   android:layout_width="wrap_content"
@@ -42,26 +42,43 @@
                   android:layout_margin="@dimen/margin_edit_text_my_post"/>
     </android.support.v7.widget.CardView>
 
-    <FrameLayout android:layout_width="match_parent"
-                 android:layout_height="match_parent"
-                 android:layout_below="@+id/my_question_card_view">
+    <LinearLayout android:layout_width="match_parent"
+                  android:orientation="vertical"
+                  android:layout_height="match_parent">
 
-        <android.support.v7.widget.RecyclerView
-                android:id="@+id/recycler_view_single_choice_view"
-                android:scrollbars="vertical"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginTop="15dp"
-                android:layout_marginBottom="20dp"/>
+        <FrameLayout android:layout_width="match_parent"
+                     android:layout_height="match_parent"
+                     android:layout_weight=".1">
 
-        <android.support.design.widget.FloatingActionButton
-                android:id="@+id/add_choice_button"
-                style="@style/floating_action_button_prop"
-                app:elevation="6dp"
-                app:fabSize="normal"
-                app:pressedTranslationZ="12dp"
-                android:layout_marginBottom="@dimen/activity_horizontal_margin"/>
+            <android.support.v7.widget.RecyclerView
+                    android:id="@+id/recycler_view_single_choice_view"
+                    android:scrollbars="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="15dp"
+                    android:layout_marginBottom="10dp"/>
 
-    </FrameLayout>
+            <android.support.design.widget.FloatingActionButton
+                    android:id="@+id/add_choice_button"
+                    style="@style/floating_action_button_prop"
+                    app:elevation="6dp"
+                    app:fabSize="normal"
+                    app:pressedTranslationZ="12dp"
+                    android:layout_marginBottom="@dimen/activity_horizontal_margin"/>
 
-</RelativeLayout>
+        </FrameLayout>
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="To delete a choice hold down on a choice till delete dialog appears"
+                android:layout_marginBottom="5dp"
+                android:gravity="center"
+                android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                android:layout_marginStart="@dimen/activity_horizontal_margin"/>
+
+    </LinearLayout>
+
+
+</LinearLayout>

@@ -3,6 +3,10 @@ package com.example.sammengistu.stuck.activities;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ServerValue;
 
 import com.example.sammengistu.stuck.GeneralArea;
 import com.example.sammengistu.stuck.NetworkStatus;
@@ -13,9 +17,6 @@ import com.example.sammengistu.stuck.model.Choice;
 import com.example.sammengistu.stuck.model.StuckPostSimple;
 import com.example.sammengistu.stuck.stuck_offline_db.ContentProviderStuck;
 import com.example.sammengistu.stuck.stuck_offline_db.StuckDBConverter;
-import com.firebase.client.AuthData;
-import com.firebase.client.Firebase;
-import com.firebase.client.ServerValue;
 
 import android.Manifest;
 import android.app.ActivityOptions;
@@ -64,11 +65,13 @@ public class StuckNewPostActivity extends AppCompatActivity implements
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     private List<Choice> mChoicesList;
-    private Firebase mRefActivePosts;
+    private DatabaseReference mRefActivePosts;
     private String mEmail;
-    private Firebase.AuthStateListener mAuthListener;
-    private Firebase mFirebaseRef;
+    private DatabaseReference mFirebaseRef;
     private GoogleApiClient mGoogleApiClient;
+
+    private FirebaseAuth.AuthStateListener mAuthListener;
+    private FirebaseAuth mAuth;
 
     @BindView(R.id.my_post_edit_text)
     EditText mQuestionEditText;
@@ -82,6 +85,20 @@ public class StuckNewPostActivity extends AppCompatActivity implements
     Toolbar mNewPostToolbar;
 
     @Override
+    public void onStop() {
+        super.onStop();
+        if (mAuthListener != null) {
+            mAuth.removeAuthStateListener(mAuthListener);
+        }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        mAuth.addAuthStateListener(mAuthListener);
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setupWindowAnimations();
@@ -90,18 +107,20 @@ public class StuckNewPostActivity extends AppCompatActivity implements
 
         setUpToolbar();
 
+        mAuth = FirebaseAuth.getInstance();
+
         SharedPreferences pref = getApplicationContext()
             .getSharedPreferences(StuckConstants.SHARED_PREFRENCE_USER, 0); // 0 - for private mode
         mEmail = pref.getString(StuckConstants.KEY_ENCODED_EMAIL, "");
 
-        mFirebaseRef = new Firebase(StuckConstants.FIREBASE_URL);
-        mRefActivePosts = new Firebase(StuckConstants.FIREBASE_URL).child(StuckConstants.FIREBASE_URL_ACTIVE_POSTS);
+        mFirebaseRef = FirebaseDatabase.getInstance().getReference();
+        mRefActivePosts = mFirebaseRef.child(StuckConstants.FIREBASE_URL_ACTIVE_POSTS);
 
-        mAuthListener = new Firebase.AuthStateListener() {
+        mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
-            public void onAuthStateChanged(AuthData authData) {
-                /* The user has been logged out */
-                if (authData == null) {
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                 /* The user has been logged out */
+                if (firebaseAuth == null) {
                     Log.i(TAG, "USer has been logged out");
                     StuckMainListActivity.takeUserToLoginScreenOnUnAuth(StuckNewPostActivity.this);
                 } else {
@@ -118,8 +137,6 @@ public class StuckNewPostActivity extends AppCompatActivity implements
             .build();
 
         mGoogleApiClient.connect();
-
-        mFirebaseRef.addAuthStateListener(mAuthListener);
 
         mMyChoicesRecyclerView.setHasFixedSize(true);
         mLayoutManager = new LinearLayoutManager(this);
@@ -207,6 +224,7 @@ public class StuckNewPostActivity extends AppCompatActivity implements
          */
         HashMap<String, Object> timestampCreated = new HashMap<>();
         timestampCreated.put(StuckConstants.FIREBASE_PROPERTY_TIMESTAMP, ServerValue.TIMESTAMP);
+
 
         StuckPostSimple stuckPost = new StuckPostSimple(
             StuckSignUpActivity.encodeEmail(mEmail),
@@ -342,11 +360,6 @@ public class StuckNewPostActivity extends AppCompatActivity implements
         }
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        mFirebaseRef.removeAuthStateListener(mAuthListener);
-    }
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {

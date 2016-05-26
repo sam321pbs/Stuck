@@ -1,5 +1,11 @@
 package com.example.sammengistu.stuck.adapters;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
 import com.example.sammengistu.stuck.NetworkStatus;
 import com.example.sammengistu.stuck.R;
 import com.example.sammengistu.stuck.StuckConstants;
@@ -7,10 +13,6 @@ import com.example.sammengistu.stuck.activities.StuckSignUpActivity;
 import com.example.sammengistu.stuck.model.StuckPostSimple;
 import com.example.sammengistu.stuck.model.VoteChoice;
 import com.example.sammengistu.stuck.viewHolders.VoteChoicesADViewHolder;
-import com.firebase.client.DataSnapshot;
-import com.firebase.client.Firebase;
-import com.firebase.client.FirebaseError;
-import com.firebase.client.ValueEventListener;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -32,10 +34,10 @@ public class VoteChoicesAdapter extends RecyclerView.Adapter<VoteChoicesADViewHo
     private List<VoteChoice> mStuckPostChoices;
     private Context mContext;
     private int mShowAnimation;
-    private Firebase mFireBaseRefForVotes;
+    private DatabaseReference mFireBaseRefForVotes;
     private StuckPostSimple mStuckPostSimple;
     private String mUserEmail;
-    private Firebase mUsersVoteValue;
+    private DatabaseReference mUsersVoteValue;
 
     // Provide a suitable constructor (depends on the kind of dataset)
     public VoteChoicesAdapter(List<VoteChoice> myDataset, Context context,
@@ -43,7 +45,8 @@ public class VoteChoicesAdapter extends RecyclerView.Adapter<VoteChoicesADViewHo
         mStuckPostChoices = myDataset;
         mContext = context;
         mShowAnimation = 0;
-        mFireBaseRefForVotes = new Firebase(fireBaseRef);
+        mFireBaseRefForVotes = FirebaseDatabase.getInstance()
+            .getReferenceFromUrl(fireBaseRef);
         mStuckPostSimple = stuckPostSimple;
 
         SharedPreferences preferences = mContext.getApplicationContext()
@@ -52,7 +55,7 @@ public class VoteChoicesAdapter extends RecyclerView.Adapter<VoteChoicesADViewHo
          mUserEmail = StuckSignUpActivity.encodeEmail(
             preferences.getString(StuckConstants.KEY_ENCODED_EMAIL, ""));
 
-        mUsersVoteValue= new Firebase(StuckConstants.FIREBASE_URL)
+        mUsersVoteValue= FirebaseDatabase.getInstance().getReference()
             .child(StuckConstants.FIREBASE_URL_USERS_VOTES).child(mUserEmail)
             .child(postKey);
     }
@@ -78,10 +81,11 @@ public class VoteChoicesAdapter extends RecyclerView.Adapter<VoteChoicesADViewHo
         final VoteChoicesADViewHolder currentViewHolder = holder;
         final VoteChoice currentChoice = mStuckPostChoices.get(position);
 
-        mUsersVoteValue.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot snapshot) {
-                // do some stuff once
+        mUsersVoteValue.addListenerForSingleValueEvent(
+            new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot snapshot) {
+                    // do some stuff once
 
                 if (snapshot != null) {
                     Integer integer = snapshot.getValue(Integer.class);
@@ -100,12 +104,42 @@ public class VoteChoicesAdapter extends RecyclerView.Adapter<VoteChoicesADViewHo
                         }
                     }
                 }
-            }
+                }
 
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
             }
-        });
+//            new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot snapshot) {
+//                // do some stuff once
+//
+//                if (snapshot != null) {
+//                    Integer integer = snapshot.getValue(Integer.class);
+//                    Log.i("VOTECHOICEADA", mUserEmail + " voted for = " + integer);
+//
+//                    if (integer == null ){
+//                        mUsersVoteValue.setValue(4);
+//                    } else {
+//                        if (integer == pos) {
+//                            currentChoice.setVotedFor(true);
+//                            currentViewHolder.mCardViewChoice.setBackgroundColor(
+//                                mContext.getResources().getColor(R.color.colorVoted));
+//                        } else {
+//                            currentViewHolder.mCardViewChoice.setBackgroundColor(
+//                                mContext.getResources().getColor(R.color.colorWhite));
+//                        }
+//                    }
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(FirebaseError firebaseError) {
+//            }
+//        }
+        );
 
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
@@ -175,7 +209,7 @@ public class VoteChoicesAdapter extends RecyclerView.Adapter<VoteChoicesADViewHo
     }
 
     @SuppressWarnings("deprecation")
-    private void updateVotes(VoteChoice currentChoice, int pos, Firebase changeVoteValue,
+    private void updateVotes(VoteChoice currentChoice, int pos, DatabaseReference changeVoteValue,
                              VoteChoicesADViewHolder currentViewHolder) {
 
         if (currentChoice.isVotedFor()) {

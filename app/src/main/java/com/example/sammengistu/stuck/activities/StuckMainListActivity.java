@@ -3,31 +3,36 @@ package com.example.sammengistu.stuck.activities;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
 import com.example.sammengistu.stuck.GeneralArea;
 import com.example.sammengistu.stuck.NetworkStatus;
 import com.example.sammengistu.stuck.R;
 import com.example.sammengistu.stuck.StuckConstants;
-import com.example.sammengistu.stuck.adapters.CardViewListFBAdapter;
+import com.example.sammengistu.stuck.adapters.CardViewQuestionAdapter;
 import com.example.sammengistu.stuck.adapters.MyPostsAdapter;
 import com.example.sammengistu.stuck.model.StuckPostSimple;
 import com.example.sammengistu.stuck.stuck_offline_db.ContentProviderStuck;
 import com.example.sammengistu.stuck.stuck_offline_db.StuckDBConverter;
 import com.example.sammengistu.stuck.viewHolders.MyPostListADViewHolder;
-import com.firebase.client.AuthData;
-import com.firebase.client.ChildEventListener;
-import com.firebase.client.DataSnapshot;
-import com.firebase.client.Firebase;
-import com.firebase.client.FirebaseError;
-import com.firebase.client.Query;
-import com.firebase.client.ValueEventListener;
-import com.firebase.ui.FirebaseRecyclerAdapter;
 
 import android.Manifest;
 import android.app.Activity;
 import android.app.ActivityOptions;
 import android.app.LoaderManager;
 import android.content.CursorLoader;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
 import android.content.SharedPreferences;
@@ -42,6 +47,7 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -81,13 +87,13 @@ public class StuckMainListActivity extends AppCompatActivity
     private String mEmail;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
-    private Firebase.AuthStateListener mAuthListener;
-    private Firebase mFirebaseRef;
+    private FirebaseAuth.AuthStateListener mAuthListener;
     private List<StuckPostSimple> stuckPostsLoaded;
     private GoogleApiClient mGoogleApiClient;
     private boolean mShowMyPosts;
+    List<MyPostListADViewHolder.PostWithFBRef> stuckPostList = new ArrayList<>();
 
-    private Firebase mActivePostsRef;
+    private DatabaseReference mActivePostsRef;
 
     @BindView(R.id.main_list_stuck_toolbar)
     Toolbar mMainListToolbar;
@@ -102,23 +108,7 @@ public class StuckMainListActivity extends AppCompatActivity
     @BindView(R.id.my_posts_main_list)
     TextView mMyPosts;
 
-    private void setupWindowAnimations() {
-        Fade fade = new Fade();
-        fade.setDuration(1000);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            // inside your activity (if you did not enable transitions in your theme)
-            getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
-
-            getWindow().setEnterTransition(fade);
-
-            Slide slide = new Slide();
-            slide.setDuration(1000);
-            getWindow().setReturnTransition(slide);
-
-            // set an exit transition
-            getWindow().setExitTransition(new Explode());
-        }
-    }
+    private FirebaseAuth mAuth;
 
     @SuppressWarnings("deprecation")
     @Override
@@ -131,24 +121,34 @@ public class StuckMainListActivity extends AppCompatActivity
 
         ButterKnife.bind(this);
 
+        mAuth = FirebaseAuth.getInstance();
+
         mShowMyPosts = false;
 
-        mFirebaseRef = new Firebase(StuckConstants.FIREBASE_URL)
-            .child(StuckConstants.FIREBASE_URL_USERS);
-
-        mActivePostsRef = new Firebase(StuckConstants.FIREBASE_URL)
+        mActivePostsRef = FirebaseDatabase.getInstance().getReference()
             .child(StuckConstants.FIREBASE_URL_ACTIVE_POSTS);
 
-        mAuthListener = new Firebase.AuthStateListener() {
+        mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
-            public void onAuthStateChanged(AuthData authData) {
-                /* The user has been logged out */
-                if (authData == null) {
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+                if (user == null) {
                     takeUserToLoginScreenOnUnAuth(StuckMainListActivity.this);
+                } else {
+                    Log.i(TAG, "User email = " + user.getEmail());
                 }
             }
+
+//            @Override
+//            public void onAuthStateChanged(AuthData authData) {
+//                /* The user has been logged out */
+//                if (authData == null) {
+//                    takeUserToLoginScreenOnUnAuth(StuckMainListActivity.this);
+//                }
+//            }
         };
-        mFirebaseRef.addAuthStateListener(mAuthListener);
+
+        mAuth.addAuthStateListener(mAuthListener);
 
         SharedPreferences pref = getApplicationContext()
             .getSharedPreferences(StuckConstants.SHARED_PREFRENCE_USER, 0); // 0 - for private mode
@@ -187,7 +187,7 @@ public class StuckMainListActivity extends AppCompatActivity
             }
         });
 
-        initializeAdapter(mActivePostsRef.orderByChild(StuckConstants.DATE_TIME_STAMP));
+        initializeAdapter();
         setUpToolbar();
         Log.i(TAG, "onCreate");
 
@@ -207,21 +207,53 @@ public class StuckMainListActivity extends AppCompatActivity
     /**
      * Checks network status then loads active posts
      */
-    private void initializeAdapter(Query queryRef) {
+    private void initializeAdapter() {
+
+        Query queryRef = mActivePostsRef.orderByChild(StuckConstants.DATE_TIME_STAMP);
+        stuckPostList = new ArrayList<>();
+
+        final List<StuckPostSimple> stuckPostSimples = new ArrayList<>();
+
         if (!NetworkStatus.isOnline(StuckMainListActivity.this)) {
             NetworkStatus.showOffLineDialog(StuckMainListActivity.this);
-            List<MyPostListADViewHolder.PostWithFBRef> stuckPostSimples = new ArrayList<>();
-            mAdapter = new MyPostsAdapter(stuckPostSimples, StuckMainListActivity.this);
+
         } else {
 
-            mAdapter = new CardViewListFBAdapter(StuckPostSimple.class,
-                R.layout.stuck_single_item_question,
-                CardViewListFBAdapter.CardViewListADViewHolder.class, queryRef,
-                StuckMainListActivity.this);
+            queryRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
 
-            mRecyclerViewQuestions.setAdapter(mAdapter);
-            mAdapter.notifyDataSetChanged();
+                    for (DataSnapshot stuckSnap : dataSnapshot.getChildren()) {
+
+                        StuckPostSimple stuckPostSimple = stuckSnap.getValue(StuckPostSimple.class);
+                        stuckPostSimple.setDatabaseReference(stuckSnap.getRef());
+                        Log.i(TAG, "Stuckpost = " + stuckPostSimple.getEmail());
+
+                        MyPostListADViewHolder.PostWithFBRef postWithFBRef =
+                            new MyPostListADViewHolder.PostWithFBRef(
+                                stuckSnap.getRef().toString(), stuckPostSimple);
+
+                        stuckPostList.add(postWithFBRef);
+                        stuckPostSimples.add(stuckPostSimple);
+
+                    }
+                    mAdapter = new CardViewQuestionAdapter(stuckPostSimples, StuckMainListActivity.this);
+                    Log.i(TAG, "Adapter called");
+                    mRecyclerViewQuestions.setAdapter(mAdapter);
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+
+            Log.i(TAG, "StuckPost size = " + stuckPostList.size());
         }
+
+        mAdapter = new MyPostsAdapter(stuckPostList, StuckMainListActivity.this);
+        Log.i(TAG, "Adapter called");
+        mRecyclerViewQuestions.setAdapter(mAdapter);
     }
 
     @Override
@@ -236,7 +268,6 @@ public class StuckMainListActivity extends AppCompatActivity
         return true;
     }
 
-    //New
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -246,11 +277,38 @@ public class StuckMainListActivity extends AppCompatActivity
                 showMyPosts(item);
                 break;
             case R.id.action_log_out:
-                mFirebaseRef.unauth();
+                Log.i(TAG, "Tap log out");
+                FirebaseAuth.getInstance().signOut();
                 break;
 
-            case R.id.action_share:
-                Toast.makeText(StuckMainListActivity.this, "Share", Toast.LENGTH_LONG).show();
+            case R.id.action_delete_account:
+
+                new AlertDialog.Builder(this)
+                    .setTitle("We hate to see you go :(")
+                    .setMessage("Are you sure you want to delete your account?")
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                            Log.i(TAG, "User = " + user.getEmail());
+                            if (user != null) {
+                                String userEncodedEmail = StuckSignUpActivity.encodeEmail(user.getEmail());
+                                //Delete all posts
+                                DatabaseReference votesRef = FirebaseDatabase.getInstance().getReference()
+                                    .child(StuckConstants.FIREBASE_URL_ACTIVE_POSTS);
+
+                                Query queryRef = FirebaseDatabase.getInstance().getReference()
+                                    .child(StuckConstants.FIREBASE_URL_ACTIVE_POSTS)
+                                    .orderByChild(StuckConstants.FIREBASE_EMAIL)
+                                    .equalTo(userEncodedEmail);
+
+                                deleteAccount(user, queryRef, userEncodedEmail);
+
+                            }
+                        }
+                    })
+                    .setNegativeButton("No, thanks", null)
+                    .show();
                 break;
 
             default:
@@ -260,53 +318,133 @@ public class StuckMainListActivity extends AppCompatActivity
         return true;
     }
 
-    private void setMyPostAdapter() {
+    private void deleteAccount(FirebaseUser user, final Query queryRef, String userEncodedEmail) {
 
-        final List<MyPostListADViewHolder.PostWithFBRef> stuckPostList = new ArrayList<>();
+        //Delete user votes
+        final DatabaseReference userVoteRef = FirebaseDatabase.getInstance().getReference()
+            .child(StuckConstants.FIREBASE_URL_USERS_VOTES)
+            .child(userEncodedEmail);
 
-        Query queryRef = mActivePostsRef.orderByChild(StuckConstants.FIREBASE_EMAIL)
-            .equalTo(StuckSignUpActivity.encodeEmail(mEmail));
+        //delete user account from db
+        final DatabaseReference userRef = FirebaseDatabase.getInstance().getReference()
+            .child(StuckConstants.FIREBASE_URL_USERS)
+            .child(userEncodedEmail);
 
-        queryRef.addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                Log.i(TAG, "FB ref = " + dataSnapshot.getRef().toString());
+       // Delete user auth
+        user.delete()
+            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    if (task.isSuccessful()) {
+                        userVoteRef.removeValue();
+                        userRef.removeValue();
 
-                MyPostListADViewHolder.PostWithFBRef postWithFBRef =
-                    new MyPostListADViewHolder.PostWithFBRef(
-                        dataSnapshot.getRef().toString(), dataSnapshot.getValue(StuckPostSimple.class));
+                        deleteAllUsersStuckPosts(queryRef);
 
-                stuckPostList.add(postWithFBRef);
-
-                List<MyPostListADViewHolder.PostWithFBRef> temp = new ArrayList<>();
-                //reverses the list to show most recent first
-                for (int i = stuckPostList.size() - 1; i >= 0; i--) {
-                    temp.add(stuckPostList.get(i));
+                        Toast.makeText(StuckMainListActivity.this,
+                            "Your account was deleted",
+                            Toast.LENGTH_LONG).show();
+                        Intent intent = new Intent(StuckMainListActivity.this,
+                            StuckLoginActivity.class);
+                        startActivity(intent);
+                    }
                 }
-                mAdapter = new MyPostsAdapter(temp, StuckMainListActivity.this);
-                mRecyclerViewQuestions.setAdapter(mAdapter);
+            })
+            .addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.i(TAG, "failed to delete user");
+                }
+            });
+    }
+
+    private void deleteAllUsersStuckPosts(Query queryRef) {
+
+        final List<DatabaseReference> userPosts = new ArrayList<>();
+
+        queryRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                for (DataSnapshot stuckSnap : dataSnapshot.getChildren()) {
+
+                    StuckPostSimple stuckPostSimple =
+                        stuckSnap.getValue(StuckPostSimple.class);
+
+                    stuckPostSimple.setDatabaseReference(stuckSnap.getRef());
+
+                    userPosts.add(stuckSnap.getRef());
+                }
+
+                for (DatabaseReference userPostRef : userPosts) {
+                    userPostRef.removeValue();
+                }
             }
 
             @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {
+            public void onCancelled(DatabaseError databaseError) {
 
             }
         });
+    }
+
+    private void setMyPostAdapter() {
+
+        stuckPostList = new ArrayList<>();
+
+        Query queryRef = FirebaseDatabase.getInstance().getReference()
+            .child(StuckConstants.FIREBASE_URL_ACTIVE_POSTS)
+            .orderByChild(StuckConstants.FIREBASE_EMAIL)
+            .equalTo(StuckSignUpActivity.encodeEmail(mEmail));
+
+        Log.i(TAG, "Email in ref = " + mEmail + " Firebase ref = " + queryRef.toString());
+
+        queryRef.addChildEventListener(
+            new ChildEventListener() {
+                @Override
+                public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                    Log.i(TAG, "FB ref = " + dataSnapshot.getRef().toString());
+
+                    MyPostListADViewHolder.PostWithFBRef postWithFBRef =
+                        new MyPostListADViewHolder.PostWithFBRef(
+                            dataSnapshot.getRef().toString(), dataSnapshot.getValue(StuckPostSimple.class));
+
+                    stuckPostList.add(postWithFBRef);
+
+                    Log.i(TAG, "Email in qeury = " + postWithFBRef.getStuckPostSimple().getEmail());
+
+                    List<MyPostListADViewHolder.PostWithFBRef> temp = new ArrayList<>();
+                    //reverses the list to show most recent first
+                    for (int i = stuckPostList.size() - 1; i >= 0; i--) {
+                        temp.add(stuckPostList.get(i));
+                    }
+
+                    mAdapter = new MyPostsAdapter(temp, StuckMainListActivity.this);
+                    mRecyclerViewQuestions.setAdapter(mAdapter);
+                    mAdapter.notifyDataSetChanged();
+                }
+
+                @Override
+                public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                    Log.i(TAG, "chan");
+                }
+
+                @Override
+                public void onChildRemoved(DataSnapshot dataSnapshot) {
+                    Log.i(TAG, "removed");
+                }
+
+                @Override
+                public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+                    Log.i(TAG, "mov");
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    Log.i(TAG, "canceled");
+                }
+            }
+        );
     }
 
     @Override
@@ -322,7 +460,6 @@ public class StuckMainListActivity extends AppCompatActivity
             if (item != null) {
                 item.setTitle("Show All Posts");
             }
-
             setMyPostAdapter();
 
         } else {
@@ -330,7 +467,7 @@ public class StuckMainListActivity extends AppCompatActivity
             if (item != null) {
                 item.setTitle("Show My Posts");
             }
-            initializeAdapter(mActivePostsRef.orderByChild(StuckConstants.DATE_TIME_STAMP));
+            initializeAdapter();
         }
         mAdapter.notifyDataSetChanged();
     }
@@ -401,35 +538,36 @@ public class StuckMainListActivity extends AppCompatActivity
             StuckConstants.COLUMN_MOST_RECENT_POST + " = ?",
             new String[]{StuckConstants.TRUE});
 
-        Firebase ref = new Firebase(StuckConstants.FIREBASE_URL)
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference()
             .child(StuckConstants.FIREBASE_URL_ACTIVE_POSTS);
 
-        ref.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
+        ref.addListenerForSingleValueEvent(
+            new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    if (dataSnapshot != null) {
+                        for (DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()) {
+                            if (dataSnapshot1 != null) {
+                                StuckPostSimple stuckPostSimple = dataSnapshot1.getValue(StuckPostSimple.class);
 
-                if (dataSnapshot != null) {
-                    for (DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()) {
-                        if (dataSnapshot1 != null) {
-                            StuckPostSimple stuckPostSimple = dataSnapshot1.getValue(StuckPostSimple.class);
+                                Uri contentUri = Uri.withAppendedPath(ContentProviderStuck.CONTENT_URI,
+                                    StuckConstants.TABLE_OFFLINE_POST);
 
-                            Uri contentUri = Uri.withAppendedPath(ContentProviderStuck.CONTENT_URI,
-                                StuckConstants.TABLE_OFFLINE_POST);
-
-                            getContentResolver().insert(contentUri,
-                                StuckDBConverter.insertStuckPostToDB(stuckPostSimple,
-                                    StuckConstants.TRUE));
+                                getContentResolver().insert(contentUri,
+                                    StuckDBConverter.insertStuckPostToDB(stuckPostSimple,
+                                        StuckConstants.TRUE));
+                            }
+                            break;
                         }
-                        break;
                     }
                 }
-            }
 
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
 
+                }
             }
-        });
+        );
     }
 
     @Override
@@ -449,10 +587,7 @@ public class StuckMainListActivity extends AppCompatActivity
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (mAdapter != null && mAdapter instanceof FirebaseRecyclerAdapter) {
-            ((FirebaseRecyclerAdapter) mAdapter).cleanup();
-        }
-        mFirebaseRef.removeAuthStateListener(mAuthListener);
+        mAuth.removeAuthStateListener(mAuthListener);
     }
 
     @Override
@@ -460,14 +595,13 @@ public class StuckMainListActivity extends AppCompatActivity
         Uri contentUri = Uri.withAppendedPath(ContentProviderStuck.CONTENT_URI,
             StuckConstants.TABLE_OFFLINE_POST);
 
-        CursorLoader loader = new CursorLoader(
+        return new CursorLoader(
             this,
             contentUri,
             null,
             null,
             null,
             null);
-        return loader;
     }
 
     @Override
@@ -545,7 +679,7 @@ public class StuckMainListActivity extends AppCompatActivity
                 StuckPostSimple stuckPostSimple = stuckPostsLoaded.get(i);
                 stuckPostSimple.setLocation(GeneralArea.getAddressOfCurrentLocation(getLastKnownLocation(), this));
                 //Push the post straight to firebase
-                new Firebase(StuckConstants.FIREBASE_URL).child(
+                FirebaseDatabase.getInstance().getReference().child(
                     StuckConstants.FIREBASE_URL_ACTIVE_POSTS).push().setValue(stuckPostSimple);
 
                 Uri contentUri = Uri.withAppendedPath(ContentProviderStuck.CONTENT_URI,
@@ -583,6 +717,20 @@ public class StuckMainListActivity extends AppCompatActivity
         }
     }
 
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (mAuthListener != null) {
+            mAuth.removeAuthStateListener(mAuthListener);
+        }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        mAuth.addAuthStateListener(mAuthListener);
+    }
+
     @OnClick(R.id.my_posts_main_list)
     public void myPosts() {
 
@@ -612,5 +760,24 @@ public class StuckMainListActivity extends AppCompatActivity
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
 
+    }
+
+
+    private void setupWindowAnimations() {
+        Fade fade = new Fade();
+        fade.setDuration(1000);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            // inside your activity (if you did not enable transitions in your theme)
+            getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
+
+            getWindow().setEnterTransition(fade);
+
+            Slide slide = new Slide();
+            slide.setDuration(1000);
+            getWindow().setReturnTransition(slide);
+
+            // set an exit transition
+            getWindow().setExitTransition(new Explode());
+        }
     }
 }

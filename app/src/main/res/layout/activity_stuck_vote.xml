@@ -16,19 +16,35 @@
                    android:contentDescription="@string/delete_post"/>
 
         <include
-            layout="@layout/stuck_app_name_text_view"/>
+                layout="@layout/stuck_app_name_text_view"/>
     </android.support.v7.widget.Toolbar>
 
     <include
             layout="@layout/card_view_question"/>
 
-    <android.support.v7.widget.RecyclerView
-            android:id="@+id/recycler_view_choices_vote"
-            android:scrollbars="vertical"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_marginTop="15dp"
-            android:layout_weight=".3"
-            android:layout_marginBottom="15dp"/>
+    <LinearLayout android:layout_width="match_parent"
+                  android:layout_height="match_parent"
+                  android:orientation="vertical">
+
+        <android.support.v7.widget.RecyclerView
+                android:id="@+id/recycler_view_choices_vote"
+                android:scrollbars="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginTop="15dp"
+                android:layout_weight=".9"
+                android:layout_marginBottom="15dp"/>
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/help_vote_message"
+                android:layout_gravity="center_horizontal"
+                android:text="Tap and vote"
+                android:layout_marginBottom="5dp"
+                android:gravity="center"
+                android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                android:layout_marginStart="@dimen/activity_horizontal_margin"/>
+    </LinearLayout>
 
 </LinearLayout>

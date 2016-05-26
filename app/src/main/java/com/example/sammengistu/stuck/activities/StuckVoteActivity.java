@@ -1,15 +1,17 @@
 package com.example.sammengistu.stuck.activities;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
 import com.example.sammengistu.stuck.R;
 import com.example.sammengistu.stuck.StuckConstants;
 import com.example.sammengistu.stuck.adapters.VoteChoicesAdapter;
 import com.example.sammengistu.stuck.model.StuckPostSimple;
 import com.example.sammengistu.stuck.model.VoteChoice;
-import com.firebase.client.AuthData;
-import com.firebase.client.DataSnapshot;
-import com.firebase.client.Firebase;
-import com.firebase.client.FirebaseError;
-import com.firebase.client.ValueEventListener;
 
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -18,6 +20,7 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -30,6 +33,7 @@ import android.view.View;
 import android.view.Window;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -48,11 +52,13 @@ public class StuckVoteActivity extends AppCompatActivity {
     private RecyclerView.Adapter mAdapterChoices;
     private RecyclerView.LayoutManager mLayoutManagerChoices;
     private StuckPostSimple mStuckPostSimple;
-    private Firebase.AuthStateListener mAuthListener;
-    private Firebase mRefPost;
-    private Firebase mFirebaseRef;
+    private DatabaseReference mRefPost;
+    private DatabaseReference mFirebaseRef;
     private List<VoteChoice> mStuckPostChoices;
     private SharedPreferences mSharedPreferences;
+
+    private FirebaseAuth.AuthStateListener mAuthListener;
+    private FirebaseAuth mAuth;
 
     @BindView(R.id.delete_post_image_view)
     ImageView mDeleteImageView;
@@ -66,47 +72,73 @@ public class StuckVoteActivity extends AppCompatActivity {
     TextView mPostFromTitle;
     @BindView(R.id.total_votes_title)
     TextView mTotalVotesTitle;
-//    @BindView(R.id.stuck_question_total_votes)
-//    TextView mSneakPeakChoice;
     @BindView(R.id.stuck_question_total_votes)
     TextView mPostLocation;
-
     @BindView(R.id.sneak_peak_choice_1)
     TextView mStuckPostTotalVotes;
+    @BindView(R.id.help_vote_message)
+    TextView mHelpVoteMessage;
 
     private ValueEventListener mValueEventListener = new ValueEventListener() {
         @Override
         public void onDataChange(DataSnapshot dataSnapshot) {
 
-            mStuckPostSimple = dataSnapshot.getValue(StuckPostSimple.class);
-            mStuckPostChoices.clear();
-            mStuckPostChoices.add(new VoteChoice(mStuckPostSimple.getChoiceOne(),
-                false, mStuckPostSimple.getChoiceOneVotes()));
-            mStuckPostChoices.add(new VoteChoice(mStuckPostSimple.getChoiceTwo(),
-                false, mStuckPostSimple.getChoiceTwoVotes()));
-            if (!mStuckPostSimple.getChoiceThree().equals("")) {
-                mStuckPostChoices.add(new VoteChoice(mStuckPostSimple.getChoiceThree(),
-                    false, mStuckPostSimple.getChoiceThreeVotes()));
-            }
-            if (!mStuckPostSimple.getChoiceFour().equals("")) {
-                mStuckPostChoices.add(new VoteChoice(mStuckPostSimple.getChoiceFour(),
-                    false, mStuckPostSimple.getChoiceFourVotes()));
+            try{
+                mStuckPostSimple = dataSnapshot.getValue(StuckPostSimple.class);
+                mStuckPostChoices.clear();
+
+
+                mStuckPostChoices.add(new VoteChoice(mStuckPostSimple.getChoiceOne(),
+                    false, mStuckPostSimple.getChoiceOneVotes()));
+
+                mStuckPostChoices.add(new VoteChoice(mStuckPostSimple.getChoiceTwo(),
+                    false, mStuckPostSimple.getChoiceTwoVotes()));
+
+                if (!mStuckPostSimple.getChoiceThree().equals("")) {
+                    mStuckPostChoices.add(new VoteChoice(mStuckPostSimple.getChoiceThree(),
+                        false, mStuckPostSimple.getChoiceThreeVotes()));
+                }
+
+                if (!mStuckPostSimple.getChoiceFour().equals("")) {
+                    mStuckPostChoices.add(new VoteChoice(mStuckPostSimple.getChoiceFour(),
+                        false, mStuckPostSimple.getChoiceFourVotes()));
+                }
+
+                int totalVotes = mStuckPostSimple.getChoiceOneVotes() +
+                    mStuckPostSimple.getChoiceTwoVotes() +
+                    mStuckPostSimple.getChoiceThreeVotes() +
+                    mStuckPostSimple.getChoiceFourVotes();
+
+                mStuckPostTotalVotes.setText(totalVotes + "");
+                mAdapterChoices.notifyDataSetChanged();
+            } catch (Exception e){
+                Toast.makeText(StuckVoteActivity.this,
+                    "That post was deleted", Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(StuckVoteActivity.this, StuckMainListActivity.class);
+                startActivity(intent);
             }
 
-            int totalVotes = mStuckPostSimple.getChoiceOneVotes() +
-                mStuckPostSimple.getChoiceTwoVotes() +
-                mStuckPostSimple.getChoiceThreeVotes() +
-                mStuckPostSimple.getChoiceFourVotes();
-
-            mStuckPostTotalVotes.setText(totalVotes + "");
-            mAdapterChoices.notifyDataSetChanged();
         }
 
         @Override
-        public void onCancelled(FirebaseError firebaseError) {
+        public void onCancelled(DatabaseError firebaseError) {
 
         }
     };
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (mAuthListener != null) {
+            mAuth.removeAuthStateListener(mAuthListener);
+        }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        mAuth.addAuthStateListener(mAuthListener);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,6 +147,7 @@ public class StuckVoteActivity extends AppCompatActivity {
         setContentView(R.layout.activity_stuck_vote);
         ButterKnife.bind(this);
 
+        mAuth = FirebaseAuth.getInstance();
         // use a linear layout manager
         mLayoutManagerChoices = new LinearLayoutManager(this);
 
@@ -137,13 +170,13 @@ public class StuckVoteActivity extends AppCompatActivity {
             (-1 * new Date().getTime())
         );
 
-        mFirebaseRef = new Firebase(StuckConstants.FIREBASE_URL);
-        mAuthListener = new Firebase.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(AuthData authData) {
-                /* The user has been logged out */
-                if (authData == null) {
+        mFirebaseRef = FirebaseDatabase.getInstance().getReference();
 
+        mAuthListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                 /* The user has been logged out */
+                if (firebaseAuth == null) {
                     Log.i(TAG, "USer has been logged out");
                     StuckMainListActivity.takeUserToLoginScreenOnUnAuth(StuckVoteActivity.this);
                 } else {
@@ -154,12 +187,11 @@ public class StuckVoteActivity extends AppCompatActivity {
         };
 
         setUpToolbar();
-        mFirebaseRef.addAuthStateListener(mAuthListener);
 
-        mRefPost = new Firebase(getIntent().getStringExtra(StuckConstants.FIREBASE_REF));
+        mRefPost = FirebaseDatabase.getInstance()
+            .getReferenceFromUrl(getIntent().getStringExtra(StuckConstants.FIREBASE_REF));
 
         mQuestion.setText(mStuckPostSimple.getQuestion());
-//        mSneakPeakChoice.setText("");
         mPostLocation.setText(mStuckPostSimple.getLocation());
 
         int totalVotes = mStuckPostSimple.getChoiceOneVotes() +
@@ -203,7 +235,8 @@ public class StuckVoteActivity extends AppCompatActivity {
             mStuckPostChoices.add(new VoteChoice(mStuckPostSimple.getChoiceFour(),
                 false, mStuckPostSimple.getChoiceFourVotes()));
         }
-        Firebase firebasePostRef = new Firebase(getIntent().getStringExtra(StuckConstants.FIREBASE_REF));
+        DatabaseReference firebasePostRef = FirebaseDatabase.getInstance()
+            .getReferenceFromUrl(getIntent().getStringExtra(StuckConstants.FIREBASE_REF));
 
         mAdapterChoices = new VoteChoicesAdapter(mStuckPostChoices, this,
             getIntent().getStringExtra(StuckConstants.FIREBASE_REF), mStuckPostSimple,
@@ -245,9 +278,10 @@ public class StuckVoteActivity extends AppCompatActivity {
 
             mDeleteImageView.setEnabled(true);
             mDeleteImageView.setVisibility(View.VISIBLE);
+            mHelpVoteMessage.setText("Your post, tap the trash can to delete it");
         } else {
 
-            mDeleteImageView.setEnabled(true);
+            mDeleteImageView.setEnabled(false);
             mDeleteImageView.setVisibility(View.INVISIBLE);
         }
     }
@@ -277,13 +311,22 @@ public class StuckVoteActivity extends AppCompatActivity {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     mRefPost.removeEventListener(mValueEventListener);
-                    mRefPost.removeValue(new Firebase.CompletionListener() {
+                    mRefPost.removeValue(new DatabaseReference.CompletionListener() {
                         @Override
-                        public void onComplete(FirebaseError firebaseError, Firebase firebase) {
+                        public void onComplete(DatabaseError databaseError,
+                                               DatabaseReference databaseReference) {
+
                             Intent intent = new Intent(StuckVoteActivity.this, StuckMainListActivity.class);
                             startActivity(intent);
-                        }
-                    });
+                                             }
+
+//                        new Firebase.CompletionListener() {
+//                        @Override
+//                        public void onComplete(FirebaseError firebaseError, Firebase firebase) {
+//                            Intent intent = new Intent(StuckVoteActivity.this, StuckMainListActivity.class);
+//                            startActivity(intent);
+//                        }
+                });
                 }
             }).show();
     }
